@@ -1,6 +1,7 @@
 package com.airbnb.epoxy.sample.models;
 
 import android.animation.Animator;
+import android.animation.Animator.AnimatorListener;
 import android.support.annotation.ColorInt;
 import android.view.View;
 
@@ -15,6 +16,7 @@ import com.airbnb.lottie.LottieAnimationView;
 import butterknife.BindView;
 
 import static com.airbnb.epoxy.EpoxyAttribute.Option.DoNotHash;
+import static com.airbnb.epoxy.EpoxyAttribute.Option.NoGetter;
 
 /**
  * This is an example of using {@link com.airbnb.epoxy.SimpleEpoxyModel}, which is useful if you
@@ -24,8 +26,8 @@ import static com.airbnb.epoxy.EpoxyAttribute.Option.DoNotHash;
  */
 @EpoxyModelClass(layout = R.layout.model_color)
 public abstract class ColorModel extends EpoxyModelWithHolder<ColorHolder> {
-  @EpoxyAttribute @ColorInt int color;
-  @EpoxyAttribute boolean playAnimation;
+  @EpoxyAttribute({NoGetter}) @ColorInt int color;
+  @EpoxyAttribute({NoGetter}) boolean playAnimation;
   @EpoxyAttribute(DoNotHash) View.OnClickListener clickListener;
 
   @Override
@@ -57,7 +59,7 @@ public abstract class ColorModel extends EpoxyModelWithHolder<ColorHolder> {
       return;
     }
 
-    lottieView.addAnimatorListener(new SimpleAnimatorListener() {
+    lottieView.addAnimatorListener(new AnimatorListener() {
       @Override
       public void onAnimationStart(Animator animation) {
         lottieView.setVisibility(View.VISIBLE);
@@ -73,6 +75,11 @@ public abstract class ColorModel extends EpoxyModelWithHolder<ColorHolder> {
       public void onAnimationCancel(Animator animation) {
         lottieView.removeAnimatorListener(this);
         cancelAnimation(lottieView);
+      }
+
+      @Override
+      public void onAnimationRepeat(Animator animation) {
+
       }
     });
 
