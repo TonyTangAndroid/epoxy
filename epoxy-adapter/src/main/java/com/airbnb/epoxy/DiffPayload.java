@@ -2,7 +2,7 @@ package com.airbnb.epoxy;
 
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
-import android.util.LongSparseArray;
+import android.support.v4.util.LongSparseArray;
 
 import java.util.List;
 
@@ -16,7 +16,7 @@ public class DiffPayload {
   private final EpoxyModel<?> singleModel;
   private final LongSparseArray<EpoxyModel<?>> modelsById;
 
-  DiffPayload(List<EpoxyModel<?>> models) {
+  DiffPayload(List<? extends EpoxyModel<?>> models) {
     if (models.isEmpty()) {
       throw new IllegalStateException("Models must not be empty");
     }

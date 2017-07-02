@@ -1,6 +1,7 @@
 package com.airbnb.epoxy;
 
 import android.support.annotation.LayoutRes;
+import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -41,9 +42,16 @@ public abstract class EpoxyModel<T> {
    * reference to the first.
    */
   private EpoxyController firstControllerAddedTo;
+  /**
+   * Models are staged when they are changed. This allows them to be automatically added when they
+   * are done being changed (eg the next model is changed/added or buildModels finishes). It is only
+   * allowed for AutoModels, and only if implicity adding is enabled.
+   */
+  EpoxyController controllerToStageTo;
   private boolean currentlyInInterceptors;
   private int hashCodeWhenAdded;
   private boolean hasDefaultId;
+  private SpanSizeOverrideCallback spanSizeOverride;
 
   protected EpoxyModel(long id) {
     id(id);
@@ -204,6 +212,19 @@ public abstract class EpoxyModel<T> {
   }
 
   /**
+   * Use several strings to define the id of the model.
+   * <p>
+   * Similar to {@link #id(CharSequence)}, but with additional strings.
+   */
+  public EpoxyModel<T> id(CharSequence key, CharSequence... otherKeys) {
+    long result = hashString64Bit(key);
+    for (CharSequence otherKey : otherKeys) {
+      result = 31 * result + hashString64Bit(otherKey);
+    }
+    return id(result);
+  }
+
+  /**
    * Set an id that is namespaced with a string. This is useful when you need to show models of
    * multiple types, side by side and don't want to risk id collisions.
    * <p>
@@ -260,7 +281,7 @@ public abstract class EpoxyModel<T> {
   protected abstract int getDefaultLayout();
 
   public EpoxyModel<T> layout(@LayoutRes int layoutRes) {
-    validateMutability();
+    onMutation();
     layout = layoutRes;
     return this;
   }
@@ -278,7 +299,7 @@ public abstract class EpoxyModel<T> {
    * Sets fields of the model to default ones.
    */
   public EpoxyModel<T> reset() {
-    validateMutability();
+    onMutation();
 
     layout = 0;
     shown = true;
@@ -301,6 +322,12 @@ public abstract class EpoxyModel<T> {
   public void addIf(boolean condition, EpoxyController controller) {
     if (condition) {
       addTo(controller);
+    } else if (controllerToStageTo != null) {
+      // Clear this model from staging since it failed the add condition. If this model wasn't
+      // staged (eg not changed before addIf was called, then we need to make sure to add the
+      // previously staged model.
+      controllerToStageTo.clearModelFromStaging(this);
+      controllerToStageTo = null;
     }
   }
 
@@ -309,9 +336,7 @@ public abstract class EpoxyModel<T> {
    * called from inside {@link EpoxyController#buildModels()}.
    */
   public void addIf(AddPredicate predicate, EpoxyController controller) {
-    if (predicate.addIf()) {
-      addTo(controller);
-    }
+    addIf(predicate.addIf(), controller);
   }
 
   /**
@@ -372,14 +397,21 @@ public abstract class EpoxyModel<T> {
    * This method validates that it is ok to change this model. It is only valid if the model hasn't
    * yet been added, or the change is being done from an {@link EpoxyController.Interceptor}
    * callback.
+   * <p>
+   * This is also used to stage the model for implicitly adding it, if it is an AutoModel and
+   * implicit adding is enabled.
    */
-  protected final void validateMutability() {
+  protected final void onMutation() {
     // The model may be added to multiple controllers, in which case if it was already diffed
     // and added to an adapter in one controller we don't want to even allow interceptors
     // from changing the model in a different controller
     if (isDebugValidationEnabled() && !currentlyInInterceptors) {
       throw new ImmutableModelException(this,
           getPosition(firstControllerAddedTo, this));
+    }
+
+    if (controllerToStageTo != null) {
+      controllerToStageTo.setStagedModel(this);
     }
   }
 
@@ -398,7 +430,7 @@ public abstract class EpoxyModel<T> {
    * This is used internally by generated models to do validation checking when
    * "validateEpoxyModelUsage" is enabled and the model is used with a {@link EpoxyController}. This
    * method validates that the model's hashCode hasn't been changed since it was added to the
-   * controller. This is similar to {@link #validateMutability()}, but that method is only used for
+   * controller. This is similar to {@link #onMutation()}, but that method is only used for
    * specific model changes such as calling a setter. By checking the hashCode, this method allows
    * us to catch more subtle changes, such as through setting a field directly or through changing
    * an object that is set on the model.
@@ -452,6 +484,23 @@ public abstract class EpoxyModel<T> {
     return 1;
   }
 
+  public EpoxyModel<T> spanSizeOverride(@Nullable SpanSizeOverrideCallback spanSizeCallback) {
+    this.spanSizeOverride = spanSizeCallback;
+    return this;
+  }
+
+  public interface SpanSizeOverrideCallback {
+    int getSpanSize(int totalSpanCount, int position, int itemCount);
+  }
+
+  int getSpanSizeInternal(int totalSpanCount, int position, int itemCount) {
+    if (spanSizeOverride != null) {
+      return spanSizeOverride.getSpanSize(totalSpanCount, position, itemCount);
+    }
+
+    return getSpanSize(totalSpanCount, position, itemCount);
+  }
+
   /**
    * Change the visibility of the model so that it's view is shown. This only works if the model is
    * used in {@link EpoxyAdapter} or a {@link EpoxyModelGroup}, but is not supported in {@link
@@ -467,7 +516,7 @@ public abstract class EpoxyModel<T> {
    * EpoxyController}
    */
   public EpoxyModel<T> show(boolean show) {
-    validateMutability();
+    onMutation();
     shown = show;
     return this;
   }

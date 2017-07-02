@@ -1,6 +1,7 @@
 package com.airbnb.epoxy;
 
 import android.support.annotation.LayoutRes;
+import android.support.annotation.Nullable;
 import java.lang.CharSequence;
 import java.lang.Number;
 import java.lang.Object;
@@ -45,7 +46,7 @@ public class ModelWithoutSetter_ extends ModelWithoutSetter implements Generated
    * <p>
    * You may clear the listener by setting a null value, or by calling {@link #reset()} */
   public ModelWithoutSetter_ onBind(OnModelBoundListener<ModelWithoutSetter_, Object> listener) {
-    validateMutability();
+    onMutation();
     this.onModelBoundListener_epoxyGeneratedModel = listener;
     return this;
   }
@@ -66,7 +67,7 @@ public class ModelWithoutSetter_ extends ModelWithoutSetter implements Generated
    * <p>
    * You may clear the listener by setting a null value, or by calling {@link #reset()} */
   public ModelWithoutSetter_ onUnbind(OnModelUnboundListener<ModelWithoutSetter_, Object> listener) {
-    validateMutability();
+    onMutation();
     this.onModelUnboundListener_epoxyGeneratedModel = listener;
     return this;
   }
@@ -100,6 +101,12 @@ public class ModelWithoutSetter_ extends ModelWithoutSetter implements Generated
   }
 
   @Override
+  public ModelWithoutSetter_ id(CharSequence key, CharSequence... otherKeys) {
+    super.id(key, otherKeys);
+    return this;
+  }
+
+  @Override
   public ModelWithoutSetter_ id(CharSequence key, long id) {
     super.id(key, id);
     return this;
@@ -108,6 +115,12 @@ public class ModelWithoutSetter_ extends ModelWithoutSetter implements Generated
   @Override
   public ModelWithoutSetter_ layout(@LayoutRes int arg0) {
     super.layout(arg0);
+    return this;
+  }
+
+  @Override
+  public ModelWithoutSetter_ spanSizeOverride(@Nullable EpoxyModel.SpanSizeOverrideCallback arg0) {
+    super.spanSizeOverride(arg0);
     return this;
   }
 
@@ -133,7 +146,7 @@ public class ModelWithoutSetter_ extends ModelWithoutSetter implements Generated
   public ModelWithoutSetter_ reset() {
     onModelBoundListener_epoxyGeneratedModel = null;
     onModelUnboundListener_epoxyGeneratedModel = null;
-    this.value = 0;
+    super.value = 0;
     super.reset();
     return this;
   }

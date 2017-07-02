@@ -1,6 +1,7 @@
 package com.airbnb.epoxy;
 
 import android.support.annotation.LayoutRes;
+import android.support.annotation.Nullable;
 import android.view.View;
 import java.lang.CharSequence;
 import java.lang.Number;
@@ -15,8 +16,6 @@ public class ModelWithPrivateViewClickListener_ extends ModelWithPrivateViewClic
 
   private OnModelUnboundListener<ModelWithPrivateViewClickListener_, Object> onModelUnboundListener_epoxyGeneratedModel;
 
-  private OnModelClickListener<ModelWithPrivateViewClickListener_, Object> clickListener_epoxyGeneratedModel;
-
   public ModelWithPrivateViewClickListener_() {
     super();
   }
@@ -30,14 +29,8 @@ public class ModelWithPrivateViewClickListener_ extends ModelWithPrivateViewClic
   @Override
   public void handlePreBind(final EpoxyViewHolder holder, final Object object, int position) {
     validateStateHasNotChangedSinceAdded("The model was changed between being added to the controller and being bound.", position);
-    if (clickListener_epoxyGeneratedModel != null) {
-      super.setClickListener(new WrappedEpoxyModelClickListener(clickListener_epoxyGeneratedModel) {
-              @Override
-              protected void wrappedOnClick(View v, OnModelClickListener originalClickListener) {
-                 originalClickListener.onClick(com.airbnb.epoxy.ModelWithPrivateViewClickListener_.this, object, v,
-                        holder.getAdapterPosition());
-                 }
-              });
+    if (super.getClickListener() instanceof WrappedEpoxyModelClickListener) {
+      ((com.airbnb.epoxy.WrappedEpoxyModelClickListener) super.getClickListener()).bind(holder, object);
     }
   }
 
@@ -57,7 +50,7 @@ public class ModelWithPrivateViewClickListener_ extends ModelWithPrivateViewClic
    * <p>
    * You may clear the listener by setting a null value, or by calling {@link #reset()} */
   public ModelWithPrivateViewClickListener_ onBind(OnModelBoundListener<ModelWithPrivateViewClickListener_, Object> listener) {
-    validateMutability();
+    onMutation();
     this.onModelBoundListener_epoxyGeneratedModel = listener;
     return this;
   }
@@ -78,7 +71,7 @@ public class ModelWithPrivateViewClickListener_ extends ModelWithPrivateViewClic
    * <p>
    * You may clear the listener by setting a null value, or by calling {@link #reset()} */
   public ModelWithPrivateViewClickListener_ onUnbind(OnModelUnboundListener<ModelWithPrivateViewClickListener_, Object> listener) {
-    validateMutability();
+    onMutation();
     this.onModelUnboundListener_epoxyGeneratedModel = listener;
     return this;
   }
@@ -86,31 +79,24 @@ public class ModelWithPrivateViewClickListener_ extends ModelWithPrivateViewClic
   /**
    * Set a click listener that will provide the parent view, model, and adapter position of the clicked view. This will clear the normal View.OnClickListener if one has been set */
   public ModelWithPrivateViewClickListener_ clickListener(final OnModelClickListener<ModelWithPrivateViewClickListener_, Object> clickListener) {
-    validateMutability();
-    this.clickListener_epoxyGeneratedModel = clickListener;
+    onMutation();
     if (clickListener == null) {
       super.setClickListener(null);
     }
     else {
-      super.setClickListener(new WrappedEpoxyModelClickListener(clickListener)  {
-                  @Override
-                  protected void wrappedOnClick(View v, OnModelClickListener originalClickListener) {
-                    
-                  }
-                });
+      super.setClickListener(new WrappedEpoxyModelClickListener(this, clickListener));
     }
     return this;
   }
 
   public ModelWithPrivateViewClickListener_ clickListener(View.OnClickListener clickListener) {
-    validateMutability();
-    this.setClickListener(clickListener);
-    this.clickListener_epoxyGeneratedModel = null;
+    onMutation();
+    super.setClickListener(clickListener);
     return this;
   }
 
   public View.OnClickListener clickListener() {
-    return getClickListener();
+    return super.getClickListener();
   }
 
   @Override
@@ -138,6 +124,12 @@ public class ModelWithPrivateViewClickListener_ extends ModelWithPrivateViewClic
   }
 
   @Override
+  public ModelWithPrivateViewClickListener_ id(CharSequence key, CharSequence... otherKeys) {
+    super.id(key, otherKeys);
+    return this;
+  }
+
+  @Override
   public ModelWithPrivateViewClickListener_ id(CharSequence key, long id) {
     super.id(key, id);
     return this;
@@ -146,6 +138,12 @@ public class ModelWithPrivateViewClickListener_ extends ModelWithPrivateViewClic
   @Override
   public ModelWithPrivateViewClickListener_ layout(@LayoutRes int arg0) {
     super.layout(arg0);
+    return this;
+  }
+
+  @Override
+  public ModelWithPrivateViewClickListener_ spanSizeOverride(@Nullable EpoxyModel.SpanSizeOverrideCallback arg0) {
+    super.spanSizeOverride(arg0);
     return this;
   }
 
@@ -171,8 +169,7 @@ public class ModelWithPrivateViewClickListener_ extends ModelWithPrivateViewClic
   public ModelWithPrivateViewClickListener_ reset() {
     onModelBoundListener_epoxyGeneratedModel = null;
     onModelUnboundListener_epoxyGeneratedModel = null;
-    this.setClickListener(null);
-    clickListener_epoxyGeneratedModel = null;
+    super.setClickListener(null);
     super.reset();
     return this;
   }

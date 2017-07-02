@@ -489,6 +489,22 @@ public class ModelProcessorTest {
   }
 
   @Test
+  public void modelWithViewClickLongListener() {
+    JavaFileObject model = JavaFileObjects
+        .forResource("ModelWithViewLongClickListener.java");
+
+    JavaFileObject generatedNoLayoutModel = JavaFileObjects
+        .forResource("ModelWithViewLongClickListener_.java");
+
+    assert_().about(javaSource())
+        .that(model)
+        .processedWith(new EpoxyProcessor())
+        .compilesWithoutError()
+        .and()
+        .generatesSources(generatedNoLayoutModel);
+  }
+
+  @Test
   public void testModelWithPrivateAttributeWithoutGetterAndSetterFails() {
     JavaFileObject model = JavaFileObjects
         .forResource("ModelWithPrivateFieldWithoutGetterAndSetter.java");
@@ -670,6 +686,21 @@ public class ModelProcessorTest {
 
     JavaFileObject generatedModel = JavaFileObjects
         .forResource("ModelWithPrivateFieldWithSameAsFieldGetterAndSetterName_.java");
+
+    assert_().about(javaSource())
+        .that(model)
+        .processedWith(new EpoxyProcessor())
+        .compilesWithoutError()
+        .and()
+        .generatesSources(generatedModel);
+  }
+
+  @Test
+  public void testDoNotUseInToStringModel() {
+    JavaFileObject model = JavaFileObjects
+        .forResource("ModelDoNotUseInToString.java");
+
+    JavaFileObject generatedModel = JavaFileObjects.forResource("ModelDoNotUseInToString_.java");
 
     assert_().about(javaSource())
         .that(model)

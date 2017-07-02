@@ -1,6 +1,7 @@
 package com.airbnb.epoxy;
 
 import android.support.annotation.LayoutRes;
+import android.support.annotation.Nullable;
 import android.view.View;
 import java.lang.CharSequence;
 import java.lang.Number;
@@ -15,8 +16,6 @@ public class ModelWithViewClickListener_ extends ModelWithViewClickListener impl
 
   private OnModelUnboundListener<ModelWithViewClickListener_, Object> onModelUnboundListener_epoxyGeneratedModel;
 
-  private OnModelClickListener<ModelWithViewClickListener_, Object> clickListener_epoxyGeneratedModel;
-
   public ModelWithViewClickListener_() {
     super();
   }
@@ -30,14 +29,8 @@ public class ModelWithViewClickListener_ extends ModelWithViewClickListener impl
   @Override
   public void handlePreBind(final EpoxyViewHolder holder, final Object object, int position) {
     validateStateHasNotChangedSinceAdded("The model was changed between being added to the controller and being bound.", position);
-    if (clickListener_epoxyGeneratedModel != null) {
-      super.clickListener = new WrappedEpoxyModelClickListener(clickListener_epoxyGeneratedModel) {
-              @Override
-              protected void wrappedOnClick(View v, OnModelClickListener originalClickListener) {
-                 originalClickListener.onClick(com.airbnb.epoxy.ModelWithViewClickListener_.this, object, v,
-                        holder.getAdapterPosition());
-                 }
-              };
+    if (clickListener instanceof WrappedEpoxyModelClickListener) {
+      ((com.airbnb.epoxy.WrappedEpoxyModelClickListener) clickListener).bind(holder, object);
     }
   }
 
@@ -57,7 +50,7 @@ public class ModelWithViewClickListener_ extends ModelWithViewClickListener impl
    * <p>
    * You may clear the listener by setting a null value, or by calling {@link #reset()} */
   public ModelWithViewClickListener_ onBind(OnModelBoundListener<ModelWithViewClickListener_, Object> listener) {
-    validateMutability();
+    onMutation();
     this.onModelBoundListener_epoxyGeneratedModel = listener;
     return this;
   }
@@ -78,7 +71,7 @@ public class ModelWithViewClickListener_ extends ModelWithViewClickListener impl
    * <p>
    * You may clear the listener by setting a null value, or by calling {@link #reset()} */
   public ModelWithViewClickListener_ onUnbind(OnModelUnboundListener<ModelWithViewClickListener_, Object> listener) {
-    validateMutability();
+    onMutation();
     this.onModelUnboundListener_epoxyGeneratedModel = listener;
     return this;
   }
@@ -86,26 +79,19 @@ public class ModelWithViewClickListener_ extends ModelWithViewClickListener impl
   /**
    * Set a click listener that will provide the parent view, model, and adapter position of the clicked view. This will clear the normal View.OnClickListener if one has been set */
   public ModelWithViewClickListener_ clickListener(final OnModelClickListener<ModelWithViewClickListener_, Object> clickListener) {
-    validateMutability();
-    this.clickListener_epoxyGeneratedModel = clickListener;
+    onMutation();
     if (clickListener == null) {
       super.clickListener = null;
     }
     else {
-      super.clickListener = new WrappedEpoxyModelClickListener(clickListener)  {
-                  @Override
-                  protected void wrappedOnClick(View v, OnModelClickListener originalClickListener) {
-                    
-                  }
-                };
+      super.clickListener = new WrappedEpoxyModelClickListener(this, clickListener);
     }
     return this;
   }
 
   public ModelWithViewClickListener_ clickListener(View.OnClickListener clickListener) {
-    validateMutability();
-    this.clickListener = clickListener;
-    this.clickListener_epoxyGeneratedModel = null;
+    onMutation();
+    super.clickListener = clickListener;
     return this;
   }
 
@@ -138,6 +124,12 @@ public class ModelWithViewClickListener_ extends ModelWithViewClickListener impl
   }
 
   @Override
+  public ModelWithViewClickListener_ id(CharSequence key, CharSequence... otherKeys) {
+    super.id(key, otherKeys);
+    return this;
+  }
+
+  @Override
   public ModelWithViewClickListener_ id(CharSequence key, long id) {
     super.id(key, id);
     return this;
@@ -146,6 +138,12 @@ public class ModelWithViewClickListener_ extends ModelWithViewClickListener impl
   @Override
   public ModelWithViewClickListener_ layout(@LayoutRes int arg0) {
     super.layout(arg0);
+    return this;
+  }
+
+  @Override
+  public ModelWithViewClickListener_ spanSizeOverride(@Nullable EpoxyModel.SpanSizeOverrideCallback arg0) {
+    super.spanSizeOverride(arg0);
     return this;
   }
 
@@ -171,8 +169,7 @@ public class ModelWithViewClickListener_ extends ModelWithViewClickListener impl
   public ModelWithViewClickListener_ reset() {
     onModelBoundListener_epoxyGeneratedModel = null;
     onModelUnboundListener_epoxyGeneratedModel = null;
-    this.clickListener = null;
-    clickListener_epoxyGeneratedModel = null;
+    super.clickListener = null;
     super.reset();
     return this;
   }

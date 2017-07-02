@@ -11,10 +11,15 @@ android {
     minSdkVersion rootProject.MIN_SDK_VERSION
     targetSdkVersion rootProject.TARGET_SDK_VERSION
   }
+
+  dataBinding {
+    enabled = true
+  }
 }
 
 dependencies {
   testCompile project(':epoxy-processor')
+  testCompile project(':epoxy-databinding')
   testCompile project(':epoxy-processortest2')
   testCompile files(getRuntimeJar())
   testCompile files(Jvm.current().getToolsJar())

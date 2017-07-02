@@ -1,6 +1,7 @@
 package com.airbnb.epoxy;
 
 import android.support.annotation.LayoutRes;
+import android.support.annotation.Nullable;
 import java.lang.CharSequence;
 import java.lang.Number;
 import java.lang.Object;
@@ -45,7 +46,7 @@ public class ModelWithFinalField_ extends ModelWithFinalField implements Generat
    * <p>
    * You may clear the listener by setting a null value, or by calling {@link #reset()} */
   public ModelWithFinalField_ onBind(OnModelBoundListener<ModelWithFinalField_, Object> listener) {
-    validateMutability();
+    onMutation();
     this.onModelBoundListener_epoxyGeneratedModel = listener;
     return this;
   }
@@ -66,7 +67,7 @@ public class ModelWithFinalField_ extends ModelWithFinalField implements Generat
    * <p>
    * You may clear the listener by setting a null value, or by calling {@link #reset()} */
   public ModelWithFinalField_ onUnbind(OnModelUnboundListener<ModelWithFinalField_, Object> listener) {
-    validateMutability();
+    onMutation();
     this.onModelUnboundListener_epoxyGeneratedModel = listener;
     return this;
   }
@@ -100,6 +101,12 @@ public class ModelWithFinalField_ extends ModelWithFinalField implements Generat
   }
 
   @Override
+  public ModelWithFinalField_ id(CharSequence key, CharSequence... otherKeys) {
+    super.id(key, otherKeys);
+    return this;
+  }
+
+  @Override
   public ModelWithFinalField_ id(CharSequence key, long id) {
     super.id(key, id);
     return this;
@@ -108,6 +115,12 @@ public class ModelWithFinalField_ extends ModelWithFinalField implements Generat
   @Override
   public ModelWithFinalField_ layout(@LayoutRes int arg0) {
     super.layout(arg0);
+    return this;
+  }
+
+  @Override
+  public ModelWithFinalField_ spanSizeOverride(@Nullable EpoxyModel.SpanSizeOverrideCallback arg0) {
+    super.spanSizeOverride(arg0);
     return this;
   }
 

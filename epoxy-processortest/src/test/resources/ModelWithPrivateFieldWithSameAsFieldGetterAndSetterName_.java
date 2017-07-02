@@ -1,6 +1,7 @@
 package com.airbnb.epoxy;
 
 import android.support.annotation.LayoutRes;
+import android.support.annotation.Nullable;
 import java.lang.CharSequence;
 import java.lang.Number;
 import java.lang.Object;
@@ -45,7 +46,7 @@ public class ModelWithPrivateFieldWithSameAsFieldGetterAndSetterName_ extends Mo
    * <p>
    * You may clear the listener by setting a null value, or by calling {@link #reset()} */
   public ModelWithPrivateFieldWithSameAsFieldGetterAndSetterName_ onBind(OnModelBoundListener<ModelWithPrivateFieldWithSameAsFieldGetterAndSetterName_, Object> listener) {
-    validateMutability();
+    onMutation();
     this.onModelBoundListener_epoxyGeneratedModel = listener;
     return this;
   }
@@ -66,19 +67,19 @@ public class ModelWithPrivateFieldWithSameAsFieldGetterAndSetterName_ extends Mo
    * <p>
    * You may clear the listener by setting a null value, or by calling {@link #reset()} */
   public ModelWithPrivateFieldWithSameAsFieldGetterAndSetterName_ onUnbind(OnModelUnboundListener<ModelWithPrivateFieldWithSameAsFieldGetterAndSetterName_, Object> listener) {
-    validateMutability();
+    onMutation();
     this.onModelUnboundListener_epoxyGeneratedModel = listener;
     return this;
   }
 
   public ModelWithPrivateFieldWithSameAsFieldGetterAndSetterName_ isValue(boolean isValue) {
-    validateMutability();
-    this.setValue(isValue);
+    onMutation();
+    super.setValue(isValue);
     return this;
   }
 
   public boolean isValue() {
-    return isValue();
+    return super.isValue();
   }
 
   @Override
@@ -106,6 +107,13 @@ public class ModelWithPrivateFieldWithSameAsFieldGetterAndSetterName_ extends Mo
   }
 
   @Override
+  public ModelWithPrivateFieldWithSameAsFieldGetterAndSetterName_ id(CharSequence key,
+      CharSequence... otherKeys) {
+    super.id(key, otherKeys);
+    return this;
+  }
+
+  @Override
   public ModelWithPrivateFieldWithSameAsFieldGetterAndSetterName_ id(CharSequence key, long id) {
     super.id(key, id);
     return this;
@@ -114,6 +122,12 @@ public class ModelWithPrivateFieldWithSameAsFieldGetterAndSetterName_ extends Mo
   @Override
   public ModelWithPrivateFieldWithSameAsFieldGetterAndSetterName_ layout(@LayoutRes int arg0) {
     super.layout(arg0);
+    return this;
+  }
+
+  @Override
+  public ModelWithPrivateFieldWithSameAsFieldGetterAndSetterName_ spanSizeOverride(@Nullable EpoxyModel.SpanSizeOverrideCallback arg0) {
+    super.spanSizeOverride(arg0);
     return this;
   }
 
@@ -139,7 +153,7 @@ public class ModelWithPrivateFieldWithSameAsFieldGetterAndSetterName_ extends Mo
   public ModelWithPrivateFieldWithSameAsFieldGetterAndSetterName_ reset() {
     onModelBoundListener_epoxyGeneratedModel = null;
     onModelUnboundListener_epoxyGeneratedModel = null;
-    this.setValue(false);
+    super.setValue(false);
     super.reset();
     return this;
   }

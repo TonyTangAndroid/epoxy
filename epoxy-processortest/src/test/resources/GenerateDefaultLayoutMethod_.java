@@ -1,6 +1,7 @@
 package com.airbnb.epoxy;
 
 import android.support.annotation.LayoutRes;
+import android.support.annotation.Nullable;
 import java.lang.CharSequence;
 import java.lang.Number;
 import java.lang.Object;
@@ -45,7 +46,7 @@ public class GenerateDefaultLayoutMethod_ extends GenerateDefaultLayoutMethod im
    * <p>
    * You may clear the listener by setting a null value, or by calling {@link #reset()} */
   public GenerateDefaultLayoutMethod_ onBind(OnModelBoundListener<GenerateDefaultLayoutMethod_, Object> listener) {
-    validateMutability();
+    onMutation();
     this.onModelBoundListener_epoxyGeneratedModel = listener;
     return this;
   }
@@ -66,14 +67,14 @@ public class GenerateDefaultLayoutMethod_ extends GenerateDefaultLayoutMethod im
    * <p>
    * You may clear the listener by setting a null value, or by calling {@link #reset()} */
   public GenerateDefaultLayoutMethod_ onUnbind(OnModelUnboundListener<GenerateDefaultLayoutMethod_, Object> listener) {
-    validateMutability();
+    onMutation();
     this.onModelUnboundListener_epoxyGeneratedModel = listener;
     return this;
   }
 
   public GenerateDefaultLayoutMethod_ value(int value) {
-    validateMutability();
-    this.value = value;
+    onMutation();
+    super.value = value;
     return this;
   }
 
@@ -106,6 +107,12 @@ public class GenerateDefaultLayoutMethod_ extends GenerateDefaultLayoutMethod im
   }
 
   @Override
+  public GenerateDefaultLayoutMethod_ id(CharSequence key, CharSequence... otherKeys) {
+    super.id(key, otherKeys);
+    return this;
+  }
+
+  @Override
   public GenerateDefaultLayoutMethod_ id(CharSequence key, long id) {
     super.id(key, id);
     return this;
@@ -114,6 +121,12 @@ public class GenerateDefaultLayoutMethod_ extends GenerateDefaultLayoutMethod im
   @Override
   public GenerateDefaultLayoutMethod_ layout(@LayoutRes int arg0) {
     super.layout(arg0);
+    return this;
+  }
+
+  @Override
+  public GenerateDefaultLayoutMethod_ spanSizeOverride(@Nullable EpoxyModel.SpanSizeOverrideCallback arg0) {
+    super.spanSizeOverride(arg0);
     return this;
   }
 
@@ -145,7 +158,7 @@ public class GenerateDefaultLayoutMethod_ extends GenerateDefaultLayoutMethod im
   public GenerateDefaultLayoutMethod_ reset() {
     onModelBoundListener_epoxyGeneratedModel = null;
     onModelUnboundListener_epoxyGeneratedModel = null;
-    this.value = 0;
+    super.value = 0;
     super.reset();
     return this;
   }

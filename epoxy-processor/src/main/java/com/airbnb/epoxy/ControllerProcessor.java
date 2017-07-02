@@ -16,6 +16,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.annotation.processing.Filer;
 import javax.annotation.processing.RoundEnvironment;
@@ -25,33 +26,37 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
+import javax.lang.model.util.Types;
 
-import static com.airbnb.epoxy.ProcessorUtils.EPOXY_CONTROLLER_TYPE;
-import static com.airbnb.epoxy.ProcessorUtils.EPOXY_MODEL_TYPE;
-import static com.airbnb.epoxy.ProcessorUtils.UNTYPED_EPOXY_MODEL_TYPE;
-import static com.airbnb.epoxy.ProcessorUtils.getClassName;
-import static com.airbnb.epoxy.ProcessorUtils.isController;
-import static com.airbnb.epoxy.ProcessorUtils.isEpoxyModel;
-import static com.airbnb.epoxy.ProcessorUtils.validateFieldAccessibleViaGeneratedCode;
+import static com.airbnb.epoxy.Utils.EPOXY_CONTROLLER_TYPE;
+import static com.airbnb.epoxy.Utils.EPOXY_MODEL_TYPE;
+import static com.airbnb.epoxy.Utils.UNTYPED_EPOXY_MODEL_TYPE;
+import static com.airbnb.epoxy.Utils.belongToTheSamePackage;
+import static com.airbnb.epoxy.Utils.getClassName;
+import static com.airbnb.epoxy.Utils.isController;
+import static com.airbnb.epoxy.Utils.isEpoxyModel;
+import static com.airbnb.epoxy.Utils.isSubtype;
+import static com.airbnb.epoxy.Utils.validateFieldAccessibleViaGeneratedCode;
 
 class ControllerProcessor {
   private static final String CONTROLLER_HELPER_INTERFACE = "com.airbnb.epoxy.ControllerHelper";
   private Filer filer;
   private Elements elementUtils;
+  private Types typeUtils;
   private ErrorLogger errorLogger;
   private final ConfigManager configManager;
+  private final Map<TypeElement, ControllerClassInfo> controllerClassMap = new LinkedHashMap<>();
 
-  ControllerProcessor(Filer filer, Elements elementUtils,
+  ControllerProcessor(Filer filer, Elements elementUtils, Types typeUtils,
       ErrorLogger errorLogger, ConfigManager configManager) {
     this.filer = filer;
     this.elementUtils = elementUtils;
+    this.typeUtils = typeUtils;
     this.errorLogger = errorLogger;
     this.configManager = configManager;
   }
 
-  void process(RoundEnvironment roundEnv, List<ClassToGenerateInfo> generatedModels) {
-    LinkedHashMap<TypeElement, ControllerClassInfo> controllerClassMap = new LinkedHashMap<>();
-
+  void process(RoundEnvironment roundEnv) {
     for (Element modelFieldElement : roundEnv.getElementsAnnotatedWith(AutoModel.class)) {
       try {
         addFieldToControllerClass(modelFieldElement, controllerClassMap);
@@ -60,9 +65,28 @@ class ControllerProcessor {
       }
     }
 
-    resolveGeneratedModelNames(controllerClassMap, generatedModels);
+    try {
+      updateClassesForInheritance(controllerClassMap);
+    } catch (Exception e) {
+      errorLogger.logError(e);
+    }
+  }
 
+  /**
+   * True if controller classes have been parsed and their java classes need to be written. We need
+   * to wait for other models to finish being generated first so we can resolve generated model
+   * references.
+   *
+   * @see #resolveGeneratedModelsAndWriteJava(List)
+   */
+  boolean hasControllersToGenerate() {
+    return !controllerClassMap.isEmpty();
+  }
+
+  void resolveGeneratedModelsAndWriteJava(List<GeneratedModelInfo> generatedModels) {
+    resolveGeneratedModelNames(controllerClassMap, generatedModels);
     generateJava(controllerClassMap);
+    controllerClassMap.clear();
   }
 
   /**
@@ -75,9 +99,8 @@ class ControllerProcessor {
    * @param generatedModels Information about the already generated models. Relies on the model
    *                        processor running first and passing us this information.
    */
-  private void resolveGeneratedModelNames(
-      LinkedHashMap<TypeElement, ControllerClassInfo> controllerClassMap,
-      List<ClassToGenerateInfo> generatedModels) {
+  private void resolveGeneratedModelNames(Map<TypeElement, ControllerClassInfo> controllerClassMap,
+      List<GeneratedModelInfo> generatedModels) {
 
     for (ControllerClassInfo controllerClassInfo : controllerClassMap.values()) {
       for (ControllerModelField model : controllerClassInfo.models) {
@@ -101,9 +124,9 @@ class ControllerProcessor {
    * no match is found the original model type is returned as a fallback.
    */
   private TypeName getFullyQualifiedModelTypeName(ControllerModelField model,
-      List<ClassToGenerateInfo> generatedModels) {
+      List<GeneratedModelInfo> generatedModels) {
     String modelName = model.typeName.toString();
-    for (ClassToGenerateInfo generatedModel : generatedModels) {
+    for (GeneratedModelInfo generatedModel : generatedModels) {
       String generatedName = generatedModel.getGeneratedName().toString();
       if (generatedName.endsWith("." + modelName)) {
         return generatedModel.getGeneratedName();
@@ -115,7 +138,7 @@ class ControllerProcessor {
   }
 
   private void addFieldToControllerClass(Element modelField,
-      LinkedHashMap<TypeElement, ControllerClassInfo> controllerClassMap) {
+      Map<TypeElement, ControllerClassInfo> controllerClassMap) {
 
     TypeElement controllerClassElement = (TypeElement) modelField.getEnclosingElement();
 
@@ -123,6 +146,44 @@ class ControllerProcessor {
         getOrCreateTargetClass(controllerClassMap, controllerClassElement);
 
     controllerClass.addModel(buildFieldInfo(modelField));
+  }
+
+  /**
+   * Check each controller for super classes that also have auto models. For each super class with
+   * auto model we add those models to the auto models of the generated class, so that a
+   * generated class contains all the models of its super classes combined.
+   * <p>
+   * One caveat is that if a sub class is in a different package than its super class we can't
+   * include auto models that are package private, otherwise the generated class won't compile.
+   */
+  private void updateClassesForInheritance(
+      Map<TypeElement, ControllerClassInfo> controllerClassMap) {
+    for (Entry<TypeElement, ControllerClassInfo> entry : controllerClassMap.entrySet()) {
+      TypeElement thisClass = entry.getKey();
+
+      Map<TypeElement, ControllerClassInfo> otherClasses = new LinkedHashMap<>(controllerClassMap);
+      otherClasses.remove(thisClass);
+
+      for (Entry<TypeElement, ControllerClassInfo> otherEntry : otherClasses.entrySet()) {
+        TypeElement otherClass = otherEntry.getKey();
+
+        if (!isSubtype(thisClass, otherClass, typeUtils)) {
+          continue;
+        }
+
+        Set<ControllerModelField> otherControllerModelFields = otherEntry.getValue().models;
+
+        if (belongToTheSamePackage(thisClass, otherClass, elementUtils)) {
+          entry.getValue().addModels(otherControllerModelFields);
+        } else {
+          for (ControllerModelField controllerModelField : otherControllerModelFields) {
+            if (!controllerModelField.packagePrivate) {
+              entry.getValue().addModel(controllerModelField);
+            }
+          }
+        }
+      }
+    }
   }
 
   private ControllerClassInfo getOrCreateTargetClass(
@@ -164,7 +225,7 @@ class ControllerProcessor {
     return new ControllerModelField(modelFieldElement);
   }
 
-  private void generateJava(LinkedHashMap<TypeElement, ControllerClassInfo> controllerClassMap) {
+  private void generateJava(Map<TypeElement, ControllerClassInfo> controllerClassMap) {
     for (Entry<TypeElement, ControllerClassInfo> controllerInfo : controllerClassMap.entrySet()) {
       try {
         generateHelperClassForController(controllerInfo.getValue());
@@ -189,7 +250,7 @@ class ControllerProcessor {
         .addMethod(buildConstructor(controllerInfo))
         .addMethod(buildResetModelsMethod(controllerInfo));
 
-    if (configManager.shouldValidateModeUsage()) {
+    if (configManager.shouldValidateModelUsage()) {
       builder.addFields(buildFieldsToSaveModelsForValidation(controllerInfo))
           .addMethod(buildValidateModelsHaveNotChangedMethod(controllerInfo))
           .addMethod(buildValidateSameValueMethod())
@@ -288,17 +349,22 @@ class ControllerProcessor {
         .addAnnotation(Override.class)
         .addModifiers(Modifier.PUBLIC);
 
-    if (configManager.shouldValidateModeUsage()) {
+    if (configManager.shouldValidateModelUsage()) {
       builder.addStatement("validateModelsHaveNotChanged()");
     }
 
+    boolean implicitlyAddAutoModels = configManager.implicitlyAddAutoModels(controllerInfo);
     long id = -1;
     for (ControllerModelField model : controllerInfo.models) {
       builder.addStatement("controller.$L = new $T()", model.fieldName, model.typeName)
           .addStatement("controller.$L.id($L)", model.fieldName, id--);
+
+      if (implicitlyAddAutoModels) {
+        builder.addStatement("setControllerToStageTo(controller.$L, controller)", model.fieldName);
+      }
     }
 
-    if (configManager.shouldValidateModeUsage()) {
+    if (configManager.shouldValidateModelUsage()) {
       builder.addStatement("saveModelsForNextValidation()");
     }
 

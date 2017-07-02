@@ -1,6 +1,7 @@
 package com.airbnb.epoxy;
 
 import android.support.annotation.LayoutRes;
+import android.support.annotation.Nullable;
 import java.lang.CharSequence;
 import java.lang.Number;
 import java.lang.Object;
@@ -45,7 +46,7 @@ public class GenerateDefaultLayoutMethodParentLayout$WithLayout_ extends Generat
    * <p>
    * You may clear the listener by setting a null value, or by calling {@link #reset()} */
   public GenerateDefaultLayoutMethodParentLayout$WithLayout_ onBind(OnModelBoundListener<GenerateDefaultLayoutMethodParentLayout$WithLayout_, Object> listener) {
-    validateMutability();
+    onMutation();
     this.onModelBoundListener_epoxyGeneratedModel = listener;
     return this;
   }
@@ -66,7 +67,7 @@ public class GenerateDefaultLayoutMethodParentLayout$WithLayout_ extends Generat
    * <p>
    * You may clear the listener by setting a null value, or by calling {@link #reset()} */
   public GenerateDefaultLayoutMethodParentLayout$WithLayout_ onUnbind(OnModelUnboundListener<GenerateDefaultLayoutMethodParentLayout$WithLayout_, Object> listener) {
-    validateMutability();
+    onMutation();
     this.onModelUnboundListener_epoxyGeneratedModel = listener;
     return this;
   }
@@ -96,6 +97,13 @@ public class GenerateDefaultLayoutMethodParentLayout$WithLayout_ extends Generat
   }
 
   @Override
+  public GenerateDefaultLayoutMethodParentLayout$WithLayout_ id(CharSequence key,
+      CharSequence... otherKeys) {
+    super.id(key, otherKeys);
+    return this;
+  }
+
+  @Override
   public GenerateDefaultLayoutMethodParentLayout$WithLayout_ id(CharSequence key, long id) {
     super.id(key, id);
     return this;
@@ -104,6 +112,12 @@ public class GenerateDefaultLayoutMethodParentLayout$WithLayout_ extends Generat
   @Override
   public GenerateDefaultLayoutMethodParentLayout$WithLayout_ layout(@LayoutRes int arg0) {
     super.layout(arg0);
+    return this;
+  }
+
+  @Override
+  public GenerateDefaultLayoutMethodParentLayout$WithLayout_ spanSizeOverride(@Nullable EpoxyModel.SpanSizeOverrideCallback arg0) {
+    super.spanSizeOverride(arg0);
     return this;
   }
 

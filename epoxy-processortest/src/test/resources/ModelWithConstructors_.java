@@ -1,6 +1,7 @@
 package com.airbnb.epoxy;
 
 import android.support.annotation.LayoutRes;
+import android.support.annotation.Nullable;
 import java.lang.CharSequence;
 import java.lang.Number;
 import java.lang.Object;
@@ -53,7 +54,7 @@ public class ModelWithConstructors_ extends ModelWithConstructors implements Gen
    * <p>
    * You may clear the listener by setting a null value, or by calling {@link #reset()} */
   public ModelWithConstructors_ onBind(OnModelBoundListener<ModelWithConstructors_, Object> listener) {
-    validateMutability();
+    onMutation();
     this.onModelBoundListener_epoxyGeneratedModel = listener;
     return this;
   }
@@ -74,14 +75,14 @@ public class ModelWithConstructors_ extends ModelWithConstructors implements Gen
    * <p>
    * You may clear the listener by setting a null value, or by calling {@link #reset()} */
   public ModelWithConstructors_ onUnbind(OnModelUnboundListener<ModelWithConstructors_, Object> listener) {
-    validateMutability();
+    onMutation();
     this.onModelUnboundListener_epoxyGeneratedModel = listener;
     return this;
   }
 
   public ModelWithConstructors_ valueInt(int valueInt) {
-    validateMutability();
-    this.valueInt = valueInt;
+    onMutation();
+    super.valueInt = valueInt;
     return this;
   }
 
@@ -114,6 +115,12 @@ public class ModelWithConstructors_ extends ModelWithConstructors implements Gen
   }
 
   @Override
+  public ModelWithConstructors_ id(CharSequence key, CharSequence... otherKeys) {
+    super.id(key, otherKeys);
+    return this;
+  }
+
+  @Override
   public ModelWithConstructors_ id(CharSequence key, long id) {
     super.id(key, id);
     return this;
@@ -122,6 +129,12 @@ public class ModelWithConstructors_ extends ModelWithConstructors implements Gen
   @Override
   public ModelWithConstructors_ layout(@LayoutRes int arg0) {
     super.layout(arg0);
+    return this;
+  }
+
+  @Override
+  public ModelWithConstructors_ spanSizeOverride(@Nullable EpoxyModel.SpanSizeOverrideCallback arg0) {
+    super.spanSizeOverride(arg0);
     return this;
   }
 
@@ -147,7 +160,7 @@ public class ModelWithConstructors_ extends ModelWithConstructors implements Gen
   public ModelWithConstructors_ reset() {
     onModelBoundListener_epoxyGeneratedModel = null;
     onModelUnboundListener_epoxyGeneratedModel = null;
-    this.valueInt = 0;
+    super.valueInt = 0;
     super.reset();
     return this;
   }

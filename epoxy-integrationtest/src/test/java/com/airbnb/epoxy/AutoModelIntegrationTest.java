@@ -1,12 +1,15 @@
 package com.airbnb.epoxy;
 
-import android.view.View;
+import com.airbnb.epoxy.autoaddautomodels.ControllerWithImplicitlyAddedModels;
+import com.airbnb.epoxy.autoaddautomodels.ControllerWithImplicitlyAddedModels2;
+import com.airbnb.epoxy.autoaddautomodels.ControllerWithImplicitlyAddedModels3;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -14,26 +17,6 @@ import static org.junit.Assert.assertEquals;
 @RunWith(RobolectricTestRunner.class)
 @Config(constants = BuildConfig.class, sdk = 21)
 public class AutoModelIntegrationTest {
-
-  static class TestModel extends EpoxyModel<View> {
-
-    @Override
-    protected int getDefaultLayout() {
-      return 0;
-    }
-  }
-
-  static class BasicAutoModelsAdapter extends EpoxyController {
-
-    @AutoModel TestModel model1;
-    @AutoModel TestModel model2;
-
-    @Override
-    protected void buildModels() {
-      add(model1.id(1));
-      add(model2.id(2));
-    }
-  }
 
   @Test
   public void basicAutoModels() {
@@ -43,18 +26,8 @@ public class AutoModelIntegrationTest {
     List<EpoxyModel<?>> models = controller.getAdapter().getCopyOfModels();
 
     assertEquals("Models size", 2, models.size());
-    assertEquals("First model", TestModel.class, models.get(0).getClass());
-    assertEquals("Second model", TestModel.class, models.get(1).getClass());
-  }
-
-  static class AdapterWithFieldAssigned extends EpoxyController {
-
-    @AutoModel TestModel model1 = new TestModel();
-
-    @Override
-    protected void buildModels() {
-      add(model1);
-    }
+    assertEquals("First model", Model_.class, models.get(0).getClass());
+    assertEquals("Second model", Model_.class, models.get(1).getClass());
   }
 
   @Test(expected = IllegalStateException.class)
@@ -63,19 +36,41 @@ public class AutoModelIntegrationTest {
     testAdapter.requestModelBuild();
   }
 
-  static class AdapterWithIdChanged extends EpoxyController {
-
-    @AutoModel TestModel model1 = new TestModel();
-
-    @Override
-    protected void buildModels() {
-      add(model1.id(23));
-    }
-  }
-
   @Test(expected = IllegalStateException.class)
   public void assigningIdToAutoModelFails() {
     AdapterWithIdChanged testAdapter = new AdapterWithIdChanged();
     testAdapter.requestModelBuild();
+  }
+
+  @Test
+  public void implicitlyAddingAutoModelsDisabledByDefault() {
+    ControllerWithoutImplicityAdding controller = new ControllerWithoutImplicityAdding();
+    controller.requestModelBuild();
+
+    assertEquals(new ArrayList<>(), controller.getAdapter().getCopyOfModels());
+  }
+
+  @Test
+  public void implicitlyAddingAutoModels() {
+    ControllerWithImplicitlyAddedModels controller = new ControllerWithImplicitlyAddedModels();
+    controller.requestModelBuild();
+
+    assertEquals(controller.getExpectedModels(), controller.getAdapter().getCopyOfModels());
+  }
+
+  @Test
+  public void implicitlyAddingAutoModels2() {
+    ControllerWithImplicitlyAddedModels2 controller = new ControllerWithImplicitlyAddedModels2();
+    controller.requestModelBuild();
+
+    assertEquals(controller.getExpectedModels(), controller.getAdapter().getCopyOfModels());
+  }
+
+  @Test
+  public void implicitlyAddingAutoModels3() {
+    ControllerWithImplicitlyAddedModels3 controller = new ControllerWithImplicitlyAddedModels3();
+    controller.requestModelBuild();
+
+    assertEquals(controller.getExpectedModels(), controller.getAdapter().getCopyOfModels());
   }
 }

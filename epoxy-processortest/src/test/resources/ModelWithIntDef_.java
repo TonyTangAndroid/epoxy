@@ -1,7 +1,9 @@
 package com.airbnb.epoxy.models;
 
 import android.support.annotation.LayoutRes;
+import android.support.annotation.Nullable;
 import com.airbnb.epoxy.EpoxyController;
+import com.airbnb.epoxy.EpoxyModel;
 import com.airbnb.epoxy.EpoxyViewHolder;
 import com.airbnb.epoxy.GeneratedModel;
 import com.airbnb.epoxy.OnModelBoundListener;
@@ -50,7 +52,7 @@ public class ModelWithIntDef_ extends ModelWithIntDef implements GeneratedModel<
    * <p>
    * You may clear the listener by setting a null value, or by calling {@link #reset()} */
   public ModelWithIntDef_ onBind(OnModelBoundListener<ModelWithIntDef_, Object> listener) {
-    validateMutability();
+    onMutation();
     this.onModelBoundListener_epoxyGeneratedModel = listener;
     return this;
   }
@@ -71,14 +73,14 @@ public class ModelWithIntDef_ extends ModelWithIntDef implements GeneratedModel<
    * <p>
    * You may clear the listener by setting a null value, or by calling {@link #reset()} */
   public ModelWithIntDef_ onUnbind(OnModelUnboundListener<ModelWithIntDef_, Object> listener) {
-    validateMutability();
+    onMutation();
     this.onModelUnboundListener_epoxyGeneratedModel = listener;
     return this;
   }
 
   public ModelWithIntDef_ type(@ModelWithIntDef.MyType int type) {
-    validateMutability();
-    this.type = type;
+    onMutation();
+    super.type = type;
     return this;
   }
 
@@ -112,6 +114,12 @@ public class ModelWithIntDef_ extends ModelWithIntDef implements GeneratedModel<
   }
 
   @Override
+  public ModelWithIntDef_ id(CharSequence key, CharSequence... otherKeys) {
+    super.id(key, otherKeys);
+    return this;
+  }
+
+  @Override
   public ModelWithIntDef_ id(CharSequence key, long id) {
     super.id(key, id);
     return this;
@@ -120,6 +128,12 @@ public class ModelWithIntDef_ extends ModelWithIntDef implements GeneratedModel<
   @Override
   public ModelWithIntDef_ layout(@LayoutRes int arg0) {
     super.layout(arg0);
+    return this;
+  }
+
+  @Override
+  public ModelWithIntDef_ spanSizeOverride(@Nullable EpoxyModel.SpanSizeOverrideCallback arg0) {
+    super.spanSizeOverride(arg0);
     return this;
   }
 
@@ -145,7 +159,7 @@ public class ModelWithIntDef_ extends ModelWithIntDef implements GeneratedModel<
   public ModelWithIntDef_ reset() {
     onModelBoundListener_epoxyGeneratedModel = null;
     onModelUnboundListener_epoxyGeneratedModel = null;
-    this.type = 0;
+    super.type = 0;
     super.reset();
     return this;
   }

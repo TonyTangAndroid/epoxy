@@ -1,6 +1,7 @@
 package com.airbnb.epoxy;
 
 import android.support.annotation.LayoutRes;
+import android.support.annotation.Nullable;
 import java.lang.CharSequence;
 import java.lang.Number;
 import java.lang.Object;
@@ -45,7 +46,7 @@ public class ModelWithAnnotatedClass_ extends ModelWithAnnotatedClass implements
    * <p>
    * You may clear the listener by setting a null value, or by calling {@link #reset()} */
   public ModelWithAnnotatedClass_ onBind(OnModelBoundListener<ModelWithAnnotatedClass_, Object> listener) {
-    validateMutability();
+    onMutation();
     this.onModelBoundListener_epoxyGeneratedModel = listener;
     return this;
   }
@@ -66,7 +67,7 @@ public class ModelWithAnnotatedClass_ extends ModelWithAnnotatedClass implements
    * <p>
    * You may clear the listener by setting a null value, or by calling {@link #reset()} */
   public ModelWithAnnotatedClass_ onUnbind(OnModelUnboundListener<ModelWithAnnotatedClass_, Object> listener) {
-    validateMutability();
+    onMutation();
     this.onModelUnboundListener_epoxyGeneratedModel = listener;
     return this;
   }
@@ -96,6 +97,12 @@ public class ModelWithAnnotatedClass_ extends ModelWithAnnotatedClass implements
   }
 
   @Override
+  public ModelWithAnnotatedClass_ id(CharSequence key, CharSequence... otherKeys) {
+    super.id(key, otherKeys);
+    return this;
+  }
+
+  @Override
   public ModelWithAnnotatedClass_ id(CharSequence key, long id) {
     super.id(key, id);
     return this;
@@ -104,6 +111,12 @@ public class ModelWithAnnotatedClass_ extends ModelWithAnnotatedClass implements
   @Override
   public ModelWithAnnotatedClass_ layout(@LayoutRes int arg0) {
     super.layout(arg0);
+    return this;
+  }
+
+  @Override
+  public ModelWithAnnotatedClass_ spanSizeOverride(@Nullable EpoxyModel.SpanSizeOverrideCallback arg0) {
+    super.spanSizeOverride(arg0);
     return this;
   }
 

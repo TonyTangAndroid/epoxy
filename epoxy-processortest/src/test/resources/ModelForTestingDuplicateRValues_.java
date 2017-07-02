@@ -1,6 +1,7 @@
 package com.airbnb.epoxy;
 
 import android.support.annotation.LayoutRes;
+import android.support.annotation.Nullable;
 import com.airbnb.epoxy.othermodule.R;
 import java.lang.CharSequence;
 import java.lang.Number;
@@ -46,7 +47,7 @@ public class ModelForTestingDuplicateRValues_ extends ModelForTestingDuplicateRV
    * <p>
    * You may clear the listener by setting a null value, or by calling {@link #reset()} */
   public ModelForTestingDuplicateRValues_ onBind(OnModelBoundListener<ModelForTestingDuplicateRValues_, Object> listener) {
-    validateMutability();
+    onMutation();
     this.onModelBoundListener_epoxyGeneratedModel = listener;
     return this;
   }
@@ -67,14 +68,14 @@ public class ModelForTestingDuplicateRValues_ extends ModelForTestingDuplicateRV
    * <p>
    * You may clear the listener by setting a null value, or by calling {@link #reset()} */
   public ModelForTestingDuplicateRValues_ onUnbind(OnModelUnboundListener<ModelForTestingDuplicateRValues_, Object> listener) {
-    validateMutability();
+    onMutation();
     this.onModelUnboundListener_epoxyGeneratedModel = listener;
     return this;
   }
 
   public ModelForTestingDuplicateRValues_ value(int value) {
-    validateMutability();
-    this.value = value;
+    onMutation();
+    super.value = value;
     return this;
   }
 
@@ -107,6 +108,12 @@ public class ModelForTestingDuplicateRValues_ extends ModelForTestingDuplicateRV
   }
 
   @Override
+  public ModelForTestingDuplicateRValues_ id(CharSequence key, CharSequence... otherKeys) {
+    super.id(key, otherKeys);
+    return this;
+  }
+
+  @Override
   public ModelForTestingDuplicateRValues_ id(CharSequence key, long id) {
     super.id(key, id);
     return this;
@@ -115,6 +122,12 @@ public class ModelForTestingDuplicateRValues_ extends ModelForTestingDuplicateRV
   @Override
   public ModelForTestingDuplicateRValues_ layout(@LayoutRes int arg0) {
     super.layout(arg0);
+    return this;
+  }
+
+  @Override
+  public ModelForTestingDuplicateRValues_ spanSizeOverride(@Nullable EpoxyModel.SpanSizeOverrideCallback arg0) {
+    super.spanSizeOverride(arg0);
     return this;
   }
 
@@ -146,7 +159,7 @@ public class ModelForTestingDuplicateRValues_ extends ModelForTestingDuplicateRV
   public ModelForTestingDuplicateRValues_ reset() {
     onModelBoundListener_epoxyGeneratedModel = null;
     onModelUnboundListener_epoxyGeneratedModel = null;
-    this.value = 0;
+    super.value = 0;
     super.reset();
     return this;
   }

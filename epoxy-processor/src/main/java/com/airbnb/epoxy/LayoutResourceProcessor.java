@@ -7,17 +7,22 @@ import com.sun.tools.javac.code.Symbol.VarSymbol;
 import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.TreeScanner;
 
+import java.lang.annotation.Annotation;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.annotation.processing.ProcessingEnvironment;
-import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
-import javax.lang.model.type.MirroredTypeException;
+import javax.lang.model.element.VariableElement;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
+
+import static com.airbnb.epoxy.Utils.getElementByName;
 
 /**
  * Scans R files and and compiles layout resource values in those R classes. This allows us to look
@@ -28,19 +33,16 @@ import javax.lang.model.util.Types;
  * This is adapted from Butterknife. https://github.com/JakeWharton/butterknife/pull/613
  */
 class LayoutResourceProcessor {
-  private static final String CLASS_ANNOTATION_CANONICAL_NAME =
-      EpoxyModelClass.class.getCanonicalName();
 
   private final ErrorLogger errorLogger;
   private final Elements elementUtils;
   private final Types typeUtils;
-  /**
-   * Map of fully qualified model name to layout resource for the EpoxyModelClass annotation on that
-   * model.
-   */
-  private final Map<String, ModelLayoutResource> modelLayoutMap = new HashMap<>();
+
   private Trees trees;
   private final Map<String, ClassName> rClassNameMap = new HashMap<>();
+  /** Maps the name of an R class to a list of all of the layout resources in that class. */
+  private final Map<ClassName, List<LayoutResource>> rClassLayoutResources = new HashMap<>();
+  private final AnnotationLayoutParamScanner scanner = new AnnotationLayoutParamScanner();
 
   LayoutResourceProcessor(ProcessingEnvironment processingEnv, ErrorLogger errorLogger,
       Elements elementUtils, Types typeUtils) {
@@ -55,116 +57,182 @@ class LayoutResourceProcessor {
     }
   }
 
-  /**
-   * Looks up the layout resource used in the {@link EpoxyModelClass} annotation on this model. The
-   * given element is expected to be an EpoxyModel that is annotated with {@link EpoxyModelClass}
-   */
-  ModelLayoutResource getLayoutForModel(TypeElement modelClassElement) {
-    String modelName = getModelNameFromElement(modelClassElement);
-    ModelLayoutResource modelLayout = modelLayoutMap.get(modelName);
+  LayoutResource getLayoutInAnnotation(TypeElement element, Class annotationClass) {
+    List<LayoutResource> layouts = getLayoutsInAnnotation(element, annotationClass);
+    if (layouts.size() != 1) {
+      errorLogger.logError(
+          "Expected exactly 1 layout resource in the %s annotation but received %s. Annotated "
+              + "element is %s",
+          annotationClass.getSimpleName(), layouts.size(), element.getSimpleName());
 
-    if (modelLayout == null) {
-      // If a value was hardcoded, instead of an R.layout value, then there won't be a match.
-      // We just use the hardcoded value directly in this case.
-      EpoxyModelClass annotation = modelClassElement.getAnnotation(EpoxyModelClass.class);
-      modelLayout = new ModelLayoutResource(annotation.layout());
-      modelLayoutMap.put(modelName, modelLayout);
+      if (layouts.isEmpty()) {
+        // Just pass back something so the code can compile before the error logger prints
+        return new LayoutResource(0);
+      }
     }
 
-    return modelLayout;
-  }
-
-  private String getModelNameFromElement(TypeElement modelClassElement) {
-    return modelClassElement.getQualifiedName().toString();
+    return layouts.get(0);
   }
 
   /**
-   * Processes details about the layout resources used in {@link EpoxyModelClass} annotations
-   * across all Epoxy models. Details for each model layout is stored in a map so they can be looked
-   * up with the model name via {@link #getLayoutForModel(TypeElement)}
+   * Get detailed information about the layout resources that are parameters to the given
+   * annotation.
    */
-  void processResources(RoundEnvironment env) {
-    modelLayoutMap.clear();
+  List<LayoutResource> getLayoutsInAnnotation(Element element, Class annotationClass) {
+    List<Integer> layoutValues = getLayoutValues(element, annotationClass);
+    List<LayoutResource> resources = new ArrayList<>(layoutValues.size());
 
-    if (trees == null) {
-      return;
-    }
-
-    ModelLayoutScanner scanner = new ModelLayoutScanner();
-
-    for (Element modelElement : env.getElementsAnnotatedWith(EpoxyModelClass.class)) {
-      EpoxyModelClass modelAnnotation = modelElement.getAnnotation(EpoxyModelClass.class);
-      int layoutValue = modelAnnotation.layout();
-
-      if (layoutValue == 0) {
-        // A layout value was not provided in this annotation
-        continue;
-      }
-
-      JCTree tree = (JCTree) trees.getTree(modelElement, getAnnotationMirror(modelElement));
-      if (tree == null) {
-        // tree can be null if the references are compiled types and not source
-        continue;
-      }
-
+    JCTree tree = (JCTree) trees.getTree(element, getAnnotationMirror(element, annotationClass));
+    // tree can be null if the references are compiled types and not source
+    if (tree != null) {
       // Collects details about the layout resource used for the annotation parameter
+      scanner.clearResults();
+      scanner.setCurrentAnnotationDetails(element, annotationClass);
       tree.accept(scanner);
-      ScannerResult result = scanner.getResult();
-      if (result == null) {
-        // Unable to get details on layout resource. This could happen if a layout value is
-        // hardcoded
-        continue;
+      List<ScannerResult> scannerResults = scanner.getResults();
+
+      for (ScannerResult scannerResult : scannerResults) {
+        resources.add(new LayoutResource(
+            scannerResult.rClass,
+            scannerResult.resourceName,
+            scannerResult.resourceValue
+        ));
       }
-
-
-
-      if (layoutValue != result.resourceValue) {
-        // I don't know why this would happen, but it seems worth sanity checking for
-        errorLogger.logError(
-            "Layout resource from scanner did not match expected value. Class: %s Expected: %s "
-                + "Scanner Value: %s",
-            modelElement.getSimpleName(), layoutValue, result.resourceValue);
-        continue;
-      }
-
-      ModelLayoutResource layoutResource =
-          new ModelLayoutResource(
-              getClassName(result.rClass),
-              result.resourceName,
-              result.resourceValue
-          );
-
-      String modelName = getModelNameFromElement((TypeElement) modelElement);
-      modelLayoutMap.put(modelName, layoutResource);
     }
+
+    // Layout values may not have been picked up by the scanner if they are hardcoded.
+    // In that case we just use the hardcoded value without an R class
+    if (resources.size() != layoutValues.size()) {
+      for (int layoutValue : layoutValues) {
+        if (!isLayoutValueInResources(resources, layoutValue)) {
+          resources.add(new LayoutResource(layoutValue));
+        }
+      }
+    }
+
+    return resources;
   }
 
-  private AnnotationMirror getAnnotationMirror(Element element) {
+  private boolean isLayoutValueInResources(List<LayoutResource> resources, int layoutValue) {
+    for (LayoutResource resource : resources) {
+      if (resource.value == layoutValue) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  private static List<Integer> getLayoutValues(Element element, Class annotationClass) {
+    Annotation annotation = element.getAnnotation(annotationClass);
+
+    // We could do this in a more generic way if we ever need to support more annotation types
+    List<Integer> layoutResources = new ArrayList<>();
+    if (annotation instanceof EpoxyModelClass) {
+      layoutResources.add(((EpoxyModelClass) annotation).layout());
+    } else if (annotation instanceof EpoxyDataBindingLayouts) {
+      for (int layoutRes : ((EpoxyDataBindingLayouts) annotation).value()) {
+        layoutResources.add(layoutRes);
+      }
+    } else if (annotation instanceof ModelView) {
+      layoutResources.add(((ModelView) annotation).defaultLayout());
+    }
+
+    return layoutResources;
+  }
+
+  private AnnotationMirror getAnnotationMirror(Element element, Class annotationClass) {
     for (AnnotationMirror annotationMirror : element.getAnnotationMirrors()) {
-      if (annotationMirror.getAnnotationType().toString().equals(CLASS_ANNOTATION_CANONICAL_NAME)) {
+      if (annotationMirror.getAnnotationType().toString()
+          .equals(annotationClass.getCanonicalName())) {
         return annotationMirror;
       }
     }
 
     errorLogger.logError("Unable to get %s annotation on model %",
-        EpoxyModelClass.class, element.getSimpleName());
+        annotationClass.getSimpleName(), element.getSimpleName());
 
     return null;
   }
 
-  /**
-   * Scans the EpoxyModelClass annotation to examine the layout resource parameter. It finds the R
-   * class that the layout resource belongs to, as well as the resource name and value.
-   */
-  private class ModelLayoutScanner extends TreeScanner {
-    private ScannerResult result;
+  List<ClassName> getRClassNames() {
+    return new ArrayList<>(rClassNameMap.values());
+  }
 
-    ScannerResult getResult() {
-      return result;
+  List<LayoutResource> getAlternateLayouts(LayoutResource layout) {
+    if (rClassLayoutResources.isEmpty()) {
+      // This will only have been filled if at least one view has a layout in it's annotation.
+      // If all view's use their default layout then resources haven't been parsed yet and we can
+      // do it now
+      Element rLayoutClassElement = getElementByName(layout.className, elementUtils, typeUtils);
+      saveLayoutValuesForRClass(layout.className, rLayoutClassElement);
+    }
+
+    List<LayoutResource> layouts = rClassLayoutResources.get(layout.className);
+    if (layouts == null) {
+      errorLogger.logError("No layout files found for R class: %s", layout.className);
+      return Collections.emptyList();
+    }
+
+    List<LayoutResource> result = new ArrayList<>();
+    String target = layout.resourceName + "_";
+    for (LayoutResource otherLayout : layouts) {
+      if (otherLayout.resourceName.startsWith(target)) {
+        result.add(otherLayout);
+      }
+    }
+
+    return result;
+  }
+
+  private void saveLayoutValuesForRClass(ClassName rClass, Element layoutClass) {
+    if (rClassLayoutResources.containsKey(rClass)) {
+      return;
+    }
+
+    List<? extends Element> layoutElements = layoutClass.getEnclosedElements();
+    List<LayoutResource> layoutNames = new ArrayList<>(layoutElements.size());
+    for (Element layoutResource : layoutElements) {
+      if (!(layoutResource instanceof VariableElement)) {
+        continue;
+      }
+
+      String resourceName = layoutResource.getSimpleName().toString();
+      layoutNames.add(new LayoutResource(
+          rClass,
+          resourceName,
+          0 // Don't care about this for our use case
+      ));
+    }
+
+    rClassLayoutResources.put(rClass, layoutNames);
+  }
+
+
+  /**
+   * Scans annotations that have layout resources as parameters. It supports both one layout
+   * parameter, and parameters in an array. The R class, resource name, and value, is extract from
+   * each layout to create a corresponding {@link ScannerResult} for each layout.
+   */
+  private class AnnotationLayoutParamScanner extends TreeScanner {
+    private final List<ScannerResult> results = new ArrayList<>();
+    private Element element;
+    private Class annotationClass;
+
+    void clearResults() {
+      results.clear();
+    }
+
+    List<ScannerResult> getResults() {
+      return new ArrayList<>(results);
     }
 
     @Override
     public void visitSelect(JCTree.JCFieldAccess jcFieldAccess) {
+      // This "visit" method is called for each parameter in the annotation, but only if the
+      // parameter is a field type (eg R.layout.resource_name is a field inside the R.layout
+      // class). This means this method will not pick up things like booleans and strings.
+
       // This is the layout resource parameter inside the EpoxyModelClass annotation
       Symbol symbol = jcFieldAccess.sym;
 
@@ -173,23 +241,26 @@ class LayoutResourceProcessor {
           && symbol.getEnclosingElement().getEnclosingElement() != null // The R class
           && symbol.getEnclosingElement().getEnclosingElement().enclClass() != null) {
 
-        result = parseResourceSymbol((VarSymbol) symbol);
-      } else {
-        result = null;
+        ScannerResult result = parseResourceSymbol((VarSymbol) symbol);
+        if (result != null) {
+          results.add(result);
+        }
       }
     }
 
     private ScannerResult parseResourceSymbol(VarSymbol symbol) {
       // eg com.airbnb.epoxy.R
-      String rClass = symbol.getEnclosingElement().getEnclosingElement().enclClass().className();
+      Symbol layoutClass = symbol.getEnclosingElement();
+      String rClass = layoutClass.getEnclosingElement().enclClass().className();
 
       // eg com.airbnb.epoxy.R.layout
-      String layoutClass = symbol.getEnclosingElement().getQualifiedName().toString();
+      String layoutClassName = layoutClass.getQualifiedName().toString();
 
       // Make sure this is a layout resource
-      if (!(rClass + ".layout").equals(layoutClass)) {
-        errorLogger.logError("%s annotation requires a layout resource but received %s",
-            EpoxyModelClass.class, layoutClass);
+      if (!(rClass + ".layout").equals(layoutClassName)) {
+        errorLogger
+            .logError("%s annotation requires a layout resource but received %s. (Element: %s)",
+                annotationClass.getSimpleName(), layoutClass, element.getSimpleName());
         return null;
       }
 
@@ -198,21 +269,30 @@ class LayoutResourceProcessor {
 
       Object layoutValue = symbol.getConstantValue();
       if (!(layoutValue instanceof Integer)) {
-        errorLogger.logError("%s annotation requires an int value but received %s",
-            EpoxyModelClass.class, symbol.getQualifiedName());
+        errorLogger.logError("%s annotation requires an int value but received %s. (Element: %s)",
+            annotationClass.getSimpleName(), symbol.getQualifiedName(), element.getSimpleName());
         return null;
       }
 
-      return new ScannerResult(rClass, layoutResourceName, (int) layoutValue);
+      ClassName rClassName = getClassName(rClass);
+      saveLayoutValuesForRClass(rClassName, layoutClass);
+
+      return new ScannerResult(rClassName, layoutResourceName, (int) layoutValue);
+    }
+
+
+    void setCurrentAnnotationDetails(Element element, Class annotationClass) {
+      this.element = element;
+      this.annotationClass = annotationClass;
     }
   }
 
   private static class ScannerResult {
-    final String rClass;
+    final ClassName rClass;
     final String resourceName;
     final int resourceValue;
 
-    private ScannerResult(String rClass, String resourceName, int resourceValue) {
+    private ScannerResult(ClassName rClass, String resourceName, int resourceValue) {
       this.rClass = rClass;
       this.resourceName = resourceName;
       this.resourceValue = resourceValue;
@@ -227,12 +307,7 @@ class LayoutResourceProcessor {
     ClassName className = rClassNameMap.get(rClass);
 
     if (className == null) {
-      Element rClassElement;
-      try {
-        rClassElement = elementUtils.getTypeElement(rClass);
-      } catch (MirroredTypeException mte) {
-        rClassElement = typeUtils.asElement(mte.getTypeMirror());
-      }
+      Element rClassElement = getElementByName(rClass, elementUtils, typeUtils);
 
       String rClassPackageName =
           elementUtils.getPackageOf(rClassElement).getQualifiedName().toString();

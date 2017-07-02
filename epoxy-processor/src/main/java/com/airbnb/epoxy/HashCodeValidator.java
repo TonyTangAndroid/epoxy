@@ -14,12 +14,13 @@ import javax.lang.model.type.ArrayType;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
+import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 
-import static com.airbnb.epoxy.ProcessorUtils.getMethodOnClass;
-import static com.airbnb.epoxy.ProcessorUtils.isIterableType;
-import static com.airbnb.epoxy.ProcessorUtils.isSubtypeOfType;
-import static com.airbnb.epoxy.ProcessorUtils.throwError;
+import static com.airbnb.epoxy.Utils.getMethodOnClass;
+import static com.airbnb.epoxy.Utils.isIterableType;
+import static com.airbnb.epoxy.Utils.isSubtypeOfType;
+import static com.airbnb.epoxy.Utils.throwError;
 
 /** Validates that an attribute implements hashCode and equals. */
 class HashCodeValidator {
@@ -41,25 +42,33 @@ class HashCodeValidator {
       .build();
 
   private final Types typeUtils;
+  private final Elements elements;
 
-  HashCodeValidator(Types typeUtils) {
+  HashCodeValidator(Types typeUtils, Elements elements) {
     this.typeUtils = typeUtils;
+    this.elements = elements;
+  }
+
+  boolean implementsHashCodeAndEquals(TypeMirror mirror) {
+    try {
+      validateImplementsHashCode(mirror);
+      return true;
+    } catch (EpoxyProcessorException e) {
+      return false;
+    }
   }
 
   void validate(AttributeInfo attribute) throws EpoxyProcessorException {
     try {
-      validateImplementsHashCode(attribute.getAttributeElement().asType());
+      validateImplementsHashCode(attribute.getTypeMirror());
     } catch (EpoxyProcessorException e) {
       // Append information about the attribute and class to the existing exception
       throwError(e.getMessage()
-              + " (%s#%s) Epoxy requires every field annotated with "
-              + "@EpoxyAttribute to implement equals and hashCode so that changes in the model "
-              + "can be tracked. "
-              + "If you want the attribute to be excluded, use "
-              + "@EpoxyAttribute(DoNotHash). If you want to ignore this warning use "
-              + "@EpoxyAttribute(IgnoreRequireHashCode)",
-          attribute.getClassElement().getSimpleName().toString(),
-          attribute.getName());
+          + " (%s) Epoxy requires every model attribute to implement equals and hashCode "
+          + "so that changes in the model "
+          + "can be tracked. If you want the attribute to be excluded, use "
+          + "the option 'DoNotHash'. If you want to ignore this warning use "
+          + "the option 'IgnoreRequireHashCode'", attribute);
     }
   }
 
@@ -111,7 +120,8 @@ class HashCodeValidator {
   }
 
   private boolean hasHashCodeInClassHierarchy(TypeElement clazz) {
-    ExecutableElement methodOnClass = getMethodOnClass(clazz, HASH_CODE_METHOD, typeUtils);
+    ExecutableElement methodOnClass =
+        getMethodOnClass(clazz, HASH_CODE_METHOD, typeUtils, elements);
     if (methodOnClass == null) {
       return false;
     }
@@ -129,7 +139,7 @@ class HashCodeValidator {
   }
 
   private boolean hasEqualsInClassHierarchy(TypeElement clazz) {
-    ExecutableElement methodOnClass = getMethodOnClass(clazz, EQUALS_METHOD, typeUtils);
+    ExecutableElement methodOnClass = getMethodOnClass(clazz, EQUALS_METHOD, typeUtils, elements);
     if (methodOnClass == null) {
       return false;
     }

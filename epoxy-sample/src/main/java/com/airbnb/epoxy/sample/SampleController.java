@@ -3,11 +3,11 @@ package com.airbnb.epoxy.sample;
 import android.support.v7.widget.RecyclerView.RecycledViewPool;
 
 import com.airbnb.epoxy.AutoModel;
+import com.airbnb.epoxy.ButtonBindingModel_;
 import com.airbnb.epoxy.R;
 import com.airbnb.epoxy.TypedEpoxyController;
-import com.airbnb.epoxy.sample.models.ButtonModel_;
 import com.airbnb.epoxy.sample.models.CarouselModelGroup;
-import com.airbnb.epoxy.sample.models.HeaderModel_;
+import com.airbnb.epoxy.sample.views.HeaderViewModel_;
 
 import java.util.List;
 
@@ -24,11 +24,11 @@ public class SampleController extends TypedEpoxyController<List<CarouselData>> {
     void onColorClicked(CarouselData carousel, int colorPosition);
   }
 
-  @AutoModel HeaderModel_ header;
-  @AutoModel ButtonModel_ addButton;
-  @AutoModel ButtonModel_ clearButton;
-  @AutoModel ButtonModel_ shuffleButton;
-  @AutoModel ButtonModel_ changeColorsButton;
+  @AutoModel HeaderViewModel_ header;
+  @AutoModel ButtonBindingModel_ addButton;
+  @AutoModel ButtonBindingModel_ clearButton;
+  @AutoModel ButtonBindingModel_ shuffleButton;
+  @AutoModel ButtonBindingModel_ changeColorsButton;
 
   private final AdapterCallbacks callbacks;
   private final RecycledViewPool recycledViewPool;
@@ -43,28 +43,28 @@ public class SampleController extends TypedEpoxyController<List<CarouselData>> {
   protected void buildModels(List<CarouselData> carousels) {
     header
         .title(R.string.epoxy)
-        .caption(R.string.header_subtitle)
-        .addTo(this);
+        .caption(R.string.header_subtitle);
+    // "addTo" is not needed since implicit adding is enabled
+    // (https://github.com/airbnb/epoxy/wiki/Epoxy-Controller#implicit-adding)
 
     addButton
-        .text(R.string.button_add)
+        .textRes(R.string.button_add)
         .clickListener((model, parentView, clickedView, position) -> {
           callbacks.onAddCarouselClicked();
-        })
-        .addTo(this);
+        });
 
     clearButton
-        .text(R.string.button_clear)
+        .textRes(R.string.button_clear)
         .clickListener(v -> callbacks.onClearCarouselsClicked())
         .addIf(carousels.size() > 0, this);
 
     shuffleButton
-        .text(R.string.button_shuffle)
+        .textRes(R.string.button_shuffle)
         .clickListener(v -> callbacks.onShuffleCarouselsClicked())
         .addIf(carousels.size() > 1, this);
 
     changeColorsButton
-        .text(R.string.button_change)
+        .textRes(R.string.button_change)
         .clickListener(v -> callbacks.onChangeAllColorsClicked())
         .addIf(carousels.size() > 0, this);
 

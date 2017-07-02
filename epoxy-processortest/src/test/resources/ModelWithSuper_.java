@@ -1,6 +1,7 @@
 package com.airbnb.epoxy;
 
 import android.support.annotation.LayoutRes;
+import android.support.annotation.Nullable;
 import java.lang.CharSequence;
 import java.lang.Number;
 import java.lang.Object;
@@ -45,7 +46,7 @@ public class ModelWithSuper_ extends ModelWithSuper implements GeneratedModel<Ob
    * <p>
    * You may clear the listener by setting a null value, or by calling {@link #reset()} */
   public ModelWithSuper_ onBind(OnModelBoundListener<ModelWithSuper_, Object> listener) {
-    validateMutability();
+    onMutation();
     this.onModelBoundListener_epoxyGeneratedModel = listener;
     return this;
   }
@@ -66,14 +67,14 @@ public class ModelWithSuper_ extends ModelWithSuper implements GeneratedModel<Ob
    * <p>
    * You may clear the listener by setting a null value, or by calling {@link #reset()} */
   public ModelWithSuper_ onUnbind(OnModelUnboundListener<ModelWithSuper_, Object> listener) {
-    validateMutability();
+    onMutation();
     this.onModelUnboundListener_epoxyGeneratedModel = listener;
     return this;
   }
 
   public ModelWithSuper_ valueInt(int valueInt) {
-    validateMutability();
-    this.valueInt = valueInt;
+    onMutation();
+    super.valueInt = valueInt;
     super.valueInt(valueInt);
     return this;
   }
@@ -107,6 +108,12 @@ public class ModelWithSuper_ extends ModelWithSuper implements GeneratedModel<Ob
   }
 
   @Override
+  public ModelWithSuper_ id(CharSequence key, CharSequence... otherKeys) {
+    super.id(key, otherKeys);
+    return this;
+  }
+
+  @Override
   public ModelWithSuper_ id(CharSequence key, long id) {
     super.id(key, id);
     return this;
@@ -115,6 +122,12 @@ public class ModelWithSuper_ extends ModelWithSuper implements GeneratedModel<Ob
   @Override
   public ModelWithSuper_ layout(@LayoutRes int arg0) {
     super.layout(arg0);
+    return this;
+  }
+
+  @Override
+  public ModelWithSuper_ spanSizeOverride(@Nullable EpoxyModel.SpanSizeOverrideCallback arg0) {
+    super.spanSizeOverride(arg0);
     return this;
   }
 
@@ -140,7 +153,7 @@ public class ModelWithSuper_ extends ModelWithSuper implements GeneratedModel<Ob
   public ModelWithSuper_ reset() {
     onModelBoundListener_epoxyGeneratedModel = null;
     onModelUnboundListener_epoxyGeneratedModel = null;
-    this.valueInt = 0;
+    super.valueInt = 0;
     super.reset();
     return this;
   }

@@ -46,7 +46,7 @@ public class ModelWithFieldAnnotation_ extends ModelWithFieldAnnotation implemen
    * <p>
    * You may clear the listener by setting a null value, or by calling {@link #reset()} */
   public ModelWithFieldAnnotation_ onBind(OnModelBoundListener<ModelWithFieldAnnotation_, Object> listener) {
-    validateMutability();
+    onMutation();
     this.onModelBoundListener_epoxyGeneratedModel = listener;
     return this;
   }
@@ -67,14 +67,14 @@ public class ModelWithFieldAnnotation_ extends ModelWithFieldAnnotation implemen
    * <p>
    * You may clear the listener by setting a null value, or by calling {@link #reset()} */
   public ModelWithFieldAnnotation_ onUnbind(OnModelUnboundListener<ModelWithFieldAnnotation_, Object> listener) {
-    validateMutability();
+    onMutation();
     this.onModelUnboundListener_epoxyGeneratedModel = listener;
     return this;
   }
 
   public ModelWithFieldAnnotation_ title(@Nullable String title) {
-    validateMutability();
-    this.title = title;
+    onMutation();
+    super.title = title;
     return this;
   }
 
@@ -108,6 +108,12 @@ public class ModelWithFieldAnnotation_ extends ModelWithFieldAnnotation implemen
   }
 
   @Override
+  public ModelWithFieldAnnotation_ id(CharSequence key, CharSequence... otherKeys) {
+    super.id(key, otherKeys);
+    return this;
+  }
+
+  @Override
   public ModelWithFieldAnnotation_ id(CharSequence key, long id) {
     super.id(key, id);
     return this;
@@ -116,6 +122,12 @@ public class ModelWithFieldAnnotation_ extends ModelWithFieldAnnotation implemen
   @Override
   public ModelWithFieldAnnotation_ layout(@LayoutRes int arg0) {
     super.layout(arg0);
+    return this;
+  }
+
+  @Override
+  public ModelWithFieldAnnotation_ spanSizeOverride(@Nullable EpoxyModel.SpanSizeOverrideCallback arg0) {
+    super.spanSizeOverride(arg0);
     return this;
   }
 
@@ -141,7 +153,7 @@ public class ModelWithFieldAnnotation_ extends ModelWithFieldAnnotation implemen
   public ModelWithFieldAnnotation_ reset() {
     onModelBoundListener_epoxyGeneratedModel = null;
     onModelUnboundListener_epoxyGeneratedModel = null;
-    this.title = null;
+    super.title = null;
     super.reset();
     return this;
   }

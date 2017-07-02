@@ -1,6 +1,7 @@
 package com.airbnb.epoxy;
 
 import android.support.annotation.LayoutRes;
+import android.support.annotation.Nullable;
 import java.lang.CharSequence;
 import java.lang.Number;
 import java.lang.Object;
@@ -45,7 +46,7 @@ public class ModelDoNotHash_ extends ModelDoNotHash implements GeneratedModel<Ob
    * <p>
    * You may clear the listener by setting a null value, or by calling {@link #reset()} */
   public ModelDoNotHash_ onBind(OnModelBoundListener<ModelDoNotHash_, Object> listener) {
-    validateMutability();
+    onMutation();
     this.onModelBoundListener_epoxyGeneratedModel = listener;
     return this;
   }
@@ -66,24 +67,14 @@ public class ModelDoNotHash_ extends ModelDoNotHash implements GeneratedModel<Ob
    * <p>
    * You may clear the listener by setting a null value, or by calling {@link #reset()} */
   public ModelDoNotHash_ onUnbind(OnModelUnboundListener<ModelDoNotHash_, Object> listener) {
-    validateMutability();
+    onMutation();
     this.onModelUnboundListener_epoxyGeneratedModel = listener;
     return this;
   }
 
-  public ModelDoNotHash_ value2(int value2) {
-    validateMutability();
-    this.value2 = value2;
-    return this;
-  }
-
-  public int value2() {
-    return value2;
-  }
-
   public ModelDoNotHash_ value(int value) {
-    validateMutability();
-    this.value = value;
+    onMutation();
+    super.value = value;
     return this;
   }
 
@@ -91,9 +82,19 @@ public class ModelDoNotHash_ extends ModelDoNotHash implements GeneratedModel<Ob
     return value;
   }
 
+  public ModelDoNotHash_ value2(int value2) {
+    onMutation();
+    super.value2 = value2;
+    return this;
+  }
+
+  public int value2() {
+    return value2;
+  }
+
   public ModelDoNotHash_ value3(String value3) {
-    validateMutability();
-    this.value3 = value3;
+    onMutation();
+    super.value3 = value3;
     return this;
   }
 
@@ -126,6 +127,12 @@ public class ModelDoNotHash_ extends ModelDoNotHash implements GeneratedModel<Ob
   }
 
   @Override
+  public ModelDoNotHash_ id(CharSequence key, CharSequence... otherKeys) {
+    super.id(key, otherKeys);
+    return this;
+  }
+
+  @Override
   public ModelDoNotHash_ id(CharSequence key, long id) {
     super.id(key, id);
     return this;
@@ -134,6 +141,12 @@ public class ModelDoNotHash_ extends ModelDoNotHash implements GeneratedModel<Ob
   @Override
   public ModelDoNotHash_ layout(@LayoutRes int arg0) {
     super.layout(arg0);
+    return this;
+  }
+
+  @Override
+  public ModelDoNotHash_ spanSizeOverride(@Nullable EpoxyModel.SpanSizeOverrideCallback arg0) {
+    super.spanSizeOverride(arg0);
     return this;
   }
 
@@ -159,9 +172,9 @@ public class ModelDoNotHash_ extends ModelDoNotHash implements GeneratedModel<Ob
   public ModelDoNotHash_ reset() {
     onModelBoundListener_epoxyGeneratedModel = null;
     onModelUnboundListener_epoxyGeneratedModel = null;
-    this.value2 = 0;
-    this.value = 0;
-    this.value3 = null;
+    super.value = 0;
+    super.value2 = 0;
+    super.value3 = null;
     super.reset();
     return this;
   }
@@ -206,8 +219,8 @@ public class ModelDoNotHash_ extends ModelDoNotHash implements GeneratedModel<Ob
   @Override
   public String toString() {
     return "ModelDoNotHash_{" +
-        "value2=" + value2 +
-        ", value=" + value +
+        "value=" + value +
+        ", value2=" + value2 +
         ", value3=" + value3 +
         "}" + super.toString();
   }

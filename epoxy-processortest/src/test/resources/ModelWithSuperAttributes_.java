@@ -1,6 +1,7 @@
 package com.airbnb.epoxy;
 
 import android.support.annotation.LayoutRes;
+import android.support.annotation.Nullable;
 import java.lang.CharSequence;
 import java.lang.Number;
 import java.lang.Object;
@@ -45,7 +46,7 @@ public class ModelWithSuperAttributes_ extends ModelWithSuperAttributes implemen
    * <p>
    * You may clear the listener by setting a null value, or by calling {@link #reset()} */
   public ModelWithSuperAttributes_ onBind(OnModelBoundListener<ModelWithSuperAttributes_, Object> listener) {
-    validateMutability();
+    onMutation();
     this.onModelBoundListener_epoxyGeneratedModel = listener;
     return this;
   }
@@ -66,14 +67,14 @@ public class ModelWithSuperAttributes_ extends ModelWithSuperAttributes implemen
    * <p>
    * You may clear the listener by setting a null value, or by calling {@link #reset()} */
   public ModelWithSuperAttributes_ onUnbind(OnModelUnboundListener<ModelWithSuperAttributes_, Object> listener) {
-    validateMutability();
+    onMutation();
     this.onModelUnboundListener_epoxyGeneratedModel = listener;
     return this;
   }
 
   public ModelWithSuperAttributes_ superValue(int superValue) {
-    validateMutability();
-    this.superValue = superValue;
+    onMutation();
+    super.superValue = superValue;
     return this;
   }
 
@@ -106,6 +107,12 @@ public class ModelWithSuperAttributes_ extends ModelWithSuperAttributes implemen
   }
 
   @Override
+  public ModelWithSuperAttributes_ id(CharSequence key, CharSequence... otherKeys) {
+    super.id(key, otherKeys);
+    return this;
+  }
+
+  @Override
   public ModelWithSuperAttributes_ id(CharSequence key, long id) {
     super.id(key, id);
     return this;
@@ -114,6 +121,12 @@ public class ModelWithSuperAttributes_ extends ModelWithSuperAttributes implemen
   @Override
   public ModelWithSuperAttributes_ layout(@LayoutRes int arg0) {
     super.layout(arg0);
+    return this;
+  }
+
+  @Override
+  public ModelWithSuperAttributes_ spanSizeOverride(@Nullable EpoxyModel.SpanSizeOverrideCallback arg0) {
+    super.spanSizeOverride(arg0);
     return this;
   }
 
@@ -139,7 +152,7 @@ public class ModelWithSuperAttributes_ extends ModelWithSuperAttributes implemen
   public ModelWithSuperAttributes_ reset() {
     onModelBoundListener_epoxyGeneratedModel = null;
     onModelUnboundListener_epoxyGeneratedModel = null;
-    this.superValue = 0;
+    super.superValue = 0;
     super.reset();
     return this;
   }

@@ -1,6 +1,7 @@
 package com.airbnb.epoxy;
 
 import android.support.annotation.LayoutRes;
+import android.support.annotation.Nullable;
 import java.lang.CharSequence;
 import java.lang.Number;
 import java.lang.Object;
@@ -46,7 +47,7 @@ public class AbstractModelWithHolder_ extends AbstractModelWithHolder implements
    * <p>
    * You may clear the listener by setting a null value, or by calling {@link #reset()} */
   public AbstractModelWithHolder_ onBind(OnModelBoundListener<AbstractModelWithHolder_, AbstractModelWithHolder.Holder> listener) {
-    validateMutability();
+    onMutation();
     this.onModelBoundListener_epoxyGeneratedModel = listener;
     return this;
   }
@@ -67,14 +68,14 @@ public class AbstractModelWithHolder_ extends AbstractModelWithHolder implements
    * <p>
    * You may clear the listener by setting a null value, or by calling {@link #reset()} */
   public AbstractModelWithHolder_ onUnbind(OnModelUnboundListener<AbstractModelWithHolder_, AbstractModelWithHolder.Holder> listener) {
-    validateMutability();
+    onMutation();
     this.onModelUnboundListener_epoxyGeneratedModel = listener;
     return this;
   }
 
   public AbstractModelWithHolder_ value(int value) {
-    validateMutability();
-    this.value = value;
+    onMutation();
+    super.value = value;
     return this;
   }
 
@@ -107,6 +108,12 @@ public class AbstractModelWithHolder_ extends AbstractModelWithHolder implements
   }
 
   @Override
+  public AbstractModelWithHolder_ id(CharSequence key, CharSequence... otherKeys) {
+    super.id(key, otherKeys);
+    return this;
+  }
+
+  @Override
   public AbstractModelWithHolder_ id(CharSequence key, long id) {
     super.id(key, id);
     return this;
@@ -115,6 +122,12 @@ public class AbstractModelWithHolder_ extends AbstractModelWithHolder implements
   @Override
   public AbstractModelWithHolder_ layout(@LayoutRes int arg0) {
     super.layout(arg0);
+    return this;
+  }
+
+  @Override
+  public AbstractModelWithHolder_ spanSizeOverride(@Nullable EpoxyModel.SpanSizeOverrideCallback arg0) {
+    super.spanSizeOverride(arg0);
     return this;
   }
 
@@ -145,7 +158,7 @@ public class AbstractModelWithHolder_ extends AbstractModelWithHolder implements
   public AbstractModelWithHolder_ reset() {
     onModelBoundListener_epoxyGeneratedModel = null;
     onModelUnboundListener_epoxyGeneratedModel = null;
-    this.value = 0;
+    super.value = 0;
     super.reset();
     return this;
   }

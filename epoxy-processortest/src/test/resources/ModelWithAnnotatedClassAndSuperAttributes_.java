@@ -1,6 +1,7 @@
 package com.airbnb.epoxy;
 
 import android.support.annotation.LayoutRes;
+import android.support.annotation.Nullable;
 import java.lang.CharSequence;
 import java.lang.Number;
 import java.lang.Object;
@@ -45,7 +46,7 @@ public class ModelWithAnnotatedClassAndSuperAttributes_ extends ModelWithAnnotat
    * <p>
    * You may clear the listener by setting a null value, or by calling {@link #reset()} */
   public ModelWithAnnotatedClassAndSuperAttributes_ onBind(OnModelBoundListener<ModelWithAnnotatedClassAndSuperAttributes_, Object> listener) {
-    validateMutability();
+    onMutation();
     this.onModelBoundListener_epoxyGeneratedModel = listener;
     return this;
   }
@@ -66,14 +67,14 @@ public class ModelWithAnnotatedClassAndSuperAttributes_ extends ModelWithAnnotat
    * <p>
    * You may clear the listener by setting a null value, or by calling {@link #reset()} */
   public ModelWithAnnotatedClassAndSuperAttributes_ onUnbind(OnModelUnboundListener<ModelWithAnnotatedClassAndSuperAttributes_, Object> listener) {
-    validateMutability();
+    onMutation();
     this.onModelUnboundListener_epoxyGeneratedModel = listener;
     return this;
   }
 
   public ModelWithAnnotatedClassAndSuperAttributes_ superValue(int superValue) {
-    validateMutability();
-    this.superValue = superValue;
+    onMutation();
+    super.superValue = superValue;
     return this;
   }
 
@@ -106,6 +107,13 @@ public class ModelWithAnnotatedClassAndSuperAttributes_ extends ModelWithAnnotat
   }
 
   @Override
+  public ModelWithAnnotatedClassAndSuperAttributes_ id(CharSequence key,
+      CharSequence... otherKeys) {
+    super.id(key, otherKeys);
+    return this;
+  }
+
+  @Override
   public ModelWithAnnotatedClassAndSuperAttributes_ id(CharSequence key, long id) {
     super.id(key, id);
     return this;
@@ -114,6 +122,12 @@ public class ModelWithAnnotatedClassAndSuperAttributes_ extends ModelWithAnnotat
   @Override
   public ModelWithAnnotatedClassAndSuperAttributes_ layout(@LayoutRes int arg0) {
     super.layout(arg0);
+    return this;
+  }
+
+  @Override
+  public ModelWithAnnotatedClassAndSuperAttributes_ spanSizeOverride(@Nullable EpoxyModel.SpanSizeOverrideCallback arg0) {
+    super.spanSizeOverride(arg0);
     return this;
   }
 
@@ -139,7 +153,7 @@ public class ModelWithAnnotatedClassAndSuperAttributes_ extends ModelWithAnnotat
   public ModelWithAnnotatedClassAndSuperAttributes_ reset() {
     onModelBoundListener_epoxyGeneratedModel = null;
     onModelUnboundListener_epoxyGeneratedModel = null;
-    this.superValue = 0;
+    super.superValue = 0;
     super.reset();
     return this;
   }

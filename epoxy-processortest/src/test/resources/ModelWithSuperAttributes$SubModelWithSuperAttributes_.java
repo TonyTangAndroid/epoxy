@@ -1,6 +1,7 @@
 package com.airbnb.epoxy;
 
 import android.support.annotation.LayoutRes;
+import android.support.annotation.Nullable;
 import java.lang.CharSequence;
 import java.lang.Number;
 import java.lang.Object;
@@ -45,7 +46,7 @@ public class ModelWithSuperAttributes$SubModelWithSuperAttributes_ extends Model
    * <p>
    * You may clear the listener by setting a null value, or by calling {@link #reset()} */
   public ModelWithSuperAttributes$SubModelWithSuperAttributes_ onBind(OnModelBoundListener<ModelWithSuperAttributes$SubModelWithSuperAttributes_, Object> listener) {
-    validateMutability();
+    onMutation();
     this.onModelBoundListener_epoxyGeneratedModel = listener;
     return this;
   }
@@ -66,14 +67,14 @@ public class ModelWithSuperAttributes$SubModelWithSuperAttributes_ extends Model
    * <p>
    * You may clear the listener by setting a null value, or by calling {@link #reset()} */
   public ModelWithSuperAttributes$SubModelWithSuperAttributes_ onUnbind(OnModelUnboundListener<ModelWithSuperAttributes$SubModelWithSuperAttributes_, Object> listener) {
-    validateMutability();
+    onMutation();
     this.onModelUnboundListener_epoxyGeneratedModel = listener;
     return this;
   }
 
   public ModelWithSuperAttributes$SubModelWithSuperAttributes_ subValue(int subValue) {
-    validateMutability();
-    this.subValue = subValue;
+    onMutation();
+    super.subValue = subValue;
     return this;
   }
 
@@ -82,8 +83,8 @@ public class ModelWithSuperAttributes$SubModelWithSuperAttributes_ extends Model
   }
 
   public ModelWithSuperAttributes$SubModelWithSuperAttributes_ superValue(int superValue) {
-    validateMutability();
-    this.superValue = superValue;
+    onMutation();
+    super.superValue = superValue;
     return this;
   }
 
@@ -116,6 +117,13 @@ public class ModelWithSuperAttributes$SubModelWithSuperAttributes_ extends Model
   }
 
   @Override
+  public ModelWithSuperAttributes$SubModelWithSuperAttributes_ id(CharSequence key,
+      CharSequence... otherKeys) {
+    super.id(key, otherKeys);
+    return this;
+  }
+
+  @Override
   public ModelWithSuperAttributes$SubModelWithSuperAttributes_ id(CharSequence key, long id) {
     super.id(key, id);
     return this;
@@ -124,6 +132,12 @@ public class ModelWithSuperAttributes$SubModelWithSuperAttributes_ extends Model
   @Override
   public ModelWithSuperAttributes$SubModelWithSuperAttributes_ layout(@LayoutRes int arg0) {
     super.layout(arg0);
+    return this;
+  }
+
+  @Override
+  public ModelWithSuperAttributes$SubModelWithSuperAttributes_ spanSizeOverride(@Nullable EpoxyModel.SpanSizeOverrideCallback arg0) {
+    super.spanSizeOverride(arg0);
     return this;
   }
 
@@ -149,8 +163,8 @@ public class ModelWithSuperAttributes$SubModelWithSuperAttributes_ extends Model
   public ModelWithSuperAttributes$SubModelWithSuperAttributes_ reset() {
     onModelBoundListener_epoxyGeneratedModel = null;
     onModelUnboundListener_epoxyGeneratedModel = null;
-    this.subValue = 0;
-    this.superValue = 0;
+    super.subValue = 0;
+    super.superValue = 0;
     super.reset();
     return this;
   }
