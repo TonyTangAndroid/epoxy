@@ -20,10 +20,13 @@ dependencies {
   implementation rootProject.deps.kotlin
 
   implementation "org.jetbrains.anko:anko-coroutines:0.10.5"
+  implementation "io.reactivex.rxjava2:rxjava:2.2.3"
+  implementation "io.reactivex.rxjava2:rxandroid:2.1.0"
   implementation "androidx.room:room-common:$ANDROIDX_ROOM"
   implementation "androidx.room:room-runtime:$ANDROIDX_ROOM"
   implementation "androidx.paging:paging-common:$ANDROIDX_PAGING"
   implementation "androidx.paging:paging-runtime:$ANDROIDX_PAGING"
+  implementation "androidx.paging:paging-rxjava2:$ANDROIDX_PAGING"
   implementation "androidx.recyclerview:recyclerview:$ANDROIDX_RECYCLERVIEW"
   kapt "androidx.room:room-compiler:$ANDROIDX_ROOM"
 

@@ -6,11 +6,9 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
-import androidx.paging.LivePagedListBuilder
 import androidx.paging.PagedList
+import androidx.paging.RxPagedListBuilder
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.room.Room
@@ -19,6 +17,9 @@ import com.airbnb.epoxy.EpoxyModel
 import com.airbnb.epoxy.ModelView
 import com.airbnb.epoxy.TextProp
 import com.airbnb.epoxy.paging.PagedListEpoxyController
+import io.reactivex.Observable
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.observers.DisposableObserver
 import kotlinx.coroutines.experimental.CommonPool
 import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.launch
@@ -34,11 +35,24 @@ class PagingSampleActivity : AppCompatActivity() {
         recyclerView.layoutManager = LinearLayoutManager(this)
         recyclerView.adapter = pagingController.adapter
 
+        val observer = object : DisposableObserver<PagedList<User>>() {
+            override fun onNext(pagedList: PagedList<User>) {
+                pagingController.submitList(pagedList)
+
+            }
+
+            override fun onError(e: Throwable) {
+
+            }
+
+            override fun onComplete() {
+            }
+        }
+
         val viewModel = ViewModelProviders.of(this).get(ActivityViewModel::class.java)
-        viewModel.pagedList.observe(this, Observer {
-          pagingController.submitList(it)
-        })
+        val subscribe = viewModel.pagedList.subscribeWith(observer)
     }
+
 }
 
 class TestController : PagedListEpoxyController<User>(
@@ -84,15 +98,18 @@ class PagingView(context: Context) : AppCompatTextView(context) {
 
 }
 
-class ActivityViewModel(app : Application) : AndroidViewModel(app) {
+class ActivityViewModel(app: Application) : AndroidViewModel(app) {
     val db by lazy {
         Room.inMemoryDatabaseBuilder(app, PagingDatabase::class.java).build()
     }
-    val pagedList : LiveData<PagedList<User>> by lazy {
-        LivePagedListBuilder<Int, User>(
+
+    val pagedList: Observable<PagedList<User>> by lazy {
+        RxPagedListBuilder<Int, User>(
             db.userDao().dataSource, 100
-        ).build()
+        ).setNotifyScheduler(AndroidSchedulers.from(EpoxyAsyncUtil.getAsyncBackgroundHandler().looper))
+            .buildObservable()
     }
+
     init {
         bg {
             (1..3000).map {
