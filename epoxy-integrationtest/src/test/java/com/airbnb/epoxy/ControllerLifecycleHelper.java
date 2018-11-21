@@ -8,6 +8,9 @@ import org.robolectric.RuntimeEnvironment;
 import java.util.Collections;
 import java.util.List;
 
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.spy;
+
 class ControllerLifecycleHelper {
   private EpoxyViewHolder viewHolder;
 
@@ -21,7 +24,7 @@ class ControllerLifecycleHelper {
   }
 
   void bindModels(BaseEpoxyAdapter adapter) {
-    List<EpoxyModel<?>> models = adapter.getCurrentModels();
+    List<? extends EpoxyModel<?>> models = adapter.getCurrentModels();
     for (int i = 0; i < models.size(); i++) {
       viewHolder = createViewHolder(adapter, i);
       adapter.onBindViewHolder(viewHolder, i);
@@ -36,11 +39,16 @@ class ControllerLifecycleHelper {
   }
 
   static EpoxyViewHolder createViewHolder(BaseEpoxyAdapter adapter, int position) {
-    int itemViewType = adapter.getItemViewType(position);
-    return adapter.onCreateViewHolder(
-        new FrameLayout(RuntimeEnvironment.application),
-        itemViewType
+    final EpoxyViewHolder viewHolder = spy(
+        adapter.onCreateViewHolder(
+            new FrameLayout(RuntimeEnvironment.application),
+            adapter.getItemViewType(position)
+        )
     );
+
+    // The simplest way to inject the position for testing.
+    doReturn(position).when(viewHolder).getAdapterPosition();
+    return viewHolder;
   }
 
   void recycleLastBoundModel(EpoxyController controller) {

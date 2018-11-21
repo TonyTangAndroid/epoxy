@@ -3,6 +3,11 @@ package com.airbnb.epoxy;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
+import android.view.ViewParent;
+
+import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.RecyclerView.ViewHolder;
 
 /**
  * Used in the generated models to transform normal view click listeners to model click
@@ -14,61 +19,93 @@ public class WrappedEpoxyModelClickListener<T extends EpoxyModel<?>, V>
   // This also lets us call back to the original hashCode and equals methods
   private final OnModelClickListener<T, V> originalClickListener;
   private final OnModelLongClickListener<T, V> originalLongClickListener;
-  private EpoxyViewHolder holder;
-  private final T model;
-  private V object;
 
-  public WrappedEpoxyModelClickListener(T model, OnModelClickListener<T, V> clickListener) {
+  public WrappedEpoxyModelClickListener(OnModelClickListener<T, V> clickListener) {
     if (clickListener == null) {
       throw new IllegalArgumentException("Click listener cannot be null");
     }
 
-    this.model = model;
     this.originalClickListener = clickListener;
     originalLongClickListener = null;
   }
 
-  public WrappedEpoxyModelClickListener(T model, OnModelLongClickListener<T, V> clickListener) {
+  public WrappedEpoxyModelClickListener(OnModelLongClickListener<T, V> clickListener) {
     if (clickListener == null) {
       throw new IllegalArgumentException("Click listener cannot be null");
     }
 
-    this.model = model;
     this.originalLongClickListener = clickListener;
     originalClickListener = null;
   }
 
-  public void bind(EpoxyViewHolder holder, V object) {
-    this.holder = holder;
-    this.object = object;
-  }
-
   @Override
   public void onClick(View v) {
-    if (holder == null) {
-      throw new IllegalStateException("Holder was not bound");
+    EpoxyViewHolder epoxyHolder = getEpoxyHolderForChildView(v);
+    if (epoxyHolder == null) {
+      throw new IllegalStateException("Could not find RecyclerView holder for clicked view");
     }
-    if (object == null) {
-      throw new IllegalStateException("Object was not bound");
+
+    final int adapterPosition = epoxyHolder.getAdapterPosition();
+    if (adapterPosition != RecyclerView.NO_POSITION) {
+      //noinspection unchecked
+      originalClickListener
+          .onClick((T) epoxyHolder.getModel(), (V) epoxyHolder.objectToBind(), v, adapterPosition);
     }
-    if (originalClickListener == null) {
-      throw new IllegalStateException("Long click listener was set.");
-    }
-    originalClickListener.onClick(model, object, v, holder.getAdapterPosition());
   }
 
   @Override
   public boolean onLongClick(View v) {
-    if (holder == null) {
-      throw new IllegalStateException("Holder was not bound");
+    EpoxyViewHolder epoxyHolder = getEpoxyHolderForChildView(v);
+    if (epoxyHolder == null) {
+      throw new IllegalStateException("Could not find RecyclerView holder for clicked view");
     }
-    if (object == null) {
-      throw new IllegalStateException("Object was not bound");
+
+    final int adapterPosition = epoxyHolder.getAdapterPosition();
+    if (adapterPosition != RecyclerView.NO_POSITION) {
+      //noinspection unchecked
+      return originalLongClickListener
+          .onLongClick((T) epoxyHolder.getModel(), (V) epoxyHolder.objectToBind(), v,
+              adapterPosition);
     }
-    if (originalLongClickListener == null) {
-      throw new IllegalStateException("Normal click listener was set.");
+
+    return false;
+  }
+
+  @Nullable
+  private static EpoxyViewHolder getEpoxyHolderForChildView(View v) {
+    RecyclerView recyclerView = findParentRecyclerView(v);
+    if (recyclerView == null) {
+      return null;
     }
-    return originalLongClickListener.onLongClick(model, object, v, holder.getAdapterPosition());
+
+    ViewHolder viewHolder = recyclerView.findContainingViewHolder(v);
+    if (viewHolder == null) {
+      return null;
+    }
+
+    if (!(viewHolder instanceof EpoxyViewHolder)) {
+      return null;
+    }
+
+    return (EpoxyViewHolder) viewHolder;
+  }
+
+  @Nullable
+  private static RecyclerView findParentRecyclerView(@Nullable View v) {
+    if (v == null) {
+      return null;
+    }
+
+    ViewParent parent = v.getParent();
+    if (parent instanceof RecyclerView) {
+      return (RecyclerView) parent;
+    }
+
+    if (parent instanceof View) {
+      return findParentRecyclerView((View) parent);
+    }
+
+    return null;
   }
 
   @Override

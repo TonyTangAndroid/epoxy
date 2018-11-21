@@ -1,15 +1,13 @@
 package com.airbnb.epoxy.sample;
 
-import android.support.v7.widget.RecyclerView.RecycledViewPool;
-
 import com.airbnb.epoxy.AutoModel;
-import com.airbnb.epoxy.ButtonBindingModel_;
-import com.airbnb.epoxy.R;
 import com.airbnb.epoxy.TypedEpoxyController;
 import com.airbnb.epoxy.sample.models.CarouselModelGroup;
 import com.airbnb.epoxy.sample.views.HeaderViewModel_;
 
 import java.util.List;
+
+import static com.airbnb.epoxy.EpoxyAsyncUtil.getAsyncBackgroundHandler;
 
 public class SampleController extends TypedEpoxyController<List<CarouselData>> {
   public interface AdapterCallbacks {
@@ -31,11 +29,15 @@ public class SampleController extends TypedEpoxyController<List<CarouselData>> {
   @AutoModel ButtonBindingModel_ changeColorsButton;
 
   private final AdapterCallbacks callbacks;
-  private final RecycledViewPool recycledViewPool;
 
-  SampleController(AdapterCallbacks callbacks, RecycledViewPool recycledViewPool) {
+  SampleController(AdapterCallbacks callbacks) {
+    // Demonstrating how model building and diffing can be done in the background.
+    // You can control them separately by passing in separate handler, as shown below.
+    super(getAsyncBackgroundHandler(), getAsyncBackgroundHandler());
+//    super(new Handler(), BACKGROUND_HANDLER);
+//    super(BACKGROUND_HANDLER, new Handler());
+
     this.callbacks = callbacks;
-    this.recycledViewPool = recycledViewPool;
     setDebugLoggingEnabled(true);
   }
 
@@ -70,7 +72,7 @@ public class SampleController extends TypedEpoxyController<List<CarouselData>> {
 
     for (int i = 0; i < carousels.size(); i++) {
       CarouselData carousel = carousels.get(i);
-      add(new CarouselModelGroup(carousel, callbacks, recycledViewPool));
+      add(new CarouselModelGroup(carousel, callbacks));
     }
   }
 

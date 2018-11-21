@@ -1,7 +1,5 @@
 package com.airbnb.epoxy;
 
-import android.support.annotation.Nullable;
-
 import com.squareup.javapoet.ClassName;
 
 import java.util.ArrayList;
@@ -18,6 +16,8 @@ import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 
+import androidx.annotation.Nullable;
+
 import static com.airbnb.epoxy.Utils.buildEpoxyException;
 import static com.airbnb.epoxy.Utils.getClassParamFromAnnotation;
 
@@ -27,9 +27,11 @@ class ConfigManager {
   static final String PROCESSOR_OPTION_REQUIRE_HASHCODE = "requireHashCodeInEpoxyModels";
   static final String PROCESSOR_OPTION_REQUIRE_ABSTRACT_MODELS = "requireAbstractEpoxyModels";
   static final String PROCESSOR_OPTION_IMPLICITLY_ADD_AUTO_MODELS = "implicitlyAddAutoModels";
+  static final String PROCESSOR_OPTION_DISABLE_KOTLIN_EXTENSION_GENERATION =
+      "disableEpoxyKotlinExtensionGeneration";
 
   private static final PackageConfigSettings
-      DEFAULT_PACKAGE_CONFIG_SETTINGS = PackageConfigSettings.forDefaults();
+      DEFAULT_PACKAGE_CONFIG_SETTINGS = PackageConfigSettings.Companion.forDefaults();
   private final Map<String, PackageConfigSettings> configurationMap = new HashMap<>();
   private final Map<String, PackageModelViewSettings> modelViewNamingMap = new HashMap<>();
   private final Elements elementUtils;
@@ -37,6 +39,7 @@ class ConfigManager {
   private final boolean globalRequireHashCode;
   private final boolean globalRequireAbstractModels;
   private final boolean globalImplicitlyAddAutoModels;
+  private final boolean disableKotlinExtensionGeneration;
   private final Types typeUtils;
 
   ConfigManager(Map<String, String> options, Elements elementUtils, Types typeUtils) {
@@ -53,6 +56,10 @@ class ConfigManager {
     globalImplicitlyAddAutoModels =
         getBooleanOption(options, PROCESSOR_OPTION_IMPLICITLY_ADD_AUTO_MODELS,
             PackageEpoxyConfig.IMPLICITLY_ADD_AUTO_MODELS_DEFAULT);
+
+    disableKotlinExtensionGeneration =
+        getBooleanOption(options, PROCESSOR_OPTION_DISABLE_KOTLIN_EXTENSION_GENERATION, false);
+
     this.typeUtils = typeUtils;
   }
 
@@ -90,7 +97,7 @@ class ConfigManager {
       }
 
       PackageEpoxyConfig annotation = element.getAnnotation(PackageEpoxyConfig.class);
-      configurationMap.put(packageName, PackageConfigSettings.create(annotation));
+      configurationMap.put(packageName, PackageConfigSettings.Companion.create(annotation));
     }
 
     for (Element element : roundEnv.getElementsAnnotatedWith(PackageModelViewConfig.class)) {
@@ -102,17 +109,16 @@ class ConfigManager {
         continue;
       }
 
-      TypeMirror rClassType =
-          getClassParamFromAnnotation(element, PackageModelViewConfig.class, "rClass");
-      if (rClassType == null) {
+      ClassName rClassName =
+          getClassParamFromAnnotation(element, PackageModelViewConfig.class, "rClass", typeUtils);
+
+      if (rClassName == null) {
         errors.add(buildEpoxyException(
             "Unable to get R class details from annotation %s (package: %s)",
             PackageModelViewConfig.class.getSimpleName(), packageName));
         continue;
       }
 
-      ClassName rClassName =
-          ClassName.get((TypeElement) typeUtils.asElement(rClassType));
 
       String rLayoutClassString = rClassName.reflectionName();
       if (!rLayoutClassString.endsWith(".R")
@@ -140,17 +146,22 @@ class ConfigManager {
 
     // Legacy models can choose whether they want to require it
     return globalRequireHashCode
-        || getConfigurationForPackage(attributeInfo.getPackageName()).requireHashCode;
+        || getConfigurationForPackage(attributeInfo.getPackageName()).getRequireHashCode();
   }
 
   boolean requiresAbstractModels(TypeElement classElement) {
     return globalRequireAbstractModels
-        || getConfigurationForElement(classElement).requireAbstractModels;
+        || getConfigurationForElement(classElement).getRequireAbstractModels();
   }
 
   boolean implicitlyAddAutoModels(ControllerClassInfo controller) {
     return globalImplicitlyAddAutoModels
-        || getConfigurationForElement(controller.controllerClassElement).implicitlyAddAutoModels;
+        || getConfigurationForElement(controller.getControllerClassElement())
+        .getImplicitlyAddAutoModels();
+  }
+
+  boolean disableKotlinExtensionGeneration() {
+    return disableKotlinExtensionGeneration;
   }
 
   boolean shouldValidateModelUsage() {
@@ -169,7 +180,7 @@ class ConfigManager {
       return null;
     }
 
-    return modelViewConfig.defaultBaseModel;
+    return modelViewConfig.getDefaultBaseModel();
   }
 
   boolean includeAlternateLayoutsForViews(TypeElement viewElement) {
@@ -178,7 +189,16 @@ class ConfigManager {
       return false;
     }
 
-    return modelViewConfig.includeAlternateLayouts;
+    return modelViewConfig.getIncludeAlternateLayouts();
+  }
+
+  String generatedModelSuffix(TypeElement viewElement) {
+    PackageModelViewSettings modelViewConfig = getModelViewConfig(viewElement);
+    if (modelViewConfig == null) {
+      return GeneratedModelInfo.GENERATED_MODEL_SUFFIX;
+    }
+
+    return modelViewConfig.getGeneratedModelSuffix();
   }
 
   private PackageConfigSettings getConfigurationForElement(Element element) {

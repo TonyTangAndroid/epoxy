@@ -1,5 +1,7 @@
 package com.airbnb.epoxy;
 
+import android.os.Handler;
+
 /**
  * This is a wrapper around {@link com.airbnb.epoxy.EpoxyController} to simplify how data is
  * accessed. Use this if the data required to build your models is represented by four objects.
@@ -20,7 +22,14 @@ public abstract class Typed4EpoxyController<T, U, V, W> extends EpoxyController 
   private U data2;
   private V data3;
   private W data4;
-  private boolean insideSetData;
+  private boolean allowModelBuildRequests;
+
+  public Typed4EpoxyController() {
+  }
+
+  public Typed4EpoxyController(Handler modelBuildingHandler, Handler diffingHandler) {
+    super(modelBuildingHandler, diffingHandler);
+  }
 
   /**
    * Call this with the latest data when you want models to be rebuilt. The data will be passed on
@@ -31,14 +40,14 @@ public abstract class Typed4EpoxyController<T, U, V, W> extends EpoxyController 
     this.data2 = data2;
     this.data3 = data3;
     this.data4 = data4;
-    insideSetData = true;
+    allowModelBuildRequests = true;
     requestModelBuild();
-    insideSetData = false;
+    allowModelBuildRequests = false;
   }
 
   @Override
   public final void requestModelBuild() {
-    if (!insideSetData) {
+    if (!allowModelBuildRequests) {
       throw new IllegalStateException(
           "You cannot call `requestModelBuild` directly. Call `setData` instead to trigger a "
               + "model refresh with new data.");
@@ -47,8 +56,15 @@ public abstract class Typed4EpoxyController<T, U, V, W> extends EpoxyController 
   }
 
   @Override
+  public void moveModel(int fromPosition, int toPosition) {
+    allowModelBuildRequests = true;
+    super.moveModel(fromPosition, toPosition);
+    allowModelBuildRequests = false;
+  }
+
+  @Override
   public void requestDelayedModelBuild(int delayMs) {
-    if (!insideSetData) {
+    if (!allowModelBuildRequests) {
       throw new IllegalStateException(
           "You cannot call `requestModelBuild` directly. Call `setData` instead to trigger a "
               + "model refresh with new data.");

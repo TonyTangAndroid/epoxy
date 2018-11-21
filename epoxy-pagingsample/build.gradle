@@ -1,0 +1,45 @@
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-kapt'
+
+android {
+  compileSdkVersion rootProject.COMPILE_SDK_VERSION
+
+  defaultConfig {
+    applicationId "com.airbnb.epoxy.pagingsample"
+    minSdkVersion rootProject.MIN_SDK_VERSION
+    targetSdkVersion rootProject.TARGET_SDK_VERSION
+    versionCode 1
+    versionName "1.0"
+
+    testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+  }
+}
+
+dependencies {
+  implementation rootProject.deps.kotlin
+
+  implementation "org.jetbrains.anko:anko-coroutines:0.10.5"
+  implementation "androidx.room:room-common:$ANDROIDX_ROOM"
+  implementation "androidx.room:room-runtime:$ANDROIDX_ROOM"
+  implementation "androidx.paging:paging-common:$ANDROIDX_PAGING"
+  implementation "androidx.paging:paging-runtime:$ANDROIDX_PAGING"
+  implementation "androidx.recyclerview:recyclerview:$ANDROIDX_RECYCLERVIEW"
+  kapt "androidx.room:room-compiler:$ANDROIDX_ROOM"
+
+  implementation project(':epoxy-adapter')
+  implementation project(':epoxy-paging')
+  implementation project(':epoxy-annotations')
+  kapt project(':epoxy-processor')
+
+  implementation "androidx.appcompat:appcompat:$ANDROIDX_APPCOMPAT"
+
+  implementation "androidx.lifecycle:lifecycle-runtime:$ANDROIDX_RUNTIME"
+  implementation "androidx.lifecycle:lifecycle-extensions:$ANDROIDX_RUNTIME"
+
+  testImplementation 'junit:junit:4.12'
+  androidTestImplementation('androidx.test.espresso:espresso-core:3.1.0-alpha2', {
+    exclude group: 'com.android.support', module: 'support-annotations'
+  })
+
+}

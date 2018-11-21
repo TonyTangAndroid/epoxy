@@ -1,15 +1,16 @@
 package com.airbnb.epoxy;
 
 import android.os.Bundle;
-import android.support.annotation.CallSuper;
-import android.support.annotation.Nullable;
-import android.support.v7.widget.GridLayoutManager.SpanSizeLookup;
-import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
 
 import java.util.Collections;
 import java.util.List;
+
+import androidx.annotation.CallSuper;
+import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.GridLayoutManager.SpanSizeLookup;
+import androidx.recyclerview.widget.RecyclerView;
 
 abstract class BaseEpoxyAdapter extends RecyclerView.Adapter<EpoxyViewHolder> {
   private static final String SAVED_STATE_ARG_VIEW_HOLDERS = "saved_state_view_holders";
@@ -45,7 +46,7 @@ abstract class BaseEpoxyAdapter extends RecyclerView.Adapter<EpoxyViewHolder> {
     }
   };
 
-  public BaseEpoxyAdapter() {
+  BaseEpoxyAdapter() {
     // Defaults to stable ids since view models generate unique ids. Set this to false in the
     // subclass if you don't want to support it
     setHasStableIds(true);
@@ -66,7 +67,7 @@ abstract class BaseEpoxyAdapter extends RecyclerView.Adapter<EpoxyViewHolder> {
   }
 
   /** Return the models currently being used by the adapter to populate the recyclerview. */
-  abstract List<EpoxyModel<?>> getCurrentModels();
+  abstract List<? extends EpoxyModel<?>> getCurrentModels();
 
   public boolean isEmpty() {
     return getCurrentModels().isEmpty();
@@ -76,7 +77,7 @@ abstract class BaseEpoxyAdapter extends RecyclerView.Adapter<EpoxyViewHolder> {
   public EpoxyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
     EpoxyModel<?> model = viewTypeManager.getModelForViewType(this, viewType);
     View view = model.buildView(parent);
-    return new EpoxyViewHolder(view);
+    return new EpoxyViewHolder(view, model.shouldSaveViewState());
   }
 
   @Override
@@ -86,16 +87,6 @@ abstract class BaseEpoxyAdapter extends RecyclerView.Adapter<EpoxyViewHolder> {
 
   @Override
   public void onBindViewHolder(EpoxyViewHolder holder, int position, List<Object> payloads) {
-    // A ViewHolder can be bound again even it is already bound and showing, like when it is on
-    // screen and is changed. In this case we need
-    // to carry the state of the previous view over to the new view. This may not be necessary if
-    // the viewholder is reused (see RecyclerView.ItemAnimator#canReuseUpdatedViewHolder)
-    // but we don't rely on that to be safe and to simplify
-    EpoxyViewHolder boundViewHolder = boundViewHolders.get(holder);
-    if (boundViewHolder != null) {
-      viewHolderState.save(boundViewHolder);
-    }
-
     EpoxyModel<?> modelToShow = getModelForPosition(position);
 
     EpoxyModel<?> previouslyBoundModel = null;
@@ -105,7 +96,13 @@ abstract class BaseEpoxyAdapter extends RecyclerView.Adapter<EpoxyViewHolder> {
 
     holder.bind(modelToShow, previouslyBoundModel, payloads, position);
 
-    viewHolderState.restore(holder);
+    if (payloads.isEmpty()) {
+      // We only apply saved state to the view on initial bind, not on model updates.
+      // Since view state should be independent of model props, we should not need to apply state
+      // again in this case. This simplifies a rebind on update
+      viewHolderState.restore(holder);
+    }
+
     boundViewHolders.put(holder);
 
     if (diffPayloadsEnabled()) {

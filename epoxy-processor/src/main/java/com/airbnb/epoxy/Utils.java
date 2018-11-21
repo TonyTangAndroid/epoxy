@@ -1,7 +1,5 @@
 package com.airbnb.epoxy;
 
-import android.support.annotation.Nullable;
-
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterSpec;
@@ -29,6 +27,9 @@ import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 
+import androidx.annotation.Nullable;
+
+import static com.airbnb.epoxy.KotlinUtilsKt.getParentClassElement;
 import static com.squareup.javapoet.TypeName.BOOLEAN;
 import static com.squareup.javapoet.TypeName.BYTE;
 import static com.squareup.javapoet.TypeName.CHAR;
@@ -55,6 +56,7 @@ class Utils {
   static final String EPOXY_CONTROLLER_TYPE = "com.airbnb.epoxy.EpoxyController";
   static final String VIEW_CLICK_LISTENER_TYPE = "android.view.View.OnClickListener";
   static final String VIEW_LONG_CLICK_LISTENER_TYPE = "android.view.View.OnLongClickListener";
+  static final String DRAWABLE_TYPE = "android.graphics.drawable.Drawable";
   static final String GENERATED_MODEL_INTERFACE = "com.airbnb.epoxy.GeneratedModel";
   static final String MODEL_CLICK_LISTENER_TYPE = "com.airbnb.epoxy.OnModelClickListener";
   static final String MODEL_LONG_CLICK_LISTENER_TYPE = "com.airbnb.epoxy.OnModelLongClickListener";
@@ -62,6 +64,10 @@ class Utils {
   static final String ON_UNBIND_MODEL_LISTENER_TYPE = "com.airbnb.epoxy.OnModelUnboundListener";
   static final String WRAPPED_LISTENER_TYPE = "com.airbnb.epoxy.WrappedEpoxyModelClickListener";
   static final String DATA_BINDING_MODEL_TYPE = "com.airbnb.epoxy.DataBindingEpoxyModel";
+  static final String ON_VISIBILITY_STATE_MODEL_LISTENER_TYPE =
+      "com.airbnb.epoxy.OnModelVisibilityStateChangedListener";
+  static final String ON_VISIBILITY_MODEL_LISTENER_TYPE =
+      "com.airbnb.epoxy.OnModelVisibilityChangedListener";
 
   static void throwError(String msg, Object... args)
       throws EpoxyProcessorException {
@@ -84,30 +90,9 @@ class Utils {
     }
   }
 
-  static TypeMirror getTypeMirror(ClassName className, Elements elements, Types types) {
-    Element classElement = getElementByName(className, elements, types);
-    if (classElement == null) {
-      throw new IllegalArgumentException("Unknown class: " + className);
-    }
-
-    return classElement.asType();
-  }
-
-  static TypeMirror getTypeMirror(Class<?> clazz, Elements elements) {
-    return getTypeMirror(clazz.getCanonicalName(), elements);
-  }
-
-  static TypeMirror getTypeMirror(String canonicalName, Elements elements) {
-    try {
-      return elements.getTypeElement(canonicalName).asType();
-    } catch (MirroredTypeException mte) {
-      return mte.getTypeMirror();
-    }
-  }
-
-  static Element getElementByName(ClassName name, Elements elements, Types types) {
+  static TypeElement getElementByName(ClassName name, Elements elements, Types types) {
     String canonicalName = name.reflectionName().replace("$", ".");
-    return getElementByName(canonicalName, elements, types);
+    return (TypeElement) getElementByName(canonicalName, elements, types);
   }
 
   static Element getElementByName(String name, Elements elements, Types types) {
@@ -127,11 +112,35 @@ class Utils {
   }
 
   static boolean isViewClickListenerType(TypeMirror type) {
-    return isSubtypeOfType(type, VIEW_CLICK_LISTENER_TYPE);
+    return isType(type, VIEW_CLICK_LISTENER_TYPE);
   }
 
   static boolean isViewLongClickListenerType(TypeMirror type) {
-    return isSubtypeOfType(type, VIEW_LONG_CLICK_LISTENER_TYPE);
+    return isType(type, VIEW_LONG_CLICK_LISTENER_TYPE);
+  }
+
+  static boolean isBooleanType(TypeMirror type) {
+    return type.getKind() == TypeKind.BOOLEAN || Utils.isType(type, "java.lang.Boolean");
+  }
+
+  static boolean isDoubleType(TypeMirror type) {
+    return type.getKind() == TypeKind.DOUBLE || Utils.isType(type, "java.lang.Double");
+  }
+
+  static boolean isIntType(TypeMirror type) {
+    return type.getKind() == TypeKind.INT || Utils.isType(type, "java.lang.Integer");
+  }
+
+  static boolean isLongType(TypeMirror type) {
+    return type.getKind() == TypeKind.LONG || Utils.isType(type, "java.lang.Long");
+  }
+
+  static boolean isStringType(TypeMirror type) {
+    return Utils.isType(type, "java.lang.String");
+  }
+
+  static boolean isCharSequenceOrStringType(TypeMirror type) {
+    return Utils.isType(type, "java.lang.CharSequence") || isStringType(type);
   }
 
   static boolean isIterableType(TypeElement element) {
@@ -266,7 +275,7 @@ class Utils {
       }
     }
 
-    TypeElement superClazz = (TypeElement) typeUtils.asElement(clazz.getSuperclass());
+    TypeElement superClazz = getParentClassElement(clazz, typeUtils);
     if (superClazz == null) {
       return null;
     }
@@ -287,7 +296,8 @@ class Utils {
       ParameterSpec param2 = params2.get(i);
 
       TypeMirror param1Type = types.erasure(param1.asType());
-      TypeMirror param2Type = types.erasure(getTypeMirror(param2.type.toString(), elements));
+      TypeMirror param2Type =
+          types.erasure(KotlinUtilsKt.getTypeMirror(param2.type.toString(), elements));
 
       // If a param is a type variable then we don't need an exact type match, it just needs to
       // be assignable
@@ -426,8 +436,12 @@ class Utils {
     return String.valueOf(string.charAt(3)).toLowerCase() + string.substring(4);
   }
 
+  static boolean isType(TypeMirror typeMirror, String otherType) {
+    return otherType.equals(typeMirror.toString());
+  }
+
   static boolean isType(Elements elements, Types types, TypeMirror typeMirror, Class<?> clazz) {
-    TypeMirror classType = getTypeMirror(clazz, elements);
+    TypeMirror classType = KotlinUtilsKt.getTypeMirror(clazz, elements);
     return types.isSameType(typeMirror, classType);
   }
 
@@ -441,9 +455,18 @@ class Utils {
     return false;
   }
 
+  static boolean isType(TypeMirror type, ClassName className) {
+    return isType(type, className.reflectionName());
+  }
+
+  static boolean isListOfType(TypeMirror typeMirror, String type) {
+    return isType(typeMirror, "java.util.List<" + type + ">");
+  }
+
   @Nullable
-  static <T extends Annotation> TypeMirror getClassParamFromAnnotation(
-      Element annotatedElement, Class<T> annotationClass, String paramName) {
+  static <T extends Annotation> ClassName getClassParamFromAnnotation(
+      Element annotatedElement, Class<T> annotationClass, String paramName,
+      Types typeUtils) {
     AnnotationMirror am = getAnnotationMirror(annotatedElement, annotationClass);
     if (am == null) {
       return null;
@@ -454,7 +477,7 @@ class Utils {
     } else {
       Object value = av.getValue();
       if (value instanceof TypeMirror) {
-        return (TypeMirror) value;
+        return ClassName.get((TypeElement) typeUtils.asElement((TypeMirror) value));
       }
       // Couldn't resolve R class
       return null;

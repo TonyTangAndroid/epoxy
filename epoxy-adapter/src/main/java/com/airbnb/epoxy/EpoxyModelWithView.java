@@ -1,8 +1,10 @@
 package com.airbnb.epoxy;
 
-import android.support.annotation.LayoutRes;
 import android.view.View;
 import android.view.ViewGroup;
+
+import androidx.annotation.LayoutRes;
+import androidx.annotation.NonNull;
 
 /**
  * A model that allows its view to be built programmatically instead of by inflating a layout
@@ -26,7 +28,7 @@ public abstract class EpoxyModelWithView<T extends View> extends EpoxyModel<T> {
    * Get the view type associated with this model's view. Any models with the same view type will
    * have views recycled between them.
    *
-   * @see android.support.v7.widget.RecyclerView.Adapter#getItemViewType(int)
+   * @see androidx.recyclerview.widget.RecyclerView.Adapter#getItemViewType(int)
    */
   @Override
   protected int getViewType() {
@@ -40,7 +42,7 @@ public abstract class EpoxyModelWithView<T extends View> extends EpoxyModel<T> {
    * @param parent The parent ViewGroup that the returned view will be added to.
    */
   @Override
-  protected abstract T buildView(ViewGroup parent);
+  protected abstract T buildView(@NonNull ViewGroup parent);
 
   @Override
   protected final int getDefaultLayout() {

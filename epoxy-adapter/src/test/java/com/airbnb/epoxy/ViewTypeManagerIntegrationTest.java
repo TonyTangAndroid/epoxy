@@ -10,6 +10,8 @@ import org.junit.runner.RunWith;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 
+import androidx.annotation.NonNull;
+
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
@@ -27,7 +29,7 @@ public class ViewTypeManagerIntegrationTest {
 
   static class TestModel extends EpoxyModelWithView<View> {
     @Override
-    protected View buildView(ViewGroup parent) {
+    protected View buildView(@NonNull ViewGroup parent) {
       return new FrameLayout(RuntimeEnvironment.application);
     }
   }

@@ -1,15 +1,17 @@
 package com.airbnb.epoxy;
 
 import android.content.Context;
-import android.support.annotation.Nullable;
-import android.support.annotation.PluralsRes;
-import android.support.annotation.StringRes;
 
 import java.util.Arrays;
+
+import androidx.annotation.Nullable;
+import androidx.annotation.PluralsRes;
+import androidx.annotation.StringRes;
 
 public class StringAttributeData {
   private final boolean hasDefault;
   @Nullable private final CharSequence defaultString;
+  @StringRes private final int defaultStringRes;
 
   @Nullable private CharSequence string;
   @StringRes private int stringRes;
@@ -20,12 +22,21 @@ public class StringAttributeData {
   public StringAttributeData() {
     hasDefault = false;
     defaultString = null;
+    defaultStringRes = 0;
   }
 
-  public StringAttributeData(@Nullable String defaultString) {
+  public StringAttributeData(@Nullable CharSequence defaultString) {
     hasDefault = true;
     this.defaultString = defaultString;
     string = defaultString;
+    defaultStringRes = 0;
+  }
+
+  public StringAttributeData(@StringRes int defaultStringRes) {
+    hasDefault = true;
+    this.defaultStringRes = defaultStringRes;
+    stringRes = defaultStringRes;
+    defaultString = null;
   }
 
   public void setValue(@Nullable CharSequence string) {
@@ -39,37 +50,37 @@ public class StringAttributeData {
   }
 
   public void setValue(@StringRes int stringRes, @Nullable Object[] formatArgs) {
-    if (stringRes > 0) {
+    if (stringRes != 0) {
       this.stringRes = stringRes;
       this.formatArgs = formatArgs;
       string = null;
       pluralRes = 0;
     } else {
-      handleInvalidStringRes(stringRes);
+      handleInvalidStringRes();
     }
   }
 
-  private void handleInvalidStringRes(int stringRes) {
-    if (stringRes == 0) {
-      if (hasDefault) {
-        setValue(defaultString);
+  private void handleInvalidStringRes() {
+    if (hasDefault) {
+      if (defaultStringRes > 0) {
+        setValue(defaultStringRes);
       } else {
-        throw new IllegalArgumentException("0 is an invalid value for required strings.");
+        setValue(defaultString);
       }
     } else {
-      throw new IllegalArgumentException("String resource cannot be negative: " + stringRes);
+      throw new IllegalArgumentException("0 is an invalid value for required strings.");
     }
   }
 
   public void setValue(@PluralsRes int pluralRes, int quantity, @Nullable Object[] formatArgs) {
-    if (pluralRes > 0) {
+    if (pluralRes != 0) {
       this.pluralRes = pluralRes;
       this.quantity = quantity;
       this.formatArgs = formatArgs;
       string = null;
       stringRes = 0;
     } else {
-      handleInvalidStringRes(pluralRes);
+      handleInvalidStringRes();
     }
   }
 

@@ -1,7 +1,5 @@
 package com.airbnb.epoxy;
 
-import com.google.auto.service.AutoService;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -15,7 +13,6 @@ import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Filer;
 import javax.annotation.processing.Messager;
 import javax.annotation.processing.ProcessingEnvironment;
-import javax.annotation.processing.Processor;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedOptions;
 import javax.lang.model.SourceVersion;
@@ -23,10 +20,12 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 
+import static com.airbnb.epoxy.ConfigManager.PROCESSOR_OPTION_DISABLE_KOTLIN_EXTENSION_GENERATION;
 import static com.airbnb.epoxy.ConfigManager.PROCESSOR_OPTION_IMPLICITLY_ADD_AUTO_MODELS;
 import static com.airbnb.epoxy.ConfigManager.PROCESSOR_OPTION_REQUIRE_ABSTRACT_MODELS;
 import static com.airbnb.epoxy.ConfigManager.PROCESSOR_OPTION_REQUIRE_HASHCODE;
 import static com.airbnb.epoxy.ConfigManager.PROCESSOR_OPTION_VALIDATE_MODEL_USAGE;
+import static com.airbnb.epoxy.EpoxyProcessor.KAPT_KOTLIN_GENERATED_OPTION_NAME;
 
 /**
  * Looks for {@link EpoxyAttribute} annotations and generates a subclass for all classes that have
@@ -35,36 +34,39 @@ import static com.airbnb.epoxy.ConfigManager.PROCESSOR_OPTION_VALIDATE_MODEL_USA
  * since generated classes would have to be abstract in order to guarantee they compile, and that
  * reduces their usefulness and doesn't make as much sense to support.
  */
-@AutoService(Processor.class)
 @SupportedOptions({
     PROCESSOR_OPTION_IMPLICITLY_ADD_AUTO_MODELS,
     PROCESSOR_OPTION_VALIDATE_MODEL_USAGE,
     PROCESSOR_OPTION_REQUIRE_ABSTRACT_MODELS,
-    PROCESSOR_OPTION_REQUIRE_HASHCODE
+    PROCESSOR_OPTION_REQUIRE_HASHCODE,
+    PROCESSOR_OPTION_DISABLE_KOTLIN_EXTENSION_GENERATION,
+    KAPT_KOTLIN_GENERATED_OPTION_NAME
 })
 public class EpoxyProcessor extends AbstractProcessor {
 
+  // This option will be presented when processed by kapt, and it tells us where to put our
+  // generated kotlin files
+  // https://github.com/JetBrains/kotlin-examples/blob/master/gradle/kotlin-code-generation
+  // /annotation-processor/src/main/java/TestAnnotationProcessor.kt
+  public static final String KAPT_KOTLIN_GENERATED_OPTION_NAME = "kapt.kotlin.generated";
+
   private final Map<String, String> testOptions;
-  private Filer filer;
   private Messager messager;
   private Elements elementUtils;
   private Types typeUtils;
 
-  private LayoutResourceProcessor layoutResourceProcessor;
   private ConfigManager configManager;
-  private DataBindingModuleLookup dataBindingModuleLookup;
   private final ErrorLogger errorLogger = new ErrorLogger();
-  private GeneratedModelWriter modelWriter;
   private ControllerProcessor controllerProcessor;
   private DataBindingProcessor dataBindingProcessor;
   private final List<GeneratedModelInfo> generatedModels = new ArrayList<>();
   private ModelProcessor modelProcessor;
   private LithoSpecProcessor lithoSpecProcessor;
+  private KotlinModelBuilderExtensionWriter kotlinExtensionWriter;
   private ModelViewProcessor modelViewProcessor;
-  private boolean hasWrittenDataBindingModels;
 
   public EpoxyProcessor() {
-    this(Collections.<String, String>emptyMap());
+    this(Collections.emptyMap());
   }
 
   /**
@@ -92,32 +94,31 @@ public class EpoxyProcessor extends AbstractProcessor {
   @Override
   public synchronized void init(ProcessingEnvironment processingEnv) {
     super.init(processingEnv);
-    filer = processingEnv.getFiler();
+    Filer filer = processingEnv.getFiler();
     messager = processingEnv.getMessager();
     elementUtils = processingEnv.getElementUtils();
     typeUtils = processingEnv.getTypeUtils();
 
-    layoutResourceProcessor =
-        new LayoutResourceProcessor(processingEnv, errorLogger, elementUtils, typeUtils);
+    ResourceProcessor resourceProcessor =
+        new ResourceProcessor(processingEnv, errorLogger, elementUtils, typeUtils);
 
     configManager =
         new ConfigManager(!testOptions.isEmpty() ? testOptions : processingEnv.getOptions(),
             elementUtils, typeUtils);
 
-    dataBindingModuleLookup =
-        new DataBindingModuleLookup(elementUtils, typeUtils, errorLogger, layoutResourceProcessor);
+    DataBindingModuleLookup dataBindingModuleLookup =
+        new DataBindingModuleLookup(elementUtils, typeUtils, errorLogger, resourceProcessor);
 
-    modelWriter =
-        new GeneratedModelWriter(filer, typeUtils, errorLogger,
-            layoutResourceProcessor,
-            configManager, dataBindingModuleLookup, elementUtils);
+    GeneratedModelWriter modelWriter = new GeneratedModelWriter(filer, typeUtils, errorLogger,
+        resourceProcessor,
+        configManager, dataBindingModuleLookup, elementUtils);
 
     controllerProcessor = new ControllerProcessor(filer, elementUtils, typeUtils, errorLogger,
         configManager);
 
     dataBindingProcessor =
         new DataBindingProcessor(elementUtils, typeUtils, errorLogger, configManager,
-            layoutResourceProcessor, dataBindingModuleLookup, modelWriter);
+            resourceProcessor, dataBindingModuleLookup, modelWriter);
 
     modelProcessor = new ModelProcessor(
         elementUtils, typeUtils, configManager, errorLogger,
@@ -125,10 +126,12 @@ public class EpoxyProcessor extends AbstractProcessor {
 
     modelViewProcessor = new ModelViewProcessor(
         elementUtils, typeUtils, configManager, errorLogger,
-        modelWriter);
+        modelWriter, resourceProcessor);
 
     lithoSpecProcessor = new LithoSpecProcessor(
-        elementUtils, typeUtils, configManager, errorLogger, modelWriter);
+        elementUtils, typeUtils, errorLogger, modelWriter);
+
+    kotlinExtensionWriter = new KotlinModelBuilderExtensionWriter(processingEnv);
   }
 
   @Override
@@ -140,8 +143,11 @@ public class EpoxyProcessor extends AbstractProcessor {
     types.add(PackageEpoxyConfig.class.getCanonicalName());
     types.add(AutoModel.class.getCanonicalName());
     types.add(EpoxyDataBindingLayouts.class.getCanonicalName());
+    types.add(EpoxyDataBindingPattern.class.getCanonicalName());
     types.add(ModelView.class.getCanonicalName());
     types.add(PackageModelViewConfig.class.getCanonicalName());
+    types.add(TextProp.class.getCanonicalName());
+    types.add(CallbackProp.class.getCanonicalName());
 
     types.add(ClassNames.LITHO_ANNOTATION_LAYOUT_SPEC.reflectionName());
 
@@ -155,31 +161,10 @@ public class EpoxyProcessor extends AbstractProcessor {
 
   @Override
   public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-    errorLogger.logErrors(configManager.processConfigurations(roundEnv));
-
-    generatedModels.addAll(modelProcessor.processModels(roundEnv));
-
-    dataBindingProcessor.process(roundEnv);
-
-    generatedModels.addAll(lithoSpecProcessor.processSpecs(roundEnv));
-
-    generatedModels.addAll(modelViewProcessor.process(roundEnv, generatedModels));
-
-    controllerProcessor.process(roundEnv);
-
-    if (dataBindingProcessor.hasModelsToWrite()
-        && dataBindingProcessor.isDataBindingClassesGenerated()) {
-      generatedModels.addAll(dataBindingProcessor.resolveDataBindingClassesAndWriteJava());
-      hasWrittenDataBindingModels = true;
-    }
-
-    if (controllerProcessor.hasControllersToGenerate()
-        && (!dataBindingProcessor.hasModelsToWrite() || roundEnv.processingOver())) {
-      // This must be done after all generated model info is collected so we must wait until
-      // databinding is resolved.
-      // However, if there was an error with the databinding resolution we can at least try to
-      // finish writing the controllers before processing ends
-      controllerProcessor.resolveGeneratedModelsAndWriteJava(generatedModels);
+    try {
+      processRound(roundEnv);
+    } catch (Exception e) {
+      errorLogger.logError(e);
     }
 
     if (roundEnv.processingOver()) {
@@ -196,6 +181,40 @@ public class EpoxyProcessor extends AbstractProcessor {
     return false;
   }
 
+  private void processRound(RoundEnvironment roundEnv) {
+    errorLogger.logErrors(configManager.processConfigurations(roundEnv));
+
+    generatedModels.addAll(modelProcessor.processModels(roundEnv));
+
+    generatedModels.addAll(dataBindingProcessor.process(roundEnv));
+
+    generatedModels.addAll(lithoSpecProcessor.processSpecs(roundEnv));
+
+    generatedModels.addAll(modelViewProcessor.process(roundEnv, generatedModels));
+
+    controllerProcessor.process(roundEnv);
+
+    // TODO: (eli_hart 8/23/17) don't wait until round over?
+    if (roundEnv.processingOver() && !configManager.disableKotlinExtensionGeneration()) {
+      kotlinExtensionWriter.generateExtensionsForModels(generatedModels);
+    }
+
+    if (controllerProcessor.hasControllersToGenerate()
+        && (!areModelsWaitingToWrite() || roundEnv.processingOver())) {
+      // This must be done after all generated model info is collected so we must wait until
+      // databinding is resolved.
+      // However, if there was an error with the databinding resolution we can at least try to
+      // finish writing the controllers before processing ends
+      controllerProcessor.resolveGeneratedModelsAndWriteJava(generatedModels);
+    }
+  }
+
+  private boolean areModelsWaitingToWrite() {
+    return dataBindingProcessor.hasModelsToWrite()
+        || modelProcessor.hasModelsToWrite()
+        || modelViewProcessor.hasModelsToWrite();
+  }
+
   private void validateAttributesImplementHashCode(
       Collection<GeneratedModelInfo> generatedClasses) {
     HashCodeValidator hashCodeValidator = new HashCodeValidator(typeUtils, elementUtils);
@@ -203,8 +222,8 @@ public class EpoxyProcessor extends AbstractProcessor {
     for (GeneratedModelInfo generatedClass : generatedClasses) {
       for (AttributeInfo attributeInfo : generatedClass.getAttributeInfo()) {
         if (configManager.requiresHashCode(attributeInfo)
-            && attributeInfo.useInHash()
-            && !attributeInfo.ignoreRequireHashCode()) {
+            && attributeInfo.getUseInHash()
+            && !attributeInfo.getIgnoreRequireHashCode()) {
 
           try {
             hashCodeValidator.validate(attributeInfo);

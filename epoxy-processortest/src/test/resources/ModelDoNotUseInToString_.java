@@ -1,7 +1,7 @@
 package com.airbnb.epoxy;
 
-import android.support.annotation.LayoutRes;
-import android.support.annotation.Nullable;
+import androidx.annotation.LayoutRes;
+import androidx.annotation.Nullable;
 import java.lang.CharSequence;
 import java.lang.Number;
 import java.lang.Object;
@@ -10,10 +10,14 @@ import java.lang.String;
 
 /**
  * Generated file. Do not modify! */
-public class ModelDoNotUseInToString_ extends ModelDoNotUseInToString implements GeneratedModel<Object> {
+public class ModelDoNotUseInToString_ extends ModelDoNotUseInToString implements GeneratedModel<Object>, ModelDoNotUseInToStringBuilder {
   private OnModelBoundListener<ModelDoNotUseInToString_, Object> onModelBoundListener_epoxyGeneratedModel;
 
   private OnModelUnboundListener<ModelDoNotUseInToString_, Object> onModelUnboundListener_epoxyGeneratedModel;
+
+  private OnModelVisibilityStateChangedListener<ModelDoNotUseInToString_, Object> onModelVisibilityStateChangedListener_epoxyGeneratedModel;
+
+  private OnModelVisibilityChangedListener<ModelDoNotUseInToString_, Object> onModelVisibilityChangedListener_epoxyGeneratedModel;
 
   public ModelDoNotUseInToString_() {
     super();
@@ -26,7 +30,7 @@ public class ModelDoNotUseInToString_ extends ModelDoNotUseInToString implements
   }
 
   @Override
-  public void handlePreBind(final EpoxyViewHolder holder, final Object object, int position) {
+  public void handlePreBind(final EpoxyViewHolder holder, final Object object, final int position) {
     validateStateHasNotChangedSinceAdded("The model was changed between being added to the controller and being bound.", position);
   }
 
@@ -45,7 +49,8 @@ public class ModelDoNotUseInToString_ extends ModelDoNotUseInToString implements
    * com.airbnb.epoxy.EpoxyAttribute.Option#DoNotHash} rules.
    * <p>
    * You may clear the listener by setting a null value, or by calling {@link #reset()} */
-  public ModelDoNotUseInToString_ onBind(OnModelBoundListener<ModelDoNotUseInToString_, Object> listener) {
+  public ModelDoNotUseInToString_ onBind(
+      OnModelBoundListener<ModelDoNotUseInToString_, Object> listener) {
     onMutation();
     this.onModelBoundListener_epoxyGeneratedModel = listener;
     return this;
@@ -66,9 +71,55 @@ public class ModelDoNotUseInToString_ extends ModelDoNotUseInToString implements
    * com.airbnb.epoxy.EpoxyAttribute.Option#DoNotHash} rules.
    * <p>
    * You may clear the listener by setting a null value, or by calling {@link #reset()} */
-  public ModelDoNotUseInToString_ onUnbind(OnModelUnboundListener<ModelDoNotUseInToString_, Object> listener) {
+  public ModelDoNotUseInToString_ onUnbind(
+      OnModelUnboundListener<ModelDoNotUseInToString_, Object> listener) {
     onMutation();
     this.onModelUnboundListener_epoxyGeneratedModel = listener;
+    return this;
+  }
+
+  @Override
+  public void onVisibilityStateChanged(int visibilityState, final Object object) {
+    if (onModelVisibilityStateChangedListener_epoxyGeneratedModel != null) {
+      onModelVisibilityStateChangedListener_epoxyGeneratedModel.onVisibilityStateChanged(this, object, visibilityState);
+    }
+    super.onVisibilityStateChanged(visibilityState, object);
+  }
+
+  /**
+   * Register a listener that will be called when this model visibility state has changed.
+   * <p>
+   * The listener will contribute to this model's hashCode state per the {@link
+   * com.airbnb.epoxy.EpoxyAttribute.Option#DoNotHash} rules.
+   * <p>
+   * You may clear the listener by setting a null value, or by calling {@link #reset()} */
+  public ModelDoNotUseInToString_ onVisibilityStateChanged(
+      OnModelVisibilityStateChangedListener<ModelDoNotUseInToString_, Object> listener) {
+    onMutation();
+    this.onModelVisibilityStateChangedListener_epoxyGeneratedModel = listener;
+    return this;
+  }
+
+  @Override
+  public void onVisibilityChanged(float percentVisibleHeight, float percentVisibleWidth,
+      int visibleHeight, int visibleWidth, final Object object) {
+    if (onModelVisibilityChangedListener_epoxyGeneratedModel != null) {
+      onModelVisibilityChangedListener_epoxyGeneratedModel.onVisibilityChanged(this, object, percentVisibleHeight, percentVisibleWidth, visibleHeight, visibleWidth);
+    }
+    super.onVisibilityChanged(percentVisibleHeight, percentVisibleWidth, visibleHeight, visibleWidth, object);
+  }
+
+  /**
+   * Register a listener that will be called when this model visibility has changed.
+   * <p>
+   * The listener will contribute to this model's hashCode state per the {@link
+   * com.airbnb.epoxy.EpoxyAttribute.Option#DoNotHash} rules.
+   * <p>
+   * You may clear the listener by setting a null value, or by calling {@link #reset()} */
+  public ModelDoNotUseInToString_ onVisibilityChanged(
+      OnModelVisibilityChangedListener<ModelDoNotUseInToString_, Object> listener) {
+    onMutation();
+    this.onModelVisibilityChangedListener_epoxyGeneratedModel = listener;
     return this;
   }
 
@@ -109,8 +160,8 @@ public class ModelDoNotUseInToString_ extends ModelDoNotUseInToString implements
   }
 
   @Override
-  public ModelDoNotUseInToString_ id(Number... ids) {
-    super.id(ids);
+  public ModelDoNotUseInToString_ id(@Nullable Number... arg0) {
+    super.id(arg0);
     return this;
   }
 
@@ -121,20 +172,20 @@ public class ModelDoNotUseInToString_ extends ModelDoNotUseInToString implements
   }
 
   @Override
-  public ModelDoNotUseInToString_ id(CharSequence key) {
-    super.id(key);
+  public ModelDoNotUseInToString_ id(@Nullable CharSequence arg0) {
+    super.id(arg0);
     return this;
   }
 
   @Override
-  public ModelDoNotUseInToString_ id(CharSequence key, CharSequence... otherKeys) {
-    super.id(key, otherKeys);
+  public ModelDoNotUseInToString_ id(@Nullable CharSequence arg0, @Nullable CharSequence... arg1) {
+    super.id(arg0, arg1);
     return this;
   }
 
   @Override
-  public ModelDoNotUseInToString_ id(CharSequence key, long id) {
-    super.id(key, id);
+  public ModelDoNotUseInToString_ id(@Nullable CharSequence arg0, long arg1) {
+    super.id(arg0, arg1);
     return this;
   }
 
@@ -145,7 +196,8 @@ public class ModelDoNotUseInToString_ extends ModelDoNotUseInToString implements
   }
 
   @Override
-  public ModelDoNotUseInToString_ spanSizeOverride(@Nullable EpoxyModel.SpanSizeOverrideCallback arg0) {
+  public ModelDoNotUseInToString_ spanSizeOverride(
+      @Nullable EpoxyModel.SpanSizeOverrideCallback arg0) {
     super.spanSizeOverride(arg0);
     return this;
   }
@@ -172,6 +224,8 @@ public class ModelDoNotUseInToString_ extends ModelDoNotUseInToString implements
   public ModelDoNotUseInToString_ reset() {
     onModelBoundListener_epoxyGeneratedModel = null;
     onModelUnboundListener_epoxyGeneratedModel = null;
+    onModelVisibilityStateChangedListener_epoxyGeneratedModel = null;
+    onModelVisibilityChangedListener_epoxyGeneratedModel = null;
     super.value = 0;
     super.value2 = 0;
     super.value3 = null;
@@ -191,19 +245,25 @@ public class ModelDoNotUseInToString_ extends ModelDoNotUseInToString implements
       return false;
     }
     ModelDoNotUseInToString_ that = (ModelDoNotUseInToString_) o;
-    if ((onModelBoundListener_epoxyGeneratedModel == null) != (that.onModelBoundListener_epoxyGeneratedModel == null)) {
+    if (((onModelBoundListener_epoxyGeneratedModel == null) != (that.onModelBoundListener_epoxyGeneratedModel == null))) {
       return false;
     }
-    if ((onModelUnboundListener_epoxyGeneratedModel == null) != (that.onModelUnboundListener_epoxyGeneratedModel == null)) {
+    if (((onModelUnboundListener_epoxyGeneratedModel == null) != (that.onModelUnboundListener_epoxyGeneratedModel == null))) {
       return false;
     }
-    if (value != that.value) {
+    if (((onModelVisibilityStateChangedListener_epoxyGeneratedModel == null) != (that.onModelVisibilityStateChangedListener_epoxyGeneratedModel == null))) {
       return false;
     }
-    if (value2 != that.value2) {
+    if (((onModelVisibilityChangedListener_epoxyGeneratedModel == null) != (that.onModelVisibilityChangedListener_epoxyGeneratedModel == null))) {
       return false;
     }
-    if (value3 != null ? !value3.equals(that.value3) : that.value3 != null) {
+    if ((value != that.value)) {
+      return false;
+    }
+    if ((value2 != that.value2)) {
+      return false;
+    }
+    if ((value3 != null ? !value3.equals(that.value3) : that.value3 != null)) {
       return false;
     }
     return true;
@@ -214,6 +274,8 @@ public class ModelDoNotUseInToString_ extends ModelDoNotUseInToString implements
     int result = super.hashCode();
     result = 31 * result + (onModelBoundListener_epoxyGeneratedModel != null ? 1 : 0);
     result = 31 * result + (onModelUnboundListener_epoxyGeneratedModel != null ? 1 : 0);
+    result = 31 * result + (onModelVisibilityStateChangedListener_epoxyGeneratedModel != null ? 1 : 0);
+    result = 31 * result + (onModelVisibilityChangedListener_epoxyGeneratedModel != null ? 1 : 0);
     result = 31 * result + value;
     result = 31 * result + value2;
     result = 31 * result + (value3 != null ? value3.hashCode() : 0);

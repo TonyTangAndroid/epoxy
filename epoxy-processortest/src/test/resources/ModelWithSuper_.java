@@ -1,7 +1,7 @@
 package com.airbnb.epoxy;
 
-import android.support.annotation.LayoutRes;
-import android.support.annotation.Nullable;
+import androidx.annotation.LayoutRes;
+import androidx.annotation.Nullable;
 import java.lang.CharSequence;
 import java.lang.Number;
 import java.lang.Object;
@@ -10,10 +10,14 @@ import java.lang.String;
 
 /**
  * Generated file. Do not modify! */
-public class ModelWithSuper_ extends ModelWithSuper implements GeneratedModel<Object> {
+public class ModelWithSuper_ extends ModelWithSuper implements GeneratedModel<Object>, ModelWithSuperBuilder {
   private OnModelBoundListener<ModelWithSuper_, Object> onModelBoundListener_epoxyGeneratedModel;
 
   private OnModelUnboundListener<ModelWithSuper_, Object> onModelUnboundListener_epoxyGeneratedModel;
+
+  private OnModelVisibilityStateChangedListener<ModelWithSuper_, Object> onModelVisibilityStateChangedListener_epoxyGeneratedModel;
+
+  private OnModelVisibilityChangedListener<ModelWithSuper_, Object> onModelVisibilityChangedListener_epoxyGeneratedModel;
 
   public ModelWithSuper_() {
     super();
@@ -26,7 +30,7 @@ public class ModelWithSuper_ extends ModelWithSuper implements GeneratedModel<Ob
   }
 
   @Override
-  public void handlePreBind(final EpoxyViewHolder holder, final Object object, int position) {
+  public void handlePreBind(final EpoxyViewHolder holder, final Object object, final int position) {
     validateStateHasNotChangedSinceAdded("The model was changed between being added to the controller and being bound.", position);
   }
 
@@ -72,6 +76,51 @@ public class ModelWithSuper_ extends ModelWithSuper implements GeneratedModel<Ob
     return this;
   }
 
+  @Override
+  public void onVisibilityStateChanged(int visibilityState, final Object object) {
+    if (onModelVisibilityStateChangedListener_epoxyGeneratedModel != null) {
+      onModelVisibilityStateChangedListener_epoxyGeneratedModel.onVisibilityStateChanged(this, object, visibilityState);
+    }
+    super.onVisibilityStateChanged(visibilityState, object);
+  }
+
+  /**
+   * Register a listener that will be called when this model visibility state has changed.
+   * <p>
+   * The listener will contribute to this model's hashCode state per the {@link
+   * com.airbnb.epoxy.EpoxyAttribute.Option#DoNotHash} rules.
+   * <p>
+   * You may clear the listener by setting a null value, or by calling {@link #reset()} */
+  public ModelWithSuper_ onVisibilityStateChanged(
+      OnModelVisibilityStateChangedListener<ModelWithSuper_, Object> listener) {
+    onMutation();
+    this.onModelVisibilityStateChangedListener_epoxyGeneratedModel = listener;
+    return this;
+  }
+
+  @Override
+  public void onVisibilityChanged(float percentVisibleHeight, float percentVisibleWidth,
+      int visibleHeight, int visibleWidth, final Object object) {
+    if (onModelVisibilityChangedListener_epoxyGeneratedModel != null) {
+      onModelVisibilityChangedListener_epoxyGeneratedModel.onVisibilityChanged(this, object, percentVisibleHeight, percentVisibleWidth, visibleHeight, visibleWidth);
+    }
+    super.onVisibilityChanged(percentVisibleHeight, percentVisibleWidth, visibleHeight, visibleWidth, object);
+  }
+
+  /**
+   * Register a listener that will be called when this model visibility has changed.
+   * <p>
+   * The listener will contribute to this model's hashCode state per the {@link
+   * com.airbnb.epoxy.EpoxyAttribute.Option#DoNotHash} rules.
+   * <p>
+   * You may clear the listener by setting a null value, or by calling {@link #reset()} */
+  public ModelWithSuper_ onVisibilityChanged(
+      OnModelVisibilityChangedListener<ModelWithSuper_, Object> listener) {
+    onMutation();
+    this.onModelVisibilityChangedListener_epoxyGeneratedModel = listener;
+    return this;
+  }
+
   public ModelWithSuper_ valueInt(int valueInt) {
     onMutation();
     super.valueInt = valueInt;
@@ -90,8 +139,8 @@ public class ModelWithSuper_ extends ModelWithSuper implements GeneratedModel<Ob
   }
 
   @Override
-  public ModelWithSuper_ id(Number... ids) {
-    super.id(ids);
+  public ModelWithSuper_ id(@Nullable Number... arg0) {
+    super.id(arg0);
     return this;
   }
 
@@ -102,20 +151,20 @@ public class ModelWithSuper_ extends ModelWithSuper implements GeneratedModel<Ob
   }
 
   @Override
-  public ModelWithSuper_ id(CharSequence key) {
-    super.id(key);
+  public ModelWithSuper_ id(@Nullable CharSequence arg0) {
+    super.id(arg0);
     return this;
   }
 
   @Override
-  public ModelWithSuper_ id(CharSequence key, CharSequence... otherKeys) {
-    super.id(key, otherKeys);
+  public ModelWithSuper_ id(@Nullable CharSequence arg0, @Nullable CharSequence... arg1) {
+    super.id(arg0, arg1);
     return this;
   }
 
   @Override
-  public ModelWithSuper_ id(CharSequence key, long id) {
-    super.id(key, id);
+  public ModelWithSuper_ id(@Nullable CharSequence arg0, long arg1) {
+    super.id(arg0, arg1);
     return this;
   }
 
@@ -153,6 +202,8 @@ public class ModelWithSuper_ extends ModelWithSuper implements GeneratedModel<Ob
   public ModelWithSuper_ reset() {
     onModelBoundListener_epoxyGeneratedModel = null;
     onModelUnboundListener_epoxyGeneratedModel = null;
+    onModelVisibilityStateChangedListener_epoxyGeneratedModel = null;
+    onModelVisibilityChangedListener_epoxyGeneratedModel = null;
     super.valueInt = 0;
     super.reset();
     return this;
@@ -170,13 +221,19 @@ public class ModelWithSuper_ extends ModelWithSuper implements GeneratedModel<Ob
       return false;
     }
     ModelWithSuper_ that = (ModelWithSuper_) o;
-    if ((onModelBoundListener_epoxyGeneratedModel == null) != (that.onModelBoundListener_epoxyGeneratedModel == null)) {
+    if (((onModelBoundListener_epoxyGeneratedModel == null) != (that.onModelBoundListener_epoxyGeneratedModel == null))) {
       return false;
     }
-    if ((onModelUnboundListener_epoxyGeneratedModel == null) != (that.onModelUnboundListener_epoxyGeneratedModel == null)) {
+    if (((onModelUnboundListener_epoxyGeneratedModel == null) != (that.onModelUnboundListener_epoxyGeneratedModel == null))) {
       return false;
     }
-    if (valueInt != that.valueInt) {
+    if (((onModelVisibilityStateChangedListener_epoxyGeneratedModel == null) != (that.onModelVisibilityStateChangedListener_epoxyGeneratedModel == null))) {
+      return false;
+    }
+    if (((onModelVisibilityChangedListener_epoxyGeneratedModel == null) != (that.onModelVisibilityChangedListener_epoxyGeneratedModel == null))) {
+      return false;
+    }
+    if ((valueInt != that.valueInt)) {
       return false;
     }
     return true;
@@ -187,6 +244,8 @@ public class ModelWithSuper_ extends ModelWithSuper implements GeneratedModel<Ob
     int result = super.hashCode();
     result = 31 * result + (onModelBoundListener_epoxyGeneratedModel != null ? 1 : 0);
     result = 31 * result + (onModelUnboundListener_epoxyGeneratedModel != null ? 1 : 0);
+    result = 31 * result + (onModelVisibilityStateChangedListener_epoxyGeneratedModel != null ? 1 : 0);
+    result = 31 * result + (onModelVisibilityChangedListener_epoxyGeneratedModel != null ? 1 : 0);
     result = 31 * result + valueInt;
     return result;
   }

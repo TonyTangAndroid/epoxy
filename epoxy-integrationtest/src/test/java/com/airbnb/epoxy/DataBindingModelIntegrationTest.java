@@ -1,11 +1,13 @@
 package com.airbnb.epoxy;
 
-import android.support.v7.widget.RecyclerView.AdapterDataObserver;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 
 import com.airbnb.epoxy.DataBindingEpoxyModel.DataBindingHolder;
+import com.airbnb.epoxy.integrationtest.BuildConfig;
+import com.airbnb.epoxy.integrationtest.DatabindingTestBindingModel_;
+import com.airbnb.epoxy.integrationtest.ModelWithDataBindingBindingModel_;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -15,8 +17,10 @@ import org.robolectric.annotation.Config;
 import java.util.Collections;
 import java.util.List;
 
-import static junit.framework.Assert.assertEquals;
+import androidx.recyclerview.widget.RecyclerView.AdapterDataObserver;
+
 import static junit.framework.Assert.assertNotNull;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -30,7 +34,7 @@ public class DataBindingModelIntegrationTest {
   @Test
   public void createDataBindingModel() {
     SimpleEpoxyController controller = new SimpleEpoxyController();
-    TestDataBindingModel_ firstModel = new TestDataBindingModel_()
+    ModelWithDataBindingBindingModel_ firstModel = new ModelWithDataBindingBindingModel_()
         .stringValue("hello")
         .id(1);
 
@@ -46,7 +50,7 @@ public class DataBindingModelIntegrationTest {
     // Check that the requiredText was set on the view
     assertEquals(firstModel.stringValue(), ((Button) viewHolder.itemView).getText());
 
-    TestDataBindingModel_ secondModel = new TestDataBindingModel_()
+    ModelWithDataBindingBindingModel_ secondModel = new ModelWithDataBindingBindingModel_()
         .stringValue("hello again")
         .id(1);
 
@@ -140,5 +144,11 @@ public class DataBindingModelIntegrationTest {
     controller.setModels(Collections.singletonList(secondModel));
     verify(observerMock).onItemRangeChanged(eq(0), eq(1), any());
     verifyNoMoreInteractions(observerMock);
+  }
+
+  @Test
+  public void generatesBindingModelFromNamingPattern() {
+    // Make sure that the model was generated from the annotation naming pattern
+    new DatabindingTestBindingModel_();
   }
 }

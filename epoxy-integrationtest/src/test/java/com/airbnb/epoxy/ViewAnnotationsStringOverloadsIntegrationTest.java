@@ -2,6 +2,11 @@ package com.airbnb.epoxy;
 
 import android.content.res.Resources;
 
+import com.airbnb.epoxy.integrationtest.BuildConfig;
+import com.airbnb.epoxy.integrationtest.R;
+import com.airbnb.epoxy.integrationtest.ViewWithAnnotationsForIntegrationTest;
+import com.airbnb.epoxy.integrationtest.ViewWithAnnotationsForIntegrationTestModel_;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
@@ -131,30 +136,6 @@ public class ViewAnnotationsStringOverloadsIntegrationTest {
   public void requiredTextThrowsOnBadQuantityString() {
     new ViewWithAnnotationsForIntegrationTestModel_()
         .requiredTextQuantityRes(0, 23, "args");
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void nullableTextThrowsOnNegativeString() {
-    new ViewWithAnnotationsForIntegrationTestModel_()
-        .nullableText(-1, "args");
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void requiredTextThrowsOnNegativeString() {
-    new ViewWithAnnotationsForIntegrationTestModel_()
-        .nullableText(-1, "args");
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void nullableTextThrowsOnNegativeQuantityString() {
-    new ViewWithAnnotationsForIntegrationTestModel_()
-        .nullableTextQuantityRes(-1, 1, "args");
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void requiredTextThrowsOnNegativeQuantityString() {
-    new ViewWithAnnotationsForIntegrationTestModel_()
-        .requiredTextQuantityRes(-1, 1, "args");
   }
 
   @Test

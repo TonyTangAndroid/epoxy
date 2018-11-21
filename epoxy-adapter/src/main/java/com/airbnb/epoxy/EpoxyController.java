@@ -2,15 +2,21 @@ package com.airbnb.epoxy;
 
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.annotation.Nullable;
-import android.support.v7.widget.GridLayoutManager.SpanSizeLookup;
-import android.support.v7.widget.RecyclerView;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
+
+import androidx.annotation.IntDef;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.GridLayoutManager.SpanSizeLookup;
 
 import static com.airbnb.epoxy.ControllerHelperLookup.getHelperForController;
 
@@ -21,8 +27,8 @@ import static com.airbnb.epoxy.ControllerHelperLookup.getHelperForController;
  * {@link #buildModels()}, update the adapter with the new models, and notify any changes between
  * the new and old models.
  * <p>
- * The controller maintains a {@link android.support.v7.widget.RecyclerView.Adapter} with the latest
- * models, which you can get via {@link #getAdapter()} to set on your RecyclerView.
+ * The controller maintains a {@link androidx.recyclerview.widget.RecyclerView.Adapter} with the
+ * latest models, which you can get via {@link #getAdapter()} to set on your RecyclerView.
  * <p>
  * All data change notifications are applied automatically via Epoxy's diffing algorithm. All of
  * your models must have a unique id set on them for diffing to work. You may choose to use {@link
@@ -35,27 +41,109 @@ import static com.airbnb.epoxy.ControllerHelperLookup.getHelperForController;
  */
 public abstract class EpoxyController {
 
+  /**
+   * We check that the adapter is not connected to multiple recyclerviews, but when a fragment has
+   * its view quickly destroyed and recreated it may temporarily attach the same adapter to the
+   * previous view and the new view (eg because of fragment transitions) if the controller is reused
+   * across views. We want to allow this case since it is a brief transient state. This should be
+   * enough time for screen transitions to happen.
+   */
+  private static final int DELAY_TO_CHECK_ADAPTER_COUNT_MS = 3000;
   private static final Timer NO_OP_TIMER = new NoOpTimer();
 
-  private final EpoxyControllerAdapter adapter = new EpoxyControllerAdapter(this);
-  private final ControllerHelper helper = getHelperForController(this);
-  private final Handler handler = new Handler();
-  private final List<Interceptor> interceptors = new ArrayList<>();
-  private ControllerModelList modelsBeingBuilt;
-  private boolean filterDuplicates;
+  public static Handler defaultModelBuildingHandler = MainThreadExecutor.INSTANCE.handler;
+  public static Handler defaultDiffingHandler = MainThreadExecutor.INSTANCE.handler;
+  private static boolean filterDuplicatesDefault = false;
+  private static boolean globalDebugLoggingEnabled = false;
+
+  private final EpoxyControllerAdapter adapter;
+  private EpoxyDiffLogger debugObserver;
+  private int recyclerViewAttachCount = 0;
+  private final Handler modelBuildHandler;
+
+  /**
+   * This is iterated over in the build models thread, but items can be inserted or removed from
+   * other threads at any time.
+   */
+  private final List<Interceptor> interceptors = new CopyOnWriteArrayList<>();
+
+  // Volatile because -> write only on main thread, read from builder thread
+  private volatile boolean filterDuplicates = filterDuplicatesDefault;
+  /**
+   * This is used to track whether we are currently building models. If it is non null it means
+   * a thread is in the building models method. We store the thread so we can know which one
+   * is building models.
+   * <p>
+   * Volatile because -> write only on handler, read from any thread
+   */
+  private volatile Thread threadBuildingModels = null;
+  /**
+   * Used to know that we should build models synchronously the first time.
+   * <p>
+   * Volatile because -> written from the build models thread, read from the main thread.
+   */
+  private volatile boolean hasBuiltModelsEver;
+
+  //////////////////////////////////////////////////////////////////////////////////////////
+
+  /*
+   * These fields are expected to only be used on the model building thread so they are not
+   * synchronized.
+   */
+
   /** Used to time operations and log their duration when in debug mode. */
   private Timer timer = NO_OP_TIMER;
-  private EpoxyDiffLogger debugObserver;
-  private boolean hasBuiltModelsEver;
+  private final ControllerHelper helper = getHelperForController(this);
+  private ControllerModelList modelsBeingBuilt;
   private List<ModelInterceptorCallback> modelInterceptorCallbacks;
-  private int recyclerViewAttachCount = 0;
   private EpoxyModel<?> stagedModel;
+
+  //////////////////////////////////////////////////////////////////////////////////////////
+
+  public EpoxyController() {
+    this(defaultModelBuildingHandler, defaultDiffingHandler);
+  }
+
+  public EpoxyController(Handler modelBuildingHandler, Handler diffingHandler) {
+    adapter = new EpoxyControllerAdapter(this, diffingHandler);
+    modelBuildHandler = modelBuildingHandler;
+    setDebugLoggingEnabled(globalDebugLoggingEnabled);
+  }
+
+  /**
+   * Posting and canceling runnables is a bit expensive - it is synchronizes and iterates the
+   * list of runnables. We want clients to be able to request model builds as often as they want and
+   * have it act as a no-op if one is already requested, without being a performance hit. To do that
+   * we track whether we have a call to build models posted already so we can avoid canceling a
+   * current call and posting it again.
+   */
+  @RequestedModelBuildType private volatile int requestedModelBuildType =
+      RequestedModelBuildType.NONE;
+
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({RequestedModelBuildType.NONE,
+           RequestedModelBuildType.NEXT_FRAME,
+           RequestedModelBuildType.DELAYED})
+  private @interface RequestedModelBuildType {
+    int NONE = 0;
+    /** A request has been made to build models immediately. It is posted. */
+    int NEXT_FRAME = 1;
+    /** A request has been made to build models after a delay. It is post delayed. */
+    int DELAYED = 2;
+  }
 
   /**
    * Call this to request a model update. The controller will schedule a call to {@link
-   * #buildModels()} so that models can be rebuilt for the current data. All calls after the first
-   * are posted and debounced so that the calling code need not worry about calling this multiple
-   * times in a row.
+   * #buildModels()} so that models can be rebuilt for the current data. Once a build is requested
+   * all subsequent requests are ignored until the model build runs. Therefore, the calling code
+   * need not worry about calling this multiple times in a row.
+   * <p>
+   * The exception is that the first time this is called on a new instance of {@link
+   * EpoxyController} it is run synchronously. This allows state to be restored and the initial view
+   * to be draw quicker.
+   * <p>
+   * If you would like to be alerted when models have finished building use
+   * {@link #addModelBuildListener(OnModelBuildFinishedListener)}
    */
   public void requestModelBuild() {
     if (isBuildingModels()) {
@@ -70,9 +158,42 @@ public abstract class EpoxyController {
     if (hasBuiltModelsEver) {
       requestDelayedModelBuild(0);
     } else {
-      cancelPendingModelBuild();
-      dispatchModelBuild();
+      buildModelsRunnable.run();
     }
+  }
+
+  /**
+   * Whether an update to models is currently pending. This can either be because
+   * {@link #requestModelBuild()} was called, or because models are currently being built or diff
+   * on a background thread.
+   */
+  public boolean hasPendingModelBuild() {
+    return requestedModelBuildType != RequestedModelBuildType.NONE // model build is posted
+        || threadBuildingModels != null // model build is in progress
+        || adapter.isDiffInProgress(); // Diff in progress
+  }
+
+  /**
+   * Add a listener that will be called every time {@link #buildModels()} has finished running
+   * and changes have been dispatched to the RecyclerView.
+   * <p>
+   * Since buildModels can be called once for many calls to {@link #requestModelBuild()}, this is
+   * called just once for each buildModels execution, not for every request.
+   * <p>
+   * Use this to react to changes in your models that need to happen after the RecyclerView has
+   * been notified, such as scrolling.
+   */
+  public void addModelBuildListener(OnModelBuildFinishedListener listener) {
+    adapter.addModelBuildListener(listener);
+  }
+
+  /**
+   * Remove a listener added with {@link #addModelBuildListener(OnModelBuildFinishedListener)}.
+   * This is safe to call from inside the callback
+   * {@link OnModelBuildFinishedListener#onModelBuildFinished(DiffResult)}
+   */
+  public void removeModelBuildListener(OnModelBuildFinishedListener listener) {
+    adapter.removeModelBuildListener(listener);
   }
 
   /**
@@ -85,60 +206,83 @@ public abstract class EpoxyController {
    * delaying the model build too long is that models will not be in sync with the data or view, and
    * scrolling the view offscreen and back onscreen will cause the model to bind old data.
    * <p>
-   * This will cancel any currently queued request to build models.
+   * If a previous request is still pending it will be removed in favor of this new delay
+   * <p>
+   * Any call to {@link #requestModelBuild()} will override a delayed request.
    * <p>
    * In most cases you should use {@link #requestModelBuild()} instead of this.
    *
    * @param delayMs The time in milliseconds to delay the model build by. Should be greater than or
-   *                equal to 0. Even if a delay of 0 is given the model build will be posted to the
-   *                next frame.
+   *                equal to 0. A value of 0 is equivalent to calling {@link #requestModelBuild()}
    */
-  public void requestDelayedModelBuild(int delayMs) {
+  public synchronized void requestDelayedModelBuild(int delayMs) {
     if (isBuildingModels()) {
       throw new IllegalEpoxyUsage(
           "Cannot call `requestDelayedModelBuild` from inside `buildModels`");
     }
 
-    cancelPendingModelBuild();
-    handler.postDelayed(buildModelsRunnable, delayMs);
+    if (requestedModelBuildType == RequestedModelBuildType.DELAYED) {
+      cancelPendingModelBuild();
+    } else if (requestedModelBuildType == RequestedModelBuildType.NEXT_FRAME) {
+      return;
+    }
+
+    requestedModelBuildType =
+        delayMs == 0 ? RequestedModelBuildType.NEXT_FRAME : RequestedModelBuildType.DELAYED;
+
+    modelBuildHandler.postDelayed(buildModelsRunnable, delayMs);
   }
 
   /**
    * Cancels a pending call to {@link #buildModels()} if one has been queued by {@link
    * #requestModelBuild()}.
    */
-  public void cancelPendingModelBuild() {
-    handler.removeCallbacks(buildModelsRunnable);
+  public synchronized void cancelPendingModelBuild() {
+    // Access to requestedModelBuildType is synchronized because the model building thread clears
+    // it when model building starts, and the main thread needs to set it to indicate a build
+    // request.
+    // Additionally, it is crucial to guarantee that the state of requestedModelBuildType is in sync
+    // with the modelBuildHandler, otherwise we could end up in a state where we think a model build
+    // is queued, but it isn't, and model building never happens - stuck forever.
+    if (requestedModelBuildType != RequestedModelBuildType.NONE) {
+      requestedModelBuildType = RequestedModelBuildType.NONE;
+      modelBuildHandler.removeCallbacks(buildModelsRunnable);
+    }
   }
 
   private final Runnable buildModelsRunnable = new Runnable() {
     @Override
     public void run() {
-      dispatchModelBuild();
+      // Do this first to mark the controller as being in the model building process.
+      threadBuildingModels = Thread.currentThread();
+
+      // This is needed to reset the requestedModelBuildType back to NONE.
+      // As soon as we do this another model build can be posted.
+      cancelPendingModelBuild();
+
+      helper.resetAutoModels();
+
+      modelsBeingBuilt = new ControllerModelList(getExpectedModelCount());
+
+      timer.start();
+      buildModels();
+      addCurrentlyStagedModelIfExists();
+      timer.stop("Models built");
+
+      runInterceptors();
+      filterDuplicatesIfNeeded(modelsBeingBuilt);
+      modelsBeingBuilt.freeze();
+
+      timer.start();
+      adapter.setModels(modelsBeingBuilt);
+      // This timing is only right if diffing and model building are on the same thread
+      timer.stop("Models diffed");
+
+      modelsBeingBuilt = null;
+      hasBuiltModelsEver = true;
+      threadBuildingModels = null;
     }
   };
-
-  private void dispatchModelBuild() {
-    helper.resetAutoModels();
-
-    modelsBeingBuilt = new ControllerModelList(getExpectedModelCount());
-
-    timer.start();
-    buildModels();
-    addCurrentlyStagedModelIfExists();
-    timer.stop("Models built");
-
-    runInterceptors();
-    filterDuplicatesIfNeeded(modelsBeingBuilt);
-    modelsBeingBuilt.freeze();
-
-    timer.start();
-    adapter.setModels(modelsBeingBuilt);
-    timer.stop("Models diffed");
-
-    modelsBeingBuilt = null;
-    hasBuiltModelsEver = true;
-  }
 
   /** An estimate for how many models will be built in the next {@link #buildModels()} phase. */
   private int getExpectedModelCount() {
@@ -162,6 +306,8 @@ public abstract class EpoxyController {
   protected abstract void buildModels();
 
   int getFirstIndexOfModelInBuildingList(EpoxyModel<?> model) {
+    assertIsBuildingModels();
+
     int size = modelsBeingBuilt.size();
     for (int i = 0; i < size; i++) {
       if (modelsBeingBuilt.get(i) == model) {
@@ -173,6 +319,8 @@ public abstract class EpoxyController {
   }
 
   boolean isModelAddedMultipleTimes(EpoxyModel<?> model) {
+    assertIsBuildingModels();
+
     int modelCount = 0;
     int size = modelsBeingBuilt.size();
     for (int i = 0; i < size; i++) {
@@ -185,9 +333,7 @@ public abstract class EpoxyController {
   }
 
   void addAfterInterceptorCallback(ModelInterceptorCallback callback) {
-    if (!isBuildingModels()) {
-      throw new IllegalEpoxyUsage("Can only call when building models");
-    }
+    assertIsBuildingModels();
 
     if (modelInterceptorCallbacks == null) {
       modelInterceptorCallbacks = new ArrayList<>();
@@ -225,11 +371,13 @@ public abstract class EpoxyController {
         for (ModelInterceptorCallback callback : modelInterceptorCallbacks) {
           callback.onInterceptorsFinished(this);
         }
-
-        // Interceptors are cleared so that future model builds don't notify past models
-        modelInterceptorCallbacks = null;
       }
     }
+
+    // Interceptors are cleared so that future model builds don't notify past models.
+    // We need to make sure they are cleared even if there are no interceptors so that
+    // we don't leak the models.
+    modelInterceptorCallbacks = null;
   }
 
   /** A callback that is run after {@link #buildModels()} completes and before diffing is run. */
@@ -244,21 +392,23 @@ public abstract class EpoxyController {
      * The models list must not be changed after this method returns. Doing so will throw an
      * exception.
      */
-    void intercept(List<EpoxyModel<?>> models);
+    void intercept(@NonNull List<EpoxyModel<?>> models);
   }
 
   /**
    * Add an interceptor callback to be run after models are built, to make any last changes before
    * they are set on the adapter. Interceptors are run in the order they are added.
+   * <p>
+   * Interceptors are run on the same thread that models are built on.
    *
    * @see Interceptor#intercept(List)
    */
-  public void addInterceptor(Interceptor interceptor) {
+  public void addInterceptor(@NonNull Interceptor interceptor) {
     interceptors.add(interceptor);
   }
 
   /** Remove an interceptor that was added with {@link #addInterceptor(Interceptor)}. */
-  public void removeInterceptor(Interceptor interceptor) {
+  public void removeInterceptor(@NonNull Interceptor interceptor) {
     interceptors.remove(interceptor);
   }
 
@@ -271,18 +421,27 @@ public abstract class EpoxyController {
    * count call {@link #getAdapter()} and {@link EpoxyControllerAdapter#getItemCount()}
    */
   protected int getModelCountBuiltSoFar() {
-    if (!isBuildingModels()) {
-      throw new IllegalEpoxyUsage("Can only all this when inside the `buildModels` method");
-    }
-
+    assertIsBuildingModels();
     return modelsBeingBuilt.size();
+  }
+
+  private void assertIsBuildingModels() {
+    if (!isBuildingModels()) {
+      throw new IllegalEpoxyUsage("Can only call this when inside the `buildModels` method");
+    }
+  }
+
+  private void assertNotBuildingModels() {
+    if (isBuildingModels()) {
+      throw new IllegalEpoxyUsage("Cannot call this from inside `buildModels`");
+    }
   }
 
   /**
    * Add the model to this controller. Can only be called from inside {@link
    * EpoxyController#buildModels()}.
    */
-  protected void add(EpoxyModel<?> model) {
+  protected void add(@NonNull EpoxyModel<?> model) {
     model.addTo(this);
   }
 
@@ -290,7 +449,7 @@ public abstract class EpoxyController {
    * Add the models to this controller. Can only be called from inside {@link
    * EpoxyController#buildModels()}.
    */
-  protected void add(EpoxyModel<?>... modelsToAdd) {
+  protected void add(@NonNull EpoxyModel<?>... modelsToAdd) {
     modelsBeingBuilt.ensureCapacity(modelsBeingBuilt.size() + modelsToAdd.length);
 
     for (EpoxyModel<?> model : modelsToAdd) {
@@ -302,7 +461,7 @@ public abstract class EpoxyController {
    * Add the models to this controller. Can only be called from inside {@link
    * EpoxyController#buildModels()}.
    */
-  protected void add(List<? extends EpoxyModel<?>> modelsToAdd) {
+  protected void add(@NonNull List<? extends EpoxyModel<?>> modelsToAdd) {
     modelsBeingBuilt.ensureCapacity(modelsBeingBuilt.size() + modelsToAdd.size());
 
     for (EpoxyModel<?> model : modelsToAdd) {
@@ -315,11 +474,7 @@ public abstract class EpoxyController {
    * validations are done.
    */
   void addInternal(EpoxyModel<?> modelToAdd) {
-    if (!isBuildingModels()) {
-      throw new IllegalEpoxyUsage(
-          "You can only add models inside the `buildModels` methods, and you cannot call "
-              + "`buildModels` directly. Call `requestModelBuild` instead");
-    }
+    assertIsBuildingModels();
 
     if (modelToAdd.hasDefaultId()) {
       throw new IllegalEpoxyUsage(
@@ -348,7 +503,7 @@ public abstract class EpoxyController {
    * There are some edge cases for handling models that are added without modification, or models
    * that are modified but then fail an `addIf` check.
    * <p>
-   * This only works for AutoModels, and only if implicity adding is enabled in configuration.
+   * This only works for AutoModels, and only if implicitly adding is enabled in configuration.
    */
   void setStagedModel(EpoxyModel<?> model) {
     if (model != stagedModel) {
@@ -372,8 +527,9 @@ public abstract class EpoxyController {
     stagedModel = null;
   }
 
-  boolean isBuildingModels() {
-    return modelsBeingBuilt != null;
+  /** True if the current callstack originated from the buildModels call, on the same thread. */
+  protected boolean isBuildingModels() {
+    return threadBuildingModels == Thread.currentThread();
   }
 
   private void filterDuplicatesIfNeeded(List<EpoxyModel<?>> models) {
@@ -428,18 +584,30 @@ public abstract class EpoxyController {
    * #onExceptionSwallowed(RuntimeException)} will be called for each duplicate removed.
    * <p>
    * This may be useful if your models are created via server supplied data, in which case the
-   * server may erroneously send duplicate items. Duplicate items break Epoxy's diffing and would
-   * normally cause a crash, so filtering them out can make a production application more robust to
-   * server inconsistencies.
+   * server may erroneously send duplicate items. Duplicate items are otherwise left in and can
+   * result in undefined behavior.
    */
   public void setFilterDuplicates(boolean filterDuplicates) {
     this.filterDuplicates = filterDuplicates;
   }
 
+  public boolean isDuplicateFilteringEnabled() {
+    return filterDuplicates;
+  }
+
+  /**
+   * {@link #setFilterDuplicates(boolean)} is disabled in each EpoxyController by default. It can be
+   * toggled individually in each controller, or alternatively you can use this to change the
+   * default value for all EpoxyControllers.
+   */
+  public static void setGlobalDuplicateFilteringDefault(boolean filterDuplicatesByDefault) {
+    EpoxyController.filterDuplicatesDefault = filterDuplicatesByDefault;
+  }
+
   /**
    * If enabled, DEBUG logcat messages will be printed to show when models are rebuilt, the time
    * taken to build them, the time taken to diff them, and the item change outcomes from the
-   * differ. The tag of the logcat message is your adapter name.
+   * differ. The tag of the logcat message is the class name of your EpoxyController.
    * <p>
    * This is useful to verify that models are being diffed as expected, as well as to watch for
    * slowdowns in model building or diffing to indicate when you should optimize model building or
@@ -448,13 +616,13 @@ public abstract class EpoxyController {
    * This should only be used in debug builds to avoid a performance hit in prod.
    */
   public void setDebugLoggingEnabled(boolean enabled) {
-    if (isBuildingModels()) {
-      throw new IllegalEpoxyUsage("Debug logging should be enabled before models are built");
-    }
+    assertNotBuildingModels();
 
     if (enabled) {
       timer = new DebugTimer(getClass().getSimpleName());
-      debugObserver = new EpoxyDiffLogger(getClass().getSimpleName());
+      if (debugObserver == null) {
+        debugObserver = new EpoxyDiffLogger(getClass().getSimpleName());
+      }
       adapter.registerAdapterDataObserver(debugObserver);
     } else {
       timer = NO_OP_TIMER;
@@ -464,15 +632,52 @@ public abstract class EpoxyController {
     }
   }
 
+  public boolean isDebugLoggingEnabled() {
+    return timer != NO_OP_TIMER;
+  }
+
+  /**
+   * Similar to {@link #setDebugLoggingEnabled(boolean)}, but this changes the global default for
+   * all EpoxyControllers.
+   * <p>
+   * The default is false.
+   */
+  public static void setGlobalDebugLoggingEnabled(boolean globalDebugLoggingEnabled) {
+    EpoxyController.globalDebugLoggingEnabled = globalDebugLoggingEnabled;
+  }
+
+  /**
+   * An optimized way to move a model from one position to another without rebuilding all models.
+   * This is intended to be used with {@link androidx.recyclerview.widget.ItemTouchHelper} to
+   * allow for efficient item dragging and rearranging. It cannot be
+   * <p>
+   * If you call this you MUST also update the data backing your models as necessary.
+   * <p>
+   * This will immediately change the model's position and notify the change to the RecyclerView.
+   * However, a delayed request to rebuild models will be scheduled for the future to guarantee that
+   * models are in sync with data.
+   *
+   * @param fromPosition Previous position of the item.
+   * @param toPosition   New position of the item.
+   */
+  public void moveModel(int fromPosition, int toPosition) {
+    assertNotBuildingModels();
+
+    adapter.moveModel(fromPosition, toPosition);
+
+    requestDelayedModelBuild(500);
+  }
+
   /**
    * Get the underlying adapter built by this controller. Use this to get the adapter to set on a
    * RecyclerView, or to get information about models currently in use.
    */
+  @NonNull
   public EpoxyControllerAdapter getAdapter() {
     return adapter;
   }
 
-  public void onSaveInstanceState(Bundle outState) {
+  public void onSaveInstanceState(@NonNull Bundle outState) {
     adapter.onSaveInstanceState(outState);
   }
 
@@ -486,6 +691,7 @@ public abstract class EpoxyController {
    * EpoxyModel#getSpanSize(int, int, int)}. Make sure to also call {@link #setSpanCount(int)} so
    * the span count is correct.
    */
+  @NonNull
   public SpanSizeLookup getSpanSizeLookup() {
     return adapter.getSpanSizeLookup();
   }
@@ -510,24 +716,93 @@ public abstract class EpoxyController {
   }
 
   /**
-   * This is called when recoverable exceptions happen at runtime. They can be ignored and Epoxy
-   * will recover, but you can override this to be aware of when they happen.
+   * This is called when recoverable exceptions occur at runtime. By default they are ignored and
+   * Epoxy will recover, but you can override this to be aware of when they happen.
+   * <p>
+   * A common use for this is being aware of duplicates when {@link #setFilterDuplicates(boolean)}
+   * is enabled.
+   * <p>
+   * By default the global exception handler provided by
+   * {@link #setGlobalExceptionHandler(ExceptionHandler)}
+   * is called with the exception. Overriding this allows you to provide your own handling for a
+   * controller.
    */
-  protected void onExceptionSwallowed(RuntimeException exception) {
+  protected void onExceptionSwallowed(@NonNull RuntimeException exception) {
+    globalExceptionHandler.onException(this, exception);
+  }
+
+  /**
+   * Default handler for exceptions in all EpoxyControllers. Set with {@link
+   * #setGlobalExceptionHandler(ExceptionHandler)}
+   */
+  private static ExceptionHandler globalExceptionHandler =
+      new ExceptionHandler() {
+
+        @Override
+        public void onException(@NonNull EpoxyController controller,
+            @NonNull RuntimeException exception) {
+          // Ignore exceptions as the default
+        }
+      };
+
+  /**
+   * Set a callback to be notified when a recoverable exception occurs at runtime.  By default these
+   * are ignored and Epoxy will recover, but you can override this to be aware of when they happen.
+   * <p>
+   * For example, you could choose to rethrow the exception in development builds, or log them in
+   * production.
+   * <p>
+   * A common use for this is being aware of duplicates when {@link #setFilterDuplicates(boolean)}
+   * is enabled.
+   * <p>
+   * This callback will be used in all EpoxyController classes. If you would like specific handling
+   * in a certain controller you can override {@link #onExceptionSwallowed(RuntimeException)} in
+   * that controller.
+   */
+  public static void setGlobalExceptionHandler(
+      @NonNull ExceptionHandler globalExceptionHandler) {
+    EpoxyController.globalExceptionHandler = globalExceptionHandler;
+  }
+
+  public interface ExceptionHandler {
+    /**
+     * This is called when recoverable exceptions happen at runtime. They can be ignored and Epoxy
+     * will recover, but you can override this to be aware of when they happen.
+     * <p>
+     * For example, you could choose to rethrow the exception in development builds, or log them in
+     * production.
+     *
+     * @param controller The EpoxyController that the error occurred in.
+     */
+    void onException(@NonNull EpoxyController controller, @NonNull RuntimeException exception);
   }
 
   void onAttachedToRecyclerViewInternal(RecyclerView recyclerView) {
     recyclerViewAttachCount++;
+
     if (recyclerViewAttachCount > 1) {
-      onExceptionSwallowed(new IllegalStateException(
-          "Epoxy does not support attaching an adapter to more than one RecyclerView because "
-              + "saved state will not work properly. If you did not intend to attach your adapter "
-              + "to multiple RecyclerViews you may be leaking a "
-              + "reference to a previous RecyclerView. Make sure to remove the adapter from any "
-              + "previous RecyclerViews (eg if the adapter is reused in a Fragment across "
-              + "multiple onCreateView/onDestroyView cycles). See https://github"
-              + ".com/airbnb/epoxy/wiki/Avoiding-Memory-Leaks for more information."));
+      MainThreadExecutor.INSTANCE.handler.postDelayed(new Runnable() {
+        @Override
+        public void run() {
+          // Only warn if there are still multiple adapters attached after a delay, to allow for
+          // a grace period
+          if (recyclerViewAttachCount > 1) {
+            onExceptionSwallowed(new IllegalStateException(
+                "This EpoxyController had its adapter added to more than one ReyclerView. Epoxy "
+                    + "does not support attaching an adapter to multiple RecyclerViews because "
+                    + "saved state will not work properly. If you did not intend to attach your "
+                    + "adapter "
+                    + "to multiple RecyclerViews you may be leaking a "
+                    + "reference to a previous RecyclerView. Make sure to remove the adapter from "
+                    + "any "
+                    + "previous RecyclerViews (eg if the adapter is reused in a Fragment across "
+                    + "multiple onCreateView/onDestroyView cycles). See https://github"
+                    + ".com/airbnb/epoxy/wiki/Avoiding-Memory-Leaks for more information."));
+          }
+        }
+      }, DELAY_TO_CHECK_ADAPTER_COUNT_MS);
     }
+
     onAttachedToRecyclerView(recyclerView);
   }
 
@@ -537,12 +812,12 @@ public abstract class EpoxyController {
   }
 
   /** Called when the controller's adapter is attach to a recyclerview. */
-  protected void onAttachedToRecyclerView(RecyclerView recyclerView) {
+  protected void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
 
   }
 
   /** Called when the controller's adapter is detached from a recyclerview. */
-  protected void onDetachedFromRecyclerView(RecyclerView recyclerView) {
+  protected void onDetachedFromRecyclerView(@NonNull RecyclerView recyclerView) {
 
   }
 
@@ -579,7 +854,8 @@ public abstract class EpoxyController {
    *                             process, and follows the same general conditions for all
    *                             recyclerview change payloads.
    */
-  protected void onModelBound(EpoxyViewHolder holder, EpoxyModel<?> boundModel, int position,
+  protected void onModelBound(@NonNull EpoxyViewHolder holder, @NonNull EpoxyModel<?> boundModel,
+      int position,
       @Nullable EpoxyModel<?> previouslyBoundModel) {
   }
 
@@ -588,7 +864,7 @@ public abstract class EpoxyController {
    * they want alerts on when a model is unbound. Alternatively you may attach a listener directly
    * to a generated model with model.onUnbind(...)
    */
-  protected void onModelUnbound(EpoxyViewHolder holder, EpoxyModel<?> model) {
+  protected void onModelUnbound(@NonNull EpoxyViewHolder holder, @NonNull EpoxyModel<?> model) {
 
   }
 
@@ -598,7 +874,8 @@ public abstract class EpoxyController {
    *
    * @see BaseEpoxyAdapter#onViewAttachedToWindow(EpoxyViewHolder)
    */
-  protected void onViewAttachedToWindow(EpoxyViewHolder holder, EpoxyModel<?> model) {
+  protected void onViewAttachedToWindow(@NonNull EpoxyViewHolder holder,
+      @NonNull EpoxyModel<?> model) {
 
   }
 
@@ -608,7 +885,8 @@ public abstract class EpoxyController {
    *
    * @see BaseEpoxyAdapter#onViewDetachedFromWindow(EpoxyViewHolder)
    */
-  protected void onViewDetachedFromWindow(EpoxyViewHolder holder, EpoxyModel<?> model) {
+  protected void onViewDetachedFromWindow(@NonNull EpoxyViewHolder holder,
+      @NonNull EpoxyModel<?> model) {
 
   }
 }

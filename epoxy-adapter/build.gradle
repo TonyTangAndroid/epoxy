@@ -1,8 +1,8 @@
 apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
 
 android {
   compileSdkVersion rootProject.COMPILE_SDK_VERSION
-  buildToolsVersion rootProject.ANDROID_BUILD_TOOLS_VERSION
 
   defaultConfig {
     minSdkVersion rootProject.MIN_SDK_VERSION
@@ -13,20 +13,23 @@ android {
 
 configurations.all { strategy ->
   strategy.resolutionStrategy.force rootProject.deps.androidAnnotations, rootProject.deps.androidRecyclerView,
-      rootProject.deps.androidDesignLibrary, rootProject.deps.androidSupportLibrary, rootProject.deps.junit,
+      rootProject.deps.androidDesignLibrary, rootProject.deps.androidAppcompat, rootProject.deps.junit,
       rootProject.deps.robolectric, rootProject.deps.mockito
 }
 
 dependencies {
-  compile rootProject.deps.androidAnnotations
-  compile rootProject.deps.androidRecyclerView
-  compile rootProject.deps.androidDesignLibrary
-  compile rootProject.deps.androidSupportLibrary
-  compile project(':epoxy-annotations')
+  implementation rootProject.deps.androidAppcompat
+  implementation rootProject.deps.androidAnnotations
+  implementation rootProject.deps.androidRecyclerView
+  implementation rootProject.deps.androidDesignLibrary
+  api project(':epoxy-annotations')
 
-  testCompile rootProject.deps.junit
-  testCompile rootProject.deps.robolectric
-  testCompile rootProject.deps.mockito
+  annotationProcessor project(':epoxy-processor')
+
+  testImplementation rootProject.deps.kotlin
+  testImplementation rootProject.deps.junit
+  testImplementation rootProject.deps.robolectric
+  testImplementation rootProject.deps.mockito
 }
 
 apply from: rootProject.file('gradle/gradle-maven-push.gradle')

@@ -1,10 +1,11 @@
 package com.airbnb.epoxy;
 
 import android.content.Context;
-import android.support.annotation.Nullable;
-import android.support.annotation.PluralsRes;
 
 import java.util.Arrays;
+
+import androidx.annotation.Nullable;
+import androidx.annotation.PluralsRes;
 
 public class QuantityStringResAttribute {
   @PluralsRes private final int id;
@@ -13,11 +14,6 @@ public class QuantityStringResAttribute {
 
   public QuantityStringResAttribute(@PluralsRes int id, int quantity,
       @Nullable Object[] formatArgs) {
-    if (id < 0) {
-      // A 0 value is ignored since the generated code handles 0 as null/default
-      throw new IllegalArgumentException("Id cannot be negative");
-    }
-
     this.quantity = quantity;
     this.id = id;
     this.formatArgs = formatArgs;

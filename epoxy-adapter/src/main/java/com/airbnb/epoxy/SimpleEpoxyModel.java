@@ -1,8 +1,10 @@
 package com.airbnb.epoxy;
 
-import android.support.annotation.CallSuper;
-import android.support.annotation.LayoutRes;
 import android.view.View;
+
+import androidx.annotation.CallSuper;
+import androidx.annotation.LayoutRes;
+import androidx.annotation.NonNull;
 
 /**
  * Helper class for cases where you don't need to do anything special when binding the view. This
@@ -31,7 +33,7 @@ public class SimpleEpoxyModel extends EpoxyModel<View> {
 
   @CallSuper
   @Override
-  public void bind(View view) {
+  public void bind(@NonNull View view) {
     super.bind(view);
     view.setOnClickListener(onClickListener);
     view.setClickable(onClickListener != null);
@@ -39,7 +41,7 @@ public class SimpleEpoxyModel extends EpoxyModel<View> {
 
   @CallSuper
   @Override
-  public void unbind(View view) {
+  public void unbind(@NonNull View view) {
     super.unbind(view);
     view.setOnClickListener(null);
   }

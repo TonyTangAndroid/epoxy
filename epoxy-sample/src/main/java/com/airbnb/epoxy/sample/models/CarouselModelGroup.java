@@ -1,44 +1,49 @@
 package com.airbnb.epoxy.sample.models;
 
-import android.support.v7.widget.RecyclerView.RecycledViewPool;
-
 import com.airbnb.epoxy.EpoxyModel;
 import com.airbnb.epoxy.EpoxyModelGroup;
-import com.airbnb.epoxy.R;
 import com.airbnb.epoxy.sample.CarouselData;
 import com.airbnb.epoxy.sample.ColorData;
+import com.airbnb.epoxy.sample.R;
 import com.airbnb.epoxy.sample.SampleController.AdapterCallbacks;
+import com.airbnb.epoxy.sample.views.GridCarouselModel_;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class CarouselModelGroup extends EpoxyModelGroup {
-  public CarouselModelGroup(CarouselData carousel, AdapterCallbacks callbacks,
-      RecycledViewPool recycledViewPool) {
-    super(R.layout.model_carousel_group, buildModels(carousel, callbacks, recycledViewPool));
+  public final CarouselData data;
+
+  public CarouselModelGroup(CarouselData carousel, AdapterCallbacks callbacks) {
+    super(R.layout.model_carousel_group, buildModels(carousel, callbacks));
+    this.data = carousel;
     id(carousel.getId());
   }
 
-  private static List<EpoxyModel<?>> buildModels(CarouselData carousel, AdapterCallbacks callbacks,
-      RecycledViewPool recycledViewPool) {
+  private static List<EpoxyModel<?>> buildModels(CarouselData carousel,
+      AdapterCallbacks callbacks) {
     List<ColorData> colors = carousel.getColors();
     ArrayList<EpoxyModel<?>> models = new ArrayList<>();
 
     models.add(new ImageButtonModel_()
+        .id("add")
         .imageRes(R.drawable.ic_add_circle)
         .clickListener(v -> callbacks.onAddColorToCarouselClicked(carousel)));
 
     models.add(new ImageButtonModel_()
+        .id("delete")
         .imageRes(R.drawable.ic_delete)
         .clickListener(v -> callbacks.onClearCarouselClicked(carousel))
         .show(colors.size() > 0));
 
     models.add(new ImageButtonModel_()
+        .id("change")
         .imageRes(R.drawable.ic_change)
         .clickListener(v -> callbacks.onChangeCarouselColorsClicked(carousel))
         .show(colors.size() > 0));
 
     models.add(new ImageButtonModel_()
+        .id("shuffle")
         .imageRes(R.drawable.ic_shuffle)
         .clickListener(v -> callbacks.onShuffleCarouselColorsClicked(carousel))
         .show(colors.size() > 1));
@@ -58,8 +63,8 @@ public class CarouselModelGroup extends EpoxyModelGroup {
           }));
     }
 
-    models.add(new CarouselModel_()
-        .recycledViewPool(recycledViewPool)
+    models.add(new GridCarouselModel_()
+        .id("carousel")
         .models(colorModels));
 
     return models;

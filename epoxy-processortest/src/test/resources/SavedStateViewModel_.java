@@ -1,7 +1,8 @@
 package com.airbnb.epoxy;
 
-import android.support.annotation.LayoutRes;
-import android.support.annotation.Nullable;
+import androidx.annotation.LayoutRes;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import java.lang.CharSequence;
 import java.lang.IllegalArgumentException;
 import java.lang.IllegalStateException;
@@ -13,15 +14,20 @@ import java.util.BitSet;
 
 /**
  * Generated file. Do not modify! */
-public class SavedStateViewModel_ extends EpoxyModel<SavedStateView> implements GeneratedModel<SavedStateView> {
+public class SavedStateViewModel_ extends EpoxyModel<SavedStateView> implements GeneratedModel<SavedStateView>, SavedStateViewModelBuilder {
   private final BitSet assignedAttributes_epoxyGeneratedModel = new BitSet(1);
 
   private OnModelBoundListener<SavedStateViewModel_, SavedStateView> onModelBoundListener_epoxyGeneratedModel;
 
   private OnModelUnboundListener<SavedStateViewModel_, SavedStateView> onModelUnboundListener_epoxyGeneratedModel;
 
+  private OnModelVisibilityStateChangedListener<SavedStateViewModel_, SavedStateView> onModelVisibilityStateChangedListener_epoxyGeneratedModel;
+
+  private OnModelVisibilityChangedListener<SavedStateViewModel_, SavedStateView> onModelVisibilityChangedListener_epoxyGeneratedModel;
+
   /**
    * Bitset index: 0 */
+  @NonNull
   private String clickListener_String;
 
   @Override
@@ -35,7 +41,7 @@ public class SavedStateViewModel_ extends EpoxyModel<SavedStateView> implements 
 
   @Override
   public void handlePreBind(final EpoxyViewHolder holder, final SavedStateView object,
-      int position) {
+      final int position) {
     validateStateHasNotChangedSinceAdded("The model was changed between being added to the controller and being bound.", position);
   }
 
@@ -54,7 +60,7 @@ public class SavedStateViewModel_ extends EpoxyModel<SavedStateView> implements 
     SavedStateViewModel_ that = (SavedStateViewModel_) previousModel;
     super.bind(object);
 
-    if (clickListener_String != null ? !clickListener_String.equals(that.clickListener_String) : that.clickListener_String != null) {
+    if ((clickListener_String != null ? !clickListener_String.equals(that.clickListener_String) : that.clickListener_String != null)) {
       object.setClickListener(clickListener_String);
     }
   }
@@ -74,7 +80,8 @@ public class SavedStateViewModel_ extends EpoxyModel<SavedStateView> implements 
    * com.airbnb.epoxy.EpoxyAttribute.Option#DoNotHash} rules.
    * <p>
    * You may clear the listener by setting a null value, or by calling {@link #reset()} */
-  public SavedStateViewModel_ onBind(OnModelBoundListener<SavedStateViewModel_, SavedStateView> listener) {
+  public SavedStateViewModel_ onBind(
+      OnModelBoundListener<SavedStateViewModel_, SavedStateView> listener) {
     onMutation();
     this.onModelBoundListener_epoxyGeneratedModel = listener;
     return this;
@@ -95,9 +102,55 @@ public class SavedStateViewModel_ extends EpoxyModel<SavedStateView> implements 
    * com.airbnb.epoxy.EpoxyAttribute.Option#DoNotHash} rules.
    * <p>
    * You may clear the listener by setting a null value, or by calling {@link #reset()} */
-  public SavedStateViewModel_ onUnbind(OnModelUnboundListener<SavedStateViewModel_, SavedStateView> listener) {
+  public SavedStateViewModel_ onUnbind(
+      OnModelUnboundListener<SavedStateViewModel_, SavedStateView> listener) {
     onMutation();
     this.onModelUnboundListener_epoxyGeneratedModel = listener;
+    return this;
+  }
+
+  @Override
+  public void onVisibilityStateChanged(int visibilityState, final SavedStateView object) {
+    if (onModelVisibilityStateChangedListener_epoxyGeneratedModel != null) {
+      onModelVisibilityStateChangedListener_epoxyGeneratedModel.onVisibilityStateChanged(this, object, visibilityState);
+    }
+    super.onVisibilityStateChanged(visibilityState, object);
+  }
+
+  /**
+   * Register a listener that will be called when this model visibility state has changed.
+   * <p>
+   * The listener will contribute to this model's hashCode state per the {@link
+   * com.airbnb.epoxy.EpoxyAttribute.Option#DoNotHash} rules.
+   * <p>
+   * You may clear the listener by setting a null value, or by calling {@link #reset()} */
+  public SavedStateViewModel_ onVisibilityStateChanged(
+      OnModelVisibilityStateChangedListener<SavedStateViewModel_, SavedStateView> listener) {
+    onMutation();
+    this.onModelVisibilityStateChangedListener_epoxyGeneratedModel = listener;
+    return this;
+  }
+
+  @Override
+  public void onVisibilityChanged(float percentVisibleHeight, float percentVisibleWidth,
+      int visibleHeight, int visibleWidth, final SavedStateView object) {
+    if (onModelVisibilityChangedListener_epoxyGeneratedModel != null) {
+      onModelVisibilityChangedListener_epoxyGeneratedModel.onVisibilityChanged(this, object, percentVisibleHeight, percentVisibleWidth, visibleHeight, visibleWidth);
+    }
+    super.onVisibilityChanged(percentVisibleHeight, percentVisibleWidth, visibleHeight, visibleWidth, object);
+  }
+
+  /**
+   * Register a listener that will be called when this model visibility has changed.
+   * <p>
+   * The listener will contribute to this model's hashCode state per the {@link
+   * com.airbnb.epoxy.EpoxyAttribute.Option#DoNotHash} rules.
+   * <p>
+   * You may clear the listener by setting a null value, or by calling {@link #reset()} */
+  public SavedStateViewModel_ onVisibilityChanged(
+      OnModelVisibilityChangedListener<SavedStateViewModel_, SavedStateView> listener) {
+    onMutation();
+    this.onModelVisibilityChangedListener_epoxyGeneratedModel = listener;
     return this;
   }
 
@@ -106,7 +159,7 @@ public class SavedStateViewModel_ extends EpoxyModel<SavedStateView> implements 
    *
    * @see SavedStateView#setClickListener(String)
    */
-  public SavedStateViewModel_ clickListener(String clickListener) {
+  public SavedStateViewModel_ clickListener(@NonNull String clickListener) {
     if (clickListener == null) {
       throw new IllegalArgumentException("clickListener cannot be null");
     }
@@ -116,6 +169,7 @@ public class SavedStateViewModel_ extends EpoxyModel<SavedStateView> implements 
     return this;
   }
 
+  @NonNull
   public String clickListener() {
     return clickListener_String;
   }
@@ -127,8 +181,8 @@ public class SavedStateViewModel_ extends EpoxyModel<SavedStateView> implements 
   }
 
   @Override
-  public SavedStateViewModel_ id(Number... ids) {
-    super.id(ids);
+  public SavedStateViewModel_ id(@Nullable Number... arg0) {
+    super.id(arg0);
     return this;
   }
 
@@ -139,20 +193,20 @@ public class SavedStateViewModel_ extends EpoxyModel<SavedStateView> implements 
   }
 
   @Override
-  public SavedStateViewModel_ id(CharSequence key) {
-    super.id(key);
+  public SavedStateViewModel_ id(@Nullable CharSequence arg0) {
+    super.id(arg0);
     return this;
   }
 
   @Override
-  public SavedStateViewModel_ id(CharSequence key, CharSequence... otherKeys) {
-    super.id(key, otherKeys);
+  public SavedStateViewModel_ id(@Nullable CharSequence arg0, @Nullable CharSequence... arg1) {
+    super.id(arg0, arg1);
     return this;
   }
 
   @Override
-  public SavedStateViewModel_ id(CharSequence key, long id) {
-    super.id(key, id);
+  public SavedStateViewModel_ id(@Nullable CharSequence arg0, long arg1) {
+    super.id(arg0, arg1);
     return this;
   }
 
@@ -196,6 +250,8 @@ public class SavedStateViewModel_ extends EpoxyModel<SavedStateView> implements 
   public SavedStateViewModel_ reset() {
     onModelBoundListener_epoxyGeneratedModel = null;
     onModelUnboundListener_epoxyGeneratedModel = null;
+    onModelVisibilityStateChangedListener_epoxyGeneratedModel = null;
+    onModelVisibilityChangedListener_epoxyGeneratedModel = null;
     assignedAttributes_epoxyGeneratedModel.clear();
     this.clickListener_String = null;
     super.reset();
@@ -214,13 +270,19 @@ public class SavedStateViewModel_ extends EpoxyModel<SavedStateView> implements 
       return false;
     }
     SavedStateViewModel_ that = (SavedStateViewModel_) o;
-    if ((onModelBoundListener_epoxyGeneratedModel == null) != (that.onModelBoundListener_epoxyGeneratedModel == null)) {
+    if (((onModelBoundListener_epoxyGeneratedModel == null) != (that.onModelBoundListener_epoxyGeneratedModel == null))) {
       return false;
     }
-    if ((onModelUnboundListener_epoxyGeneratedModel == null) != (that.onModelUnboundListener_epoxyGeneratedModel == null)) {
+    if (((onModelUnboundListener_epoxyGeneratedModel == null) != (that.onModelUnboundListener_epoxyGeneratedModel == null))) {
       return false;
     }
-    if (clickListener_String != null ? !clickListener_String.equals(that.clickListener_String) : that.clickListener_String != null) {
+    if (((onModelVisibilityStateChangedListener_epoxyGeneratedModel == null) != (that.onModelVisibilityStateChangedListener_epoxyGeneratedModel == null))) {
+      return false;
+    }
+    if (((onModelVisibilityChangedListener_epoxyGeneratedModel == null) != (that.onModelVisibilityChangedListener_epoxyGeneratedModel == null))) {
+      return false;
+    }
+    if ((clickListener_String != null ? !clickListener_String.equals(that.clickListener_String) : that.clickListener_String != null)) {
       return false;
     }
     return true;
@@ -231,6 +293,8 @@ public class SavedStateViewModel_ extends EpoxyModel<SavedStateView> implements 
     int result = super.hashCode();
     result = 31 * result + (onModelBoundListener_epoxyGeneratedModel != null ? 1 : 0);
     result = 31 * result + (onModelUnboundListener_epoxyGeneratedModel != null ? 1 : 0);
+    result = 31 * result + (onModelVisibilityStateChangedListener_epoxyGeneratedModel != null ? 1 : 0);
+    result = 31 * result + (onModelVisibilityChangedListener_epoxyGeneratedModel != null ? 1 : 0);
     result = 31 * result + (clickListener_String != null ? clickListener_String.hashCode() : 0);
     return result;
   }

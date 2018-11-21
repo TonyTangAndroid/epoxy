@@ -2,6 +2,8 @@ package com.airbnb.epoxy;
 
 import android.view.View;
 
+import androidx.annotation.NonNull;
+
 /**
  * Used in conjunction with {@link com.airbnb.epoxy.EpoxyModelWithHolder} to provide a view holder
  * pattern when binding to a model.
@@ -15,5 +17,5 @@ public abstract class EpoxyHolder {
    * @param itemView A view inflated from the layout provided by
    * {@link EpoxyModelWithHolder#getLayout()}
    */
-  protected abstract void bindView(View itemView);
+  protected abstract void bindView(@NonNull View itemView);
 }

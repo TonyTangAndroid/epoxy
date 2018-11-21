@@ -5,7 +5,23 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Target(ElementType.METHOD)
+/**
+ * Used in conjunction with {@link ModelView} to automatically generate EpoxyModels from custom
+ * views - https://github.com/airbnb/epoxy/wiki/Generating-Models-from-View-Annotations
+ * <p>
+ * This annotation should be used on setter methods within a custom view class. Setters annotated
+ * with this will have a corresponding field on the generated model.
+ * <p>
+ * Alternatively, if your setter has no side effects, you can use this annotation on a field to have
+ * Epoxy set that field directly and avoid the boiler plate of a setter.
+ * <p>
+ * For convenience you can use {@link TextProp} instead for props representing text.
+ * <p>
+ * Similarly you can use {@link CallbackProp} for props representing listeners or callbacks.
+ * <p>
+ * Alternatively, the {@link #options()} parameter can be used to configure a prop.
+ */
+@Target({ElementType.METHOD, ElementType.FIELD})
 @Retention(RetentionPolicy.CLASS)
 public @interface ModelProp {
 
@@ -43,7 +59,7 @@ public @interface ModelProp {
     IgnoreRequireHashCode,
     /**
      * Setters with a type of {@link CharSequence} can add this option to have {@link
-     * android.support.annotation.StringRes} and {@link android.support.annotation.PluralsRes}
+     * androidx.annotation.StringRes} and {@link androidx.annotation.PluralsRes}
      * overload methods generated on the model, so users can set the string via a resource.
      */
     GenerateStringOverloads,
@@ -56,6 +72,12 @@ public @interface ModelProp {
 
   /** Specify any {@link Option} values that should be used when generating the model class. */
   Option[] options() default {};
+
+  /**
+   * The same as {@link #options()}, but this allows the shortcut of setting an option eg
+   * "@ModelProp(DoNotHash)".
+   */
+  Option[] value() default {};
 
   /**
    * The name of the constant field that should be used as the default value for this prop. The

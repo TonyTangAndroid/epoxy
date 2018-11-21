@@ -11,6 +11,8 @@ import com.facebook.litho.LithoView;
 
 import java.util.List;
 
+import androidx.annotation.NonNull;
+
 /**
  * Experiment support for Facebook's Litho library. Any litho component specs will automatically
  * have a model generated for them that extends this class.
@@ -37,7 +39,7 @@ public abstract class EpoxyLithoModel<T extends ComponentLifecycle>
   }
 
   @Override
-  public void bind(LithoView view) {
+  public void bind(@NonNull LithoView view) {
     Component<T> component = getComponent(view.getComponentContext());
     if (view.getComponentTree() == null) {
       view.setComponentTree(ComponentTree.create(view.getComponentContext(), component)
@@ -53,17 +55,17 @@ public abstract class EpoxyLithoModel<T extends ComponentLifecycle>
   }
 
   @Override
-  public void bind(LithoView view, List<Object> payloads) {
+  public void bind(@NonNull LithoView view, @NonNull List<Object> payloads) {
     if (payloads.isEmpty()) {
       bind(view);
     } else {
-      view.getComponentTree().setRoot(getComponent(view.getComponentContext()), true);
+      view.getComponentTree().setRoot(getComponent(view.getComponentContext()));
     }
   }
 
   @Override
-  public void bind(LithoView view, EpoxyModel<?> previouslyBoundModel) {
-    view.getComponentTree().setRoot(getComponent(view.getComponentContext()), true);
+  public void bind(@NonNull LithoView view, @NonNull EpoxyModel<?> previouslyBoundModel) {
+    view.getComponentTree().setRoot(getComponent(view.getComponentContext()));
   }
 
   @Override
@@ -77,12 +79,12 @@ public abstract class EpoxyLithoModel<T extends ComponentLifecycle>
   }
 
   @Override
-  public void unbind(LithoView view) {
+  public void unbind(@NonNull LithoView view) {
     // The litho view is already unbound when it is detached from the window
   }
 
   @Override
-  protected LithoView buildView(ViewGroup parent) {
+  protected LithoView buildView(@NonNull ViewGroup parent) {
     return new LithoView(parent.getContext());
   }
 }

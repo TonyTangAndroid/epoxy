@@ -1,7 +1,8 @@
 package com.airbnb.epoxy;
 
-import android.support.annotation.LayoutRes;
-import android.support.annotation.Nullable;
+import androidx.annotation.LayoutRes;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import java.lang.CharSequence;
 import java.lang.IllegalArgumentException;
 import java.lang.IllegalStateException;
@@ -13,16 +14,25 @@ import java.util.BitSet;
 
 /**
  * Generated file. Do not modify! */
-public class BaseModelViewModel_ extends TestBaseModel<BaseModelView> implements GeneratedModel<BaseModelView> {
+public class BaseModelViewModel_ extends TestBaseModel<BaseModelView> implements GeneratedModel<BaseModelView>, BaseModelViewModelBuilder {
   private final BitSet assignedAttributes_epoxyGeneratedModel = new BitSet(1);
 
   private OnModelBoundListener<BaseModelViewModel_, BaseModelView> onModelBoundListener_epoxyGeneratedModel;
 
   private OnModelUnboundListener<BaseModelViewModel_, BaseModelView> onModelUnboundListener_epoxyGeneratedModel;
 
+  private OnModelVisibilityStateChangedListener<BaseModelViewModel_, BaseModelView> onModelVisibilityStateChangedListener_epoxyGeneratedModel;
+
+  private OnModelVisibilityChangedListener<BaseModelViewModel_, BaseModelView> onModelVisibilityChangedListener_epoxyGeneratedModel;
+
   /**
    * Bitset index: 0 */
+  @NonNull
   private String clickListener_String;
+
+  public BaseModelViewModel_() {
+    super();
+  }
 
   @Override
   public void addTo(EpoxyController controller) {
@@ -35,7 +45,7 @@ public class BaseModelViewModel_ extends TestBaseModel<BaseModelView> implements
 
   @Override
   public void handlePreBind(final EpoxyViewHolder holder, final BaseModelView object,
-      int position) {
+      final int position) {
     validateStateHasNotChangedSinceAdded("The model was changed between being added to the controller and being bound.", position);
   }
 
@@ -54,7 +64,7 @@ public class BaseModelViewModel_ extends TestBaseModel<BaseModelView> implements
     BaseModelViewModel_ that = (BaseModelViewModel_) previousModel;
     super.bind(object, previousModel);
 
-    if (clickListener_String != null ? !clickListener_String.equals(that.clickListener_String) : that.clickListener_String != null) {
+    if ((clickListener_String != null ? !clickListener_String.equals(that.clickListener_String) : that.clickListener_String != null)) {
       object.setClickListener(clickListener_String);
     }
   }
@@ -74,7 +84,8 @@ public class BaseModelViewModel_ extends TestBaseModel<BaseModelView> implements
    * com.airbnb.epoxy.EpoxyAttribute.Option#DoNotHash} rules.
    * <p>
    * You may clear the listener by setting a null value, or by calling {@link #reset()} */
-  public BaseModelViewModel_ onBind(OnModelBoundListener<BaseModelViewModel_, BaseModelView> listener) {
+  public BaseModelViewModel_ onBind(
+      OnModelBoundListener<BaseModelViewModel_, BaseModelView> listener) {
     onMutation();
     this.onModelBoundListener_epoxyGeneratedModel = listener;
     return this;
@@ -95,9 +106,55 @@ public class BaseModelViewModel_ extends TestBaseModel<BaseModelView> implements
    * com.airbnb.epoxy.EpoxyAttribute.Option#DoNotHash} rules.
    * <p>
    * You may clear the listener by setting a null value, or by calling {@link #reset()} */
-  public BaseModelViewModel_ onUnbind(OnModelUnboundListener<BaseModelViewModel_, BaseModelView> listener) {
+  public BaseModelViewModel_ onUnbind(
+      OnModelUnboundListener<BaseModelViewModel_, BaseModelView> listener) {
     onMutation();
     this.onModelUnboundListener_epoxyGeneratedModel = listener;
+    return this;
+  }
+
+  @Override
+  public void onVisibilityStateChanged(int visibilityState, final BaseModelView object) {
+    if (onModelVisibilityStateChangedListener_epoxyGeneratedModel != null) {
+      onModelVisibilityStateChangedListener_epoxyGeneratedModel.onVisibilityStateChanged(this, object, visibilityState);
+    }
+    super.onVisibilityStateChanged(visibilityState, object);
+  }
+
+  /**
+   * Register a listener that will be called when this model visibility state has changed.
+   * <p>
+   * The listener will contribute to this model's hashCode state per the {@link
+   * com.airbnb.epoxy.EpoxyAttribute.Option#DoNotHash} rules.
+   * <p>
+   * You may clear the listener by setting a null value, or by calling {@link #reset()} */
+  public BaseModelViewModel_ onVisibilityStateChanged(
+      OnModelVisibilityStateChangedListener<BaseModelViewModel_, BaseModelView> listener) {
+    onMutation();
+    this.onModelVisibilityStateChangedListener_epoxyGeneratedModel = listener;
+    return this;
+  }
+
+  @Override
+  public void onVisibilityChanged(float percentVisibleHeight, float percentVisibleWidth,
+      int visibleHeight, int visibleWidth, final BaseModelView object) {
+    if (onModelVisibilityChangedListener_epoxyGeneratedModel != null) {
+      onModelVisibilityChangedListener_epoxyGeneratedModel.onVisibilityChanged(this, object, percentVisibleHeight, percentVisibleWidth, visibleHeight, visibleWidth);
+    }
+    super.onVisibilityChanged(percentVisibleHeight, percentVisibleWidth, visibleHeight, visibleWidth, object);
+  }
+
+  /**
+   * Register a listener that will be called when this model visibility has changed.
+   * <p>
+   * The listener will contribute to this model's hashCode state per the {@link
+   * com.airbnb.epoxy.EpoxyAttribute.Option#DoNotHash} rules.
+   * <p>
+   * You may clear the listener by setting a null value, or by calling {@link #reset()} */
+  public BaseModelViewModel_ onVisibilityChanged(
+      OnModelVisibilityChangedListener<BaseModelViewModel_, BaseModelView> listener) {
+    onMutation();
+    this.onModelVisibilityChangedListener_epoxyGeneratedModel = listener;
     return this;
   }
 
@@ -106,7 +163,7 @@ public class BaseModelViewModel_ extends TestBaseModel<BaseModelView> implements
    *
    * @see BaseModelView#setClickListener(String)
    */
-  public BaseModelViewModel_ clickListener(String clickListener) {
+  public BaseModelViewModel_ clickListener(@NonNull String clickListener) {
     if (clickListener == null) {
       throw new IllegalArgumentException("clickListener cannot be null");
     }
@@ -116,6 +173,7 @@ public class BaseModelViewModel_ extends TestBaseModel<BaseModelView> implements
     return this;
   }
 
+  @NonNull
   public String clickListener() {
     return clickListener_String;
   }
@@ -127,8 +185,8 @@ public class BaseModelViewModel_ extends TestBaseModel<BaseModelView> implements
   }
 
   @Override
-  public BaseModelViewModel_ id(Number... ids) {
-    super.id(ids);
+  public BaseModelViewModel_ id(@Nullable Number... arg0) {
+    super.id(arg0);
     return this;
   }
 
@@ -139,20 +197,20 @@ public class BaseModelViewModel_ extends TestBaseModel<BaseModelView> implements
   }
 
   @Override
-  public BaseModelViewModel_ id(CharSequence key) {
-    super.id(key);
+  public BaseModelViewModel_ id(@Nullable CharSequence arg0) {
+    super.id(arg0);
     return this;
   }
 
   @Override
-  public BaseModelViewModel_ id(CharSequence key, CharSequence... otherKeys) {
-    super.id(key, otherKeys);
+  public BaseModelViewModel_ id(@Nullable CharSequence arg0, @Nullable CharSequence... arg1) {
+    super.id(arg0, arg1);
     return this;
   }
 
   @Override
-  public BaseModelViewModel_ id(CharSequence key, long id) {
-    super.id(key, id);
+  public BaseModelViewModel_ id(@Nullable CharSequence arg0, long arg1) {
+    super.id(arg0, arg1);
     return this;
   }
 
@@ -196,6 +254,8 @@ public class BaseModelViewModel_ extends TestBaseModel<BaseModelView> implements
   public BaseModelViewModel_ reset() {
     onModelBoundListener_epoxyGeneratedModel = null;
     onModelUnboundListener_epoxyGeneratedModel = null;
+    onModelVisibilityStateChangedListener_epoxyGeneratedModel = null;
+    onModelVisibilityChangedListener_epoxyGeneratedModel = null;
     assignedAttributes_epoxyGeneratedModel.clear();
     this.clickListener_String = null;
     super.reset();
@@ -214,13 +274,19 @@ public class BaseModelViewModel_ extends TestBaseModel<BaseModelView> implements
       return false;
     }
     BaseModelViewModel_ that = (BaseModelViewModel_) o;
-    if ((onModelBoundListener_epoxyGeneratedModel == null) != (that.onModelBoundListener_epoxyGeneratedModel == null)) {
+    if (((onModelBoundListener_epoxyGeneratedModel == null) != (that.onModelBoundListener_epoxyGeneratedModel == null))) {
       return false;
     }
-    if ((onModelUnboundListener_epoxyGeneratedModel == null) != (that.onModelUnboundListener_epoxyGeneratedModel == null)) {
+    if (((onModelUnboundListener_epoxyGeneratedModel == null) != (that.onModelUnboundListener_epoxyGeneratedModel == null))) {
       return false;
     }
-    if (clickListener_String != null ? !clickListener_String.equals(that.clickListener_String) : that.clickListener_String != null) {
+    if (((onModelVisibilityStateChangedListener_epoxyGeneratedModel == null) != (that.onModelVisibilityStateChangedListener_epoxyGeneratedModel == null))) {
+      return false;
+    }
+    if (((onModelVisibilityChangedListener_epoxyGeneratedModel == null) != (that.onModelVisibilityChangedListener_epoxyGeneratedModel == null))) {
+      return false;
+    }
+    if ((clickListener_String != null ? !clickListener_String.equals(that.clickListener_String) : that.clickListener_String != null)) {
       return false;
     }
     return true;
@@ -231,6 +297,8 @@ public class BaseModelViewModel_ extends TestBaseModel<BaseModelView> implements
     int result = super.hashCode();
     result = 31 * result + (onModelBoundListener_epoxyGeneratedModel != null ? 1 : 0);
     result = 31 * result + (onModelUnboundListener_epoxyGeneratedModel != null ? 1 : 0);
+    result = 31 * result + (onModelVisibilityStateChangedListener_epoxyGeneratedModel != null ? 1 : 0);
+    result = 31 * result + (onModelVisibilityChangedListener_epoxyGeneratedModel != null ? 1 : 0);
     result = 31 * result + (clickListener_String != null ? clickListener_String.hashCode() : 0);
     return result;
   }

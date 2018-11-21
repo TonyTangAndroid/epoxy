@@ -3,13 +3,14 @@ package com.airbnb.epoxy;
 import android.view.View;
 
 import com.airbnb.epoxy.EpoxyModel.SpanSizeOverrideCallback;
+import com.airbnb.epoxy.integrationtest.BuildConfig;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
-import static junit.framework.Assert.assertEquals;
+import static org.junit.Assert.assertEquals;
 
 @RunWith(RobolectricTestRunner.class)
 @Config(constants = BuildConfig.class, sdk = 21)

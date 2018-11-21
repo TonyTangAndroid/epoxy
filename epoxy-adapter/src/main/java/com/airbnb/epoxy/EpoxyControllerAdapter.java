@@ -1,32 +1,44 @@
 package com.airbnb.epoxy;
 
-import android.support.annotation.Nullable;
-import android.support.v7.widget.RecyclerView;
+import android.os.Handler;
 
-import java.util.Collections;
+import com.airbnb.epoxy.AsyncEpoxyDiffer.ResultCallack;
+
+import java.util.ArrayList;
 import java.util.List;
 
-public final class EpoxyControllerAdapter extends BaseEpoxyAdapter {
-  private final DiffHelper diffHelper = new DiffHelper(this, true);
-  private final NotifyBlocker notifyBlocker = new NotifyBlocker();
-  private final EpoxyController epoxyController;
-  private List<EpoxyModel<?>> currentModels = Collections.emptyList();
-  private List<EpoxyModel<?>> copyOfCurrentModels;
-  private int itemCount;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.UiThread;
+import androidx.recyclerview.widget.DiffUtil.ItemCallback;
+import androidx.recyclerview.widget.RecyclerView;
 
-  EpoxyControllerAdapter(EpoxyController epoxyController) {
+public final class EpoxyControllerAdapter extends BaseEpoxyAdapter implements ResultCallack {
+  private final NotifyBlocker notifyBlocker = new NotifyBlocker();
+  private final AsyncEpoxyDiffer differ;
+  private final EpoxyController epoxyController;
+  private int itemCount;
+  private final List<OnModelBuildFinishedListener> modelBuildListeners = new ArrayList<>();
+
+  EpoxyControllerAdapter(@NonNull EpoxyController epoxyController, Handler diffingHandler) {
     this.epoxyController = epoxyController;
+    differ = new AsyncEpoxyDiffer(
+        diffingHandler,
+        this,
+        ITEM_CALLBACK
+    );
     registerAdapterDataObserver(notifyBlocker);
   }
 
   @Override
-  protected void onExceptionSwallowed(RuntimeException exception) {
+  protected void onExceptionSwallowed(@NonNull RuntimeException exception) {
     epoxyController.onExceptionSwallowed(exception);
   }
 
+  @NonNull
   @Override
-  List<EpoxyModel<?>> getCurrentModels() {
-    return currentModels;
+  List<? extends EpoxyModel<?>> getCurrentModels() {
+    return differ.getCurrentList();
   }
 
   @Override
@@ -37,13 +49,37 @@ public final class EpoxyControllerAdapter extends BaseEpoxyAdapter {
     return itemCount;
   }
 
-  void setModels(List<EpoxyModel<?>> models) {
-    itemCount = models.size();
-    copyOfCurrentModels = null;
-    this.currentModels = models;
+  /** This is set from whatever thread model building happened on, so must be thread safe. */
+  void setModels(@NonNull ControllerModelList models) {
+    differ.submitList(models);
+  }
+
+  /**
+   * @return True if a diff operation is in progress.
+   */
+  public boolean isDiffInProgress() {
+    return differ.isDiffInProgress();
+  }
+
+  // Called on diff results from the differ
+  @Override
+  public void onResult(@NonNull DiffResult result) {
+    itemCount = result.newModels.size();
     notifyBlocker.allowChanges();
-    diffHelper.notifyModelChanges();
+    result.dispatchTo(this);
     notifyBlocker.blockChanges();
+
+    for (int i = modelBuildListeners.size() - 1; i >= 0; i--) {
+      modelBuildListeners.get(i).onModelBuildFinished(result);
+    }
+  }
+
+  public void addModelBuildListener(OnModelBuildFinishedListener listener) {
+    modelBuildListeners.add(listener);
+  }
+
+  public void removeModelBuildListener(OnModelBuildFinishedListener listener) {
+    modelBuildListeners.remove(listener);
   }
 
   @Override
@@ -52,49 +88,52 @@ public final class EpoxyControllerAdapter extends BaseEpoxyAdapter {
   }
 
   @Override
-  public void onAttachedToRecyclerView(RecyclerView recyclerView) {
+  public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
     epoxyController.onAttachedToRecyclerViewInternal(recyclerView);
   }
 
   @Override
-  public void onDetachedFromRecyclerView(RecyclerView recyclerView) {
+  public void onDetachedFromRecyclerView(@NonNull RecyclerView recyclerView) {
     epoxyController.onDetachedFromRecyclerViewInternal(recyclerView);
   }
 
   @Override
-  public void onViewAttachedToWindow(EpoxyViewHolder holder) {
+  public void onViewAttachedToWindow(@NonNull EpoxyViewHolder holder) {
     super.onViewAttachedToWindow(holder);
     epoxyController.onViewAttachedToWindow(holder, holder.getModel());
   }
 
   @Override
-  public void onViewDetachedFromWindow(EpoxyViewHolder holder) {
+  public void onViewDetachedFromWindow(@NonNull EpoxyViewHolder holder) {
     super.onViewDetachedFromWindow(holder);
     epoxyController.onViewDetachedFromWindow(holder, holder.getModel());
   }
 
   @Override
-  protected void onModelBound(EpoxyViewHolder holder, EpoxyModel<?> model, int position,
-      @Nullable EpoxyModel<?> previouslyBoundModel) {
+  protected void onModelBound(@NonNull EpoxyViewHolder holder, @NonNull EpoxyModel<?> model,
+      int position, @Nullable EpoxyModel<?> previouslyBoundModel) {
     epoxyController.onModelBound(holder, model, position, previouslyBoundModel);
   }
 
   @Override
-  protected void onModelUnbound(EpoxyViewHolder holder, EpoxyModel<?> model) {
+  protected void onModelUnbound(@NonNull EpoxyViewHolder holder, @NonNull EpoxyModel<?> model) {
     epoxyController.onModelUnbound(holder, model);
   }
 
   /** Get an unmodifiable copy of the current models set on the adapter. */
+  @NonNull
   public List<EpoxyModel<?>> getCopyOfModels() {
-    if (copyOfCurrentModels == null) {
-      copyOfCurrentModels = new UnmodifiableList<>(currentModels);
-    }
-
-    return copyOfCurrentModels;
+    //noinspection unchecked
+    return (List<EpoxyModel<?>>) getCurrentModels();
   }
 
+  /**
+   * @throws IndexOutOfBoundsException If the given position is out of range of the current model
+   *                                   list.
+   */
+  @NonNull
   public EpoxyModel<?> getModelAtPosition(int position) {
-    return currentModels.get(position);
+    return getCurrentModels().get(position);
   }
 
   /**
@@ -103,7 +142,7 @@ public final class EpoxyControllerAdapter extends BaseEpoxyAdapter {
    */
   @Nullable
   public EpoxyModel<?> getModelById(long id) {
-    for (EpoxyModel<?> model : currentModels) {
+    for (EpoxyModel<?> model : getCurrentModels()) {
       if (model.id() == id) {
         return model;
       }
@@ -113,10 +152,10 @@ public final class EpoxyControllerAdapter extends BaseEpoxyAdapter {
   }
 
   @Override
-  public int getModelPosition(EpoxyModel<?> targetModel) {
-    int size = currentModels.size();
+  public int getModelPosition(@NonNull EpoxyModel<?> targetModel) {
+    int size = getCurrentModels().size();
     for (int i = 0; i < size; i++) {
-      EpoxyModel<?> model = currentModels.get(i);
+      EpoxyModel<?> model = getCurrentModels().get(i);
       if (model.id() == targetModel.id()) {
         return i;
       }
@@ -125,8 +164,45 @@ public final class EpoxyControllerAdapter extends BaseEpoxyAdapter {
     return -1;
   }
 
+  @NonNull
   @Override
   public BoundViewHolders getBoundViewHolders() {
     return super.getBoundViewHolders();
   }
+
+  @UiThread
+  void moveModel(int fromPosition, int toPosition) {
+    ArrayList<EpoxyModel<?>> updatedList = new ArrayList<>(getCurrentModels());
+
+    updatedList.add(toPosition, updatedList.remove(fromPosition));
+    notifyBlocker.allowChanges();
+    notifyItemMoved(fromPosition, toPosition);
+    notifyBlocker.blockChanges();
+
+    boolean interruptedDiff = differ.forceListOverride(updatedList);
+
+    if (interruptedDiff) {
+      // The move interrupted a model rebuild/diff that was in progress,
+      // so models may be out of date and we should force them to rebuilt
+      epoxyController.requestModelBuild();
+    }
+  }
+
+  private static final ItemCallback<EpoxyModel<?>> ITEM_CALLBACK =
+      new ItemCallback<EpoxyModel<?>>() {
+        @Override
+        public boolean areItemsTheSame(EpoxyModel<?> oldItem, EpoxyModel<?> newItem) {
+          return oldItem.id() == newItem.id();
+        }
+
+        @Override
+        public boolean areContentsTheSame(EpoxyModel<?> oldItem, EpoxyModel<?> newItem) {
+          return oldItem.equals(newItem);
+        }
+
+        @Override
+        public Object getChangePayload(EpoxyModel<?> oldItem, EpoxyModel<?> newItem) {
+          return new DiffPayload(oldItem);
+        }
+      };
 }

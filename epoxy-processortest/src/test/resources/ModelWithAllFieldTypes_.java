@@ -1,7 +1,7 @@
 package com.airbnb.epoxy;
 
-import android.support.annotation.LayoutRes;
-import android.support.annotation.Nullable;
+import androidx.annotation.LayoutRes;
+import androidx.annotation.Nullable;
 import java.lang.Boolean;
 import java.lang.Byte;
 import java.lang.CharSequence;
@@ -20,10 +20,14 @@ import java.util.List;
 
 /**
  * Generated file. Do not modify! */
-public class ModelWithAllFieldTypes_ extends ModelWithAllFieldTypes implements GeneratedModel<Object> {
+public class ModelWithAllFieldTypes_ extends ModelWithAllFieldTypes implements GeneratedModel<Object>, ModelWithAllFieldTypesBuilder {
   private OnModelBoundListener<ModelWithAllFieldTypes_, Object> onModelBoundListener_epoxyGeneratedModel;
 
   private OnModelUnboundListener<ModelWithAllFieldTypes_, Object> onModelUnboundListener_epoxyGeneratedModel;
+
+  private OnModelVisibilityStateChangedListener<ModelWithAllFieldTypes_, Object> onModelVisibilityStateChangedListener_epoxyGeneratedModel;
+
+  private OnModelVisibilityChangedListener<ModelWithAllFieldTypes_, Object> onModelVisibilityChangedListener_epoxyGeneratedModel;
 
   public ModelWithAllFieldTypes_() {
     super();
@@ -36,7 +40,7 @@ public class ModelWithAllFieldTypes_ extends ModelWithAllFieldTypes implements G
   }
 
   @Override
-  public void handlePreBind(final EpoxyViewHolder holder, final Object object, int position) {
+  public void handlePreBind(final EpoxyViewHolder holder, final Object object, final int position) {
     validateStateHasNotChangedSinceAdded("The model was changed between being added to the controller and being bound.", position);
   }
 
@@ -55,7 +59,8 @@ public class ModelWithAllFieldTypes_ extends ModelWithAllFieldTypes implements G
    * com.airbnb.epoxy.EpoxyAttribute.Option#DoNotHash} rules.
    * <p>
    * You may clear the listener by setting a null value, or by calling {@link #reset()} */
-  public ModelWithAllFieldTypes_ onBind(OnModelBoundListener<ModelWithAllFieldTypes_, Object> listener) {
+  public ModelWithAllFieldTypes_ onBind(
+      OnModelBoundListener<ModelWithAllFieldTypes_, Object> listener) {
     onMutation();
     this.onModelBoundListener_epoxyGeneratedModel = listener;
     return this;
@@ -76,9 +81,55 @@ public class ModelWithAllFieldTypes_ extends ModelWithAllFieldTypes implements G
    * com.airbnb.epoxy.EpoxyAttribute.Option#DoNotHash} rules.
    * <p>
    * You may clear the listener by setting a null value, or by calling {@link #reset()} */
-  public ModelWithAllFieldTypes_ onUnbind(OnModelUnboundListener<ModelWithAllFieldTypes_, Object> listener) {
+  public ModelWithAllFieldTypes_ onUnbind(
+      OnModelUnboundListener<ModelWithAllFieldTypes_, Object> listener) {
     onMutation();
     this.onModelUnboundListener_epoxyGeneratedModel = listener;
+    return this;
+  }
+
+  @Override
+  public void onVisibilityStateChanged(int visibilityState, final Object object) {
+    if (onModelVisibilityStateChangedListener_epoxyGeneratedModel != null) {
+      onModelVisibilityStateChangedListener_epoxyGeneratedModel.onVisibilityStateChanged(this, object, visibilityState);
+    }
+    super.onVisibilityStateChanged(visibilityState, object);
+  }
+
+  /**
+   * Register a listener that will be called when this model visibility state has changed.
+   * <p>
+   * The listener will contribute to this model's hashCode state per the {@link
+   * com.airbnb.epoxy.EpoxyAttribute.Option#DoNotHash} rules.
+   * <p>
+   * You may clear the listener by setting a null value, or by calling {@link #reset()} */
+  public ModelWithAllFieldTypes_ onVisibilityStateChanged(
+      OnModelVisibilityStateChangedListener<ModelWithAllFieldTypes_, Object> listener) {
+    onMutation();
+    this.onModelVisibilityStateChangedListener_epoxyGeneratedModel = listener;
+    return this;
+  }
+
+  @Override
+  public void onVisibilityChanged(float percentVisibleHeight, float percentVisibleWidth,
+      int visibleHeight, int visibleWidth, final Object object) {
+    if (onModelVisibilityChangedListener_epoxyGeneratedModel != null) {
+      onModelVisibilityChangedListener_epoxyGeneratedModel.onVisibilityChanged(this, object, percentVisibleHeight, percentVisibleWidth, visibleHeight, visibleWidth);
+    }
+    super.onVisibilityChanged(percentVisibleHeight, percentVisibleWidth, visibleHeight, visibleWidth, object);
+  }
+
+  /**
+   * Register a listener that will be called when this model visibility has changed.
+   * <p>
+   * The listener will contribute to this model's hashCode state per the {@link
+   * com.airbnb.epoxy.EpoxyAttribute.Option#DoNotHash} rules.
+   * <p>
+   * You may clear the listener by setting a null value, or by calling {@link #reset()} */
+  public ModelWithAllFieldTypes_ onVisibilityChanged(
+      OnModelVisibilityChangedListener<ModelWithAllFieldTypes_, Object> listener) {
+    onMutation();
+    this.onModelVisibilityChangedListener_epoxyGeneratedModel = listener;
     return this;
   }
 
@@ -299,8 +350,8 @@ public class ModelWithAllFieldTypes_ extends ModelWithAllFieldTypes implements G
   }
 
   @Override
-  public ModelWithAllFieldTypes_ id(Number... ids) {
-    super.id(ids);
+  public ModelWithAllFieldTypes_ id(@Nullable Number... arg0) {
+    super.id(arg0);
     return this;
   }
 
@@ -311,20 +362,20 @@ public class ModelWithAllFieldTypes_ extends ModelWithAllFieldTypes implements G
   }
 
   @Override
-  public ModelWithAllFieldTypes_ id(CharSequence key) {
-    super.id(key);
+  public ModelWithAllFieldTypes_ id(@Nullable CharSequence arg0) {
+    super.id(arg0);
     return this;
   }
 
   @Override
-  public ModelWithAllFieldTypes_ id(CharSequence key, CharSequence... otherKeys) {
-    super.id(key, otherKeys);
+  public ModelWithAllFieldTypes_ id(@Nullable CharSequence arg0, @Nullable CharSequence... arg1) {
+    super.id(arg0, arg1);
     return this;
   }
 
   @Override
-  public ModelWithAllFieldTypes_ id(CharSequence key, long id) {
-    super.id(key, id);
+  public ModelWithAllFieldTypes_ id(@Nullable CharSequence arg0, long arg1) {
+    super.id(arg0, arg1);
     return this;
   }
 
@@ -335,7 +386,8 @@ public class ModelWithAllFieldTypes_ extends ModelWithAllFieldTypes implements G
   }
 
   @Override
-  public ModelWithAllFieldTypes_ spanSizeOverride(@Nullable EpoxyModel.SpanSizeOverrideCallback arg0) {
+  public ModelWithAllFieldTypes_ spanSizeOverride(
+      @Nullable EpoxyModel.SpanSizeOverrideCallback arg0) {
     super.spanSizeOverride(arg0);
     return this;
   }
@@ -362,6 +414,8 @@ public class ModelWithAllFieldTypes_ extends ModelWithAllFieldTypes implements G
   public ModelWithAllFieldTypes_ reset() {
     onModelBoundListener_epoxyGeneratedModel = null;
     onModelUnboundListener_epoxyGeneratedModel = null;
+    onModelVisibilityStateChangedListener_epoxyGeneratedModel = null;
+    onModelVisibilityChangedListener_epoxyGeneratedModel = null;
     super.valueInt = 0;
     super.valueInteger = null;
     super.valueShort = (short) 0;
@@ -399,58 +453,64 @@ public class ModelWithAllFieldTypes_ extends ModelWithAllFieldTypes implements G
       return false;
     }
     ModelWithAllFieldTypes_ that = (ModelWithAllFieldTypes_) o;
-    if ((onModelBoundListener_epoxyGeneratedModel == null) != (that.onModelBoundListener_epoxyGeneratedModel == null)) {
+    if (((onModelBoundListener_epoxyGeneratedModel == null) != (that.onModelBoundListener_epoxyGeneratedModel == null))) {
       return false;
     }
-    if ((onModelUnboundListener_epoxyGeneratedModel == null) != (that.onModelUnboundListener_epoxyGeneratedModel == null)) {
+    if (((onModelUnboundListener_epoxyGeneratedModel == null) != (that.onModelUnboundListener_epoxyGeneratedModel == null))) {
       return false;
     }
-    if (valueInt != that.valueInt) {
+    if (((onModelVisibilityStateChangedListener_epoxyGeneratedModel == null) != (that.onModelVisibilityStateChangedListener_epoxyGeneratedModel == null))) {
       return false;
     }
-    if (valueInteger != null ? !valueInteger.equals(that.valueInteger) : that.valueInteger != null) {
+    if (((onModelVisibilityChangedListener_epoxyGeneratedModel == null) != (that.onModelVisibilityChangedListener_epoxyGeneratedModel == null))) {
       return false;
     }
-    if (valueShort != that.valueShort) {
+    if ((valueInt != that.valueInt)) {
       return false;
     }
-    if (valueShortWrapper != null ? !valueShortWrapper.equals(that.valueShortWrapper) : that.valueShortWrapper != null) {
+    if ((valueInteger != null ? !valueInteger.equals(that.valueInteger) : that.valueInteger != null)) {
       return false;
     }
-    if (valueChar != that.valueChar) {
+    if ((valueShort != that.valueShort)) {
       return false;
     }
-    if (valueCharacter != null ? !valueCharacter.equals(that.valueCharacter) : that.valueCharacter != null) {
+    if ((valueShortWrapper != null ? !valueShortWrapper.equals(that.valueShortWrapper) : that.valueShortWrapper != null)) {
       return false;
     }
-    if (valuebByte != that.valuebByte) {
+    if ((valueChar != that.valueChar)) {
       return false;
     }
-    if (valueByteWrapper != null ? !valueByteWrapper.equals(that.valueByteWrapper) : that.valueByteWrapper != null) {
+    if ((valueCharacter != null ? !valueCharacter.equals(that.valueCharacter) : that.valueCharacter != null)) {
       return false;
     }
-    if (valueLong != that.valueLong) {
+    if ((valuebByte != that.valuebByte)) {
       return false;
     }
-    if (valueLongWrapper != null ? !valueLongWrapper.equals(that.valueLongWrapper) : that.valueLongWrapper != null) {
+    if ((valueByteWrapper != null ? !valueByteWrapper.equals(that.valueByteWrapper) : that.valueByteWrapper != null)) {
       return false;
     }
-    if (Double.compare(that.valueDouble, valueDouble) != 0) {
+    if ((valueLong != that.valueLong)) {
       return false;
     }
-    if (valueDoubleWrapper != null ? !valueDoubleWrapper.equals(that.valueDoubleWrapper) : that.valueDoubleWrapper != null) {
+    if ((valueLongWrapper != null ? !valueLongWrapper.equals(that.valueLongWrapper) : that.valueLongWrapper != null)) {
       return false;
     }
-    if (Float.compare(that.valueFloat, valueFloat) != 0) {
+    if ((Double.compare(that.valueDouble, valueDouble) != 0)) {
       return false;
     }
-    if (valueFloatWrapper != null ? !valueFloatWrapper.equals(that.valueFloatWrapper) : that.valueFloatWrapper != null) {
+    if ((valueDoubleWrapper != null ? !valueDoubleWrapper.equals(that.valueDoubleWrapper) : that.valueDoubleWrapper != null)) {
       return false;
     }
-    if (valueBoolean != that.valueBoolean) {
+    if ((Float.compare(that.valueFloat, valueFloat) != 0)) {
       return false;
     }
-    if (valueBooleanWrapper != null ? !valueBooleanWrapper.equals(that.valueBooleanWrapper) : that.valueBooleanWrapper != null) {
+    if ((valueFloatWrapper != null ? !valueFloatWrapper.equals(that.valueFloatWrapper) : that.valueFloatWrapper != null)) {
+      return false;
+    }
+    if ((valueBoolean != that.valueBoolean)) {
+      return false;
+    }
+    if ((valueBooleanWrapper != null ? !valueBooleanWrapper.equals(that.valueBooleanWrapper) : that.valueBooleanWrapper != null)) {
       return false;
     }
     if (!Arrays.equals(valueIntArray, that.valueIntArray)) {
@@ -459,13 +519,13 @@ public class ModelWithAllFieldTypes_ extends ModelWithAllFieldTypes implements G
     if (!Arrays.equals(valueObjectArray, that.valueObjectArray)) {
       return false;
     }
-    if (valueString != null ? !valueString.equals(that.valueString) : that.valueString != null) {
+    if ((valueString != null ? !valueString.equals(that.valueString) : that.valueString != null)) {
       return false;
     }
-    if (valueObject != null ? !valueObject.equals(that.valueObject) : that.valueObject != null) {
+    if ((valueObject != null ? !valueObject.equals(that.valueObject) : that.valueObject != null)) {
       return false;
     }
-    if (valueList != null ? !valueList.equals(that.valueList) : that.valueList != null) {
+    if ((valueList != null ? !valueList.equals(that.valueList) : that.valueList != null)) {
       return false;
     }
     return true;
@@ -476,6 +536,8 @@ public class ModelWithAllFieldTypes_ extends ModelWithAllFieldTypes implements G
     int result = super.hashCode();
     result = 31 * result + (onModelBoundListener_epoxyGeneratedModel != null ? 1 : 0);
     result = 31 * result + (onModelUnboundListener_epoxyGeneratedModel != null ? 1 : 0);
+    result = 31 * result + (onModelVisibilityStateChangedListener_epoxyGeneratedModel != null ? 1 : 0);
+    result = 31 * result + (onModelVisibilityChangedListener_epoxyGeneratedModel != null ? 1 : 0);
     long temp;
     result = 31 * result + valueInt;
     result = 31 * result + (valueInteger != null ? valueInteger.hashCode() : 0);

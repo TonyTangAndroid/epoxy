@@ -1,6 +1,6 @@
 package com.airbnb.epoxy;
 
-import android.support.v7.widget.RecyclerView.AdapterDataObserver;
+import androidx.recyclerview.widget.RecyclerView.AdapterDataObserver;
 
 /**
  * We don't allow any data change notifications except the ones done though diffing. Forcing
@@ -10,6 +10,7 @@ import android.support.v7.widget.RecyclerView.AdapterDataObserver;
  * This observer throws upon any changes done outside of diffing.
  */
 class NotifyBlocker extends AdapterDataObserver {
+
   private boolean changesAllowed;
 
   void allowChanges() {

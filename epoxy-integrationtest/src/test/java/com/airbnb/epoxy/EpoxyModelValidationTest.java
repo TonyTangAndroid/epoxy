@@ -1,8 +1,12 @@
 package com.airbnb.epoxy;
 
-import android.view.View;
-
 import com.airbnb.epoxy.EpoxyController.Interceptor;
+import com.airbnb.epoxy.integrationtest.BuildConfig;
+import com.airbnb.epoxy.integrationtest.ControllerWithAutoModel;
+import com.airbnb.epoxy.integrationtest.Model;
+import com.airbnb.epoxy.integrationtest.ModelChangesDuringBind_;
+import com.airbnb.epoxy.integrationtest.Model_;
+import com.airbnb.epoxy.integrationtest.R;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -47,7 +51,7 @@ public class EpoxyModelValidationTest {
   @Test
   public void addToOnlyValidInsideBuildModels() {
     thrown.expect(IllegalEpoxyUsage.class);
-    thrown.expectMessage("You can only add models inside the `buildModels` methods");
+    thrown.expectMessage("Can only call this when inside");
 
     EpoxyController controller = new EpoxyController() {
 
@@ -64,7 +68,7 @@ public class EpoxyModelValidationTest {
   @Test
   public void addModelOnlyValidInsideBuildModels() {
     thrown.expect(IllegalEpoxyUsage.class);
-    thrown.expectMessage("You can only add models inside the `buildModels` methods");
+    thrown.expectMessage("Can only call this when inside");
 
     EpoxyController controller = new EpoxyController() {
 
@@ -79,7 +83,7 @@ public class EpoxyModelValidationTest {
   @Test
   public void cannotCallBuildModelsDirectly() {
     thrown.expect(IllegalEpoxyUsage.class);
-    thrown.expectMessage("Call `requestModelBuild` instead");
+    thrown.expectMessage("Can only call this when inside");
 
     EpoxyController controller = new EpoxyController() {
 

@@ -1,8 +1,8 @@
 package com.airbnb.epoxy;
 
-import android.databinding.ViewDataBinding;
-import android.support.annotation.LayoutRes;
-import android.support.annotation.Nullable;
+import androidx.annotation.LayoutRes;
+import androidx.annotation.Nullable;
+import androidx.databinding.ViewDataBinding;
 import java.lang.Boolean;
 import java.lang.Byte;
 import java.lang.CharSequence;
@@ -21,10 +21,14 @@ import java.util.List;
 
 /**
  * Generated file. Do not modify! */
-public class DataBindingModelWithAllFieldTypesNoValidation_ extends DataBindingModelWithAllFieldTypesNoValidation implements GeneratedModel<DataBindingEpoxyModel.DataBindingHolder> {
+public class DataBindingModelWithAllFieldTypesNoValidation_ extends DataBindingModelWithAllFieldTypesNoValidation implements GeneratedModel<DataBindingEpoxyModel.DataBindingHolder>, DataBindingModelWithAllFieldTypesNoValidationBuilder {
   private OnModelBoundListener<DataBindingModelWithAllFieldTypesNoValidation_, DataBindingEpoxyModel.DataBindingHolder> onModelBoundListener_epoxyGeneratedModel;
 
   private OnModelUnboundListener<DataBindingModelWithAllFieldTypesNoValidation_, DataBindingEpoxyModel.DataBindingHolder> onModelUnboundListener_epoxyGeneratedModel;
+
+  private OnModelVisibilityStateChangedListener<DataBindingModelWithAllFieldTypesNoValidation_, DataBindingEpoxyModel.DataBindingHolder> onModelVisibilityStateChangedListener_epoxyGeneratedModel;
+
+  private OnModelVisibilityChangedListener<DataBindingModelWithAllFieldTypesNoValidation_, DataBindingEpoxyModel.DataBindingHolder> onModelVisibilityChangedListener_epoxyGeneratedModel;
 
   public DataBindingModelWithAllFieldTypesNoValidation_() {
     super();
@@ -32,7 +36,7 @@ public class DataBindingModelWithAllFieldTypesNoValidation_ extends DataBindingM
 
   @Override
   public void handlePreBind(final EpoxyViewHolder holder,
-      final DataBindingEpoxyModel.DataBindingHolder object, int position) {
+      final DataBindingEpoxyModel.DataBindingHolder object, final int position) {
   }
 
   @Override
@@ -49,7 +53,8 @@ public class DataBindingModelWithAllFieldTypesNoValidation_ extends DataBindingM
    * com.airbnb.epoxy.EpoxyAttribute.Option#DoNotHash} rules.
    * <p>
    * You may clear the listener by setting a null value, or by calling {@link #reset()} */
-  public DataBindingModelWithAllFieldTypesNoValidation_ onBind(OnModelBoundListener<DataBindingModelWithAllFieldTypesNoValidation_, DataBindingEpoxyModel.DataBindingHolder> listener) {
+  public DataBindingModelWithAllFieldTypesNoValidation_ onBind(
+      OnModelBoundListener<DataBindingModelWithAllFieldTypesNoValidation_, DataBindingEpoxyModel.DataBindingHolder> listener) {
     onMutation();
     this.onModelBoundListener_epoxyGeneratedModel = listener;
     return this;
@@ -70,9 +75,56 @@ public class DataBindingModelWithAllFieldTypesNoValidation_ extends DataBindingM
    * com.airbnb.epoxy.EpoxyAttribute.Option#DoNotHash} rules.
    * <p>
    * You may clear the listener by setting a null value, or by calling {@link #reset()} */
-  public DataBindingModelWithAllFieldTypesNoValidation_ onUnbind(OnModelUnboundListener<DataBindingModelWithAllFieldTypesNoValidation_, DataBindingEpoxyModel.DataBindingHolder> listener) {
+  public DataBindingModelWithAllFieldTypesNoValidation_ onUnbind(
+      OnModelUnboundListener<DataBindingModelWithAllFieldTypesNoValidation_, DataBindingEpoxyModel.DataBindingHolder> listener) {
     onMutation();
     this.onModelUnboundListener_epoxyGeneratedModel = listener;
+    return this;
+  }
+
+  @Override
+  public void onVisibilityStateChanged(int visibilityState,
+      final DataBindingEpoxyModel.DataBindingHolder object) {
+    if (onModelVisibilityStateChangedListener_epoxyGeneratedModel != null) {
+      onModelVisibilityStateChangedListener_epoxyGeneratedModel.onVisibilityStateChanged(this, object, visibilityState);
+    }
+    super.onVisibilityStateChanged(visibilityState, object);
+  }
+
+  /**
+   * Register a listener that will be called when this model visibility state has changed.
+   * <p>
+   * The listener will contribute to this model's hashCode state per the {@link
+   * com.airbnb.epoxy.EpoxyAttribute.Option#DoNotHash} rules.
+   * <p>
+   * You may clear the listener by setting a null value, or by calling {@link #reset()} */
+  public DataBindingModelWithAllFieldTypesNoValidation_ onVisibilityStateChanged(
+      OnModelVisibilityStateChangedListener<DataBindingModelWithAllFieldTypesNoValidation_, DataBindingEpoxyModel.DataBindingHolder> listener) {
+    onMutation();
+    this.onModelVisibilityStateChangedListener_epoxyGeneratedModel = listener;
+    return this;
+  }
+
+  @Override
+  public void onVisibilityChanged(float percentVisibleHeight, float percentVisibleWidth,
+      int visibleHeight, int visibleWidth, final DataBindingEpoxyModel.DataBindingHolder object) {
+    if (onModelVisibilityChangedListener_epoxyGeneratedModel != null) {
+      onModelVisibilityChangedListener_epoxyGeneratedModel.onVisibilityChanged(this, object, percentVisibleHeight, percentVisibleWidth, visibleHeight, visibleWidth);
+    }
+    super.onVisibilityChanged(percentVisibleHeight, percentVisibleWidth, visibleHeight, visibleWidth, object);
+  }
+
+  /**
+   * Register a listener that will be called when this model visibility has changed.
+   * <p>
+   * The listener will contribute to this model's hashCode state per the {@link
+   * com.airbnb.epoxy.EpoxyAttribute.Option#DoNotHash} rules.
+   * <p>
+   * You may clear the listener by setting a null value, or by calling {@link #reset()} */
+  public DataBindingModelWithAllFieldTypesNoValidation_ onVisibilityChanged(
+      OnModelVisibilityChangedListener<DataBindingModelWithAllFieldTypesNoValidation_, DataBindingEpoxyModel.DataBindingHolder> listener) {
+    onMutation();
+    this.onModelVisibilityChangedListener_epoxyGeneratedModel = listener;
     return this;
   }
 
@@ -186,7 +238,8 @@ public class DataBindingModelWithAllFieldTypesNoValidation_ extends DataBindingM
     return valueDouble;
   }
 
-  public DataBindingModelWithAllFieldTypesNoValidation_ valueDoubleWrapper(Double valueDoubleWrapper) {
+  public DataBindingModelWithAllFieldTypesNoValidation_ valueDoubleWrapper(
+      Double valueDoubleWrapper) {
     onMutation();
     super.valueDoubleWrapper = valueDoubleWrapper;
     return this;
@@ -226,7 +279,8 @@ public class DataBindingModelWithAllFieldTypesNoValidation_ extends DataBindingM
     return valueBoolean;
   }
 
-  public DataBindingModelWithAllFieldTypesNoValidation_ valueBooleanWrapper(Boolean valueBooleanWrapper) {
+  public DataBindingModelWithAllFieldTypesNoValidation_ valueBooleanWrapper(
+      Boolean valueBooleanWrapper) {
     onMutation();
     super.valueBooleanWrapper = valueBooleanWrapper;
     return this;
@@ -246,7 +300,8 @@ public class DataBindingModelWithAllFieldTypesNoValidation_ extends DataBindingM
     return valueIntArray;
   }
 
-  public DataBindingModelWithAllFieldTypesNoValidation_ valueObjectArray(Object[] valueObjectArray) {
+  public DataBindingModelWithAllFieldTypesNoValidation_ valueObjectArray(
+      Object[] valueObjectArray) {
     onMutation();
     super.valueObjectArray = valueObjectArray;
     return this;
@@ -293,8 +348,8 @@ public class DataBindingModelWithAllFieldTypesNoValidation_ extends DataBindingM
   }
 
   @Override
-  public DataBindingModelWithAllFieldTypesNoValidation_ id(Number... ids) {
-    super.id(ids);
+  public DataBindingModelWithAllFieldTypesNoValidation_ id(@Nullable Number... arg0) {
+    super.id(arg0);
     return this;
   }
 
@@ -305,21 +360,21 @@ public class DataBindingModelWithAllFieldTypesNoValidation_ extends DataBindingM
   }
 
   @Override
-  public DataBindingModelWithAllFieldTypesNoValidation_ id(CharSequence key) {
-    super.id(key);
+  public DataBindingModelWithAllFieldTypesNoValidation_ id(@Nullable CharSequence arg0) {
+    super.id(arg0);
     return this;
   }
 
   @Override
-  public DataBindingModelWithAllFieldTypesNoValidation_ id(CharSequence key,
-      CharSequence... otherKeys) {
-    super.id(key, otherKeys);
+  public DataBindingModelWithAllFieldTypesNoValidation_ id(@Nullable CharSequence arg0,
+      @Nullable CharSequence... arg1) {
+    super.id(arg0, arg1);
     return this;
   }
 
   @Override
-  public DataBindingModelWithAllFieldTypesNoValidation_ id(CharSequence key, long id) {
-    super.id(key, id);
+  public DataBindingModelWithAllFieldTypesNoValidation_ id(@Nullable CharSequence arg0, long arg1) {
+    super.id(arg0, arg1);
     return this;
   }
 
@@ -330,7 +385,8 @@ public class DataBindingModelWithAllFieldTypesNoValidation_ extends DataBindingM
   }
 
   @Override
-  public DataBindingModelWithAllFieldTypesNoValidation_ spanSizeOverride(@Nullable EpoxyModel.SpanSizeOverrideCallback arg0) {
+  public DataBindingModelWithAllFieldTypesNoValidation_ spanSizeOverride(
+      @Nullable EpoxyModel.SpanSizeOverrideCallback arg0) {
     super.spanSizeOverride(arg0);
     return this;
   }
@@ -385,52 +441,52 @@ public class DataBindingModelWithAllFieldTypesNoValidation_ extends DataBindingM
       return;
     }
     DataBindingModelWithAllFieldTypesNoValidation_ that = (DataBindingModelWithAllFieldTypesNoValidation_) previousModel;
-    if (valueInt != that.valueInt) {
+    if ((valueInt != that.valueInt)) {
       binding.setVariable(BR.valueInt, valueInt);
     }
-    if (valueInteger != null ? !valueInteger.equals(that.valueInteger) : that.valueInteger != null) {
+    if ((valueInteger != null ? !valueInteger.equals(that.valueInteger) : that.valueInteger != null)) {
       binding.setVariable(BR.valueInteger, valueInteger);
     }
-    if (valueShort != that.valueShort) {
+    if ((valueShort != that.valueShort)) {
       binding.setVariable(BR.valueShort, valueShort);
     }
-    if (valueShortWrapper != null ? !valueShortWrapper.equals(that.valueShortWrapper) : that.valueShortWrapper != null) {
+    if ((valueShortWrapper != null ? !valueShortWrapper.equals(that.valueShortWrapper) : that.valueShortWrapper != null)) {
       binding.setVariable(BR.valueShortWrapper, valueShortWrapper);
     }
-    if (valueChar != that.valueChar) {
+    if ((valueChar != that.valueChar)) {
       binding.setVariable(BR.valueChar, valueChar);
     }
-    if (valueCharacter != null ? !valueCharacter.equals(that.valueCharacter) : that.valueCharacter != null) {
+    if ((valueCharacter != null ? !valueCharacter.equals(that.valueCharacter) : that.valueCharacter != null)) {
       binding.setVariable(BR.valueCharacter, valueCharacter);
     }
-    if (valuebByte != that.valuebByte) {
+    if ((valuebByte != that.valuebByte)) {
       binding.setVariable(BR.valuebByte, valuebByte);
     }
-    if (valueByteWrapper != null ? !valueByteWrapper.equals(that.valueByteWrapper) : that.valueByteWrapper != null) {
+    if ((valueByteWrapper != null ? !valueByteWrapper.equals(that.valueByteWrapper) : that.valueByteWrapper != null)) {
       binding.setVariable(BR.valueByteWrapper, valueByteWrapper);
     }
-    if (valueLong != that.valueLong) {
+    if ((valueLong != that.valueLong)) {
       binding.setVariable(BR.valueLong, valueLong);
     }
-    if (valueLongWrapper != null ? !valueLongWrapper.equals(that.valueLongWrapper) : that.valueLongWrapper != null) {
+    if ((valueLongWrapper != null ? !valueLongWrapper.equals(that.valueLongWrapper) : that.valueLongWrapper != null)) {
       binding.setVariable(BR.valueLongWrapper, valueLongWrapper);
     }
-    if (Double.compare(that.valueDouble, valueDouble) != 0) {
+    if ((Double.compare(that.valueDouble, valueDouble) != 0)) {
       binding.setVariable(BR.valueDouble, valueDouble);
     }
-    if (valueDoubleWrapper != null ? !valueDoubleWrapper.equals(that.valueDoubleWrapper) : that.valueDoubleWrapper != null) {
+    if ((valueDoubleWrapper != null ? !valueDoubleWrapper.equals(that.valueDoubleWrapper) : that.valueDoubleWrapper != null)) {
       binding.setVariable(BR.valueDoubleWrapper, valueDoubleWrapper);
     }
-    if (Float.compare(that.valueFloat, valueFloat) != 0) {
+    if ((Float.compare(that.valueFloat, valueFloat) != 0)) {
       binding.setVariable(BR.valueFloat, valueFloat);
     }
-    if (valueFloatWrapper != null ? !valueFloatWrapper.equals(that.valueFloatWrapper) : that.valueFloatWrapper != null) {
+    if ((valueFloatWrapper != null ? !valueFloatWrapper.equals(that.valueFloatWrapper) : that.valueFloatWrapper != null)) {
       binding.setVariable(BR.valueFloatWrapper, valueFloatWrapper);
     }
-    if (valueBoolean != that.valueBoolean) {
+    if ((valueBoolean != that.valueBoolean)) {
       binding.setVariable(BR.valueBoolean, valueBoolean);
     }
-    if (valueBooleanWrapper != null ? !valueBooleanWrapper.equals(that.valueBooleanWrapper) : that.valueBooleanWrapper != null) {
+    if ((valueBooleanWrapper != null ? !valueBooleanWrapper.equals(that.valueBooleanWrapper) : that.valueBooleanWrapper != null)) {
       binding.setVariable(BR.valueBooleanWrapper, valueBooleanWrapper);
     }
     if (!Arrays.equals(valueIntArray, that.valueIntArray)) {
@@ -439,13 +495,13 @@ public class DataBindingModelWithAllFieldTypesNoValidation_ extends DataBindingM
     if (!Arrays.equals(valueObjectArray, that.valueObjectArray)) {
       binding.setVariable(BR.valueObjectArray, valueObjectArray);
     }
-    if (valueString != null ? !valueString.equals(that.valueString) : that.valueString != null) {
+    if ((valueString != null ? !valueString.equals(that.valueString) : that.valueString != null)) {
       binding.setVariable(BR.valueString, valueString);
     }
-    if (valueObject != null ? !valueObject.equals(that.valueObject) : that.valueObject != null) {
+    if ((valueObject != null ? !valueObject.equals(that.valueObject) : that.valueObject != null)) {
       binding.setVariable(BR.valueObject, valueObject);
     }
-    if (valueList != null ? !valueList.equals(that.valueList) : that.valueList != null) {
+    if ((valueList != null ? !valueList.equals(that.valueList) : that.valueList != null)) {
       binding.setVariable(BR.valueList, valueList);
     }
   }
@@ -454,6 +510,8 @@ public class DataBindingModelWithAllFieldTypesNoValidation_ extends DataBindingM
   public DataBindingModelWithAllFieldTypesNoValidation_ reset() {
     onModelBoundListener_epoxyGeneratedModel = null;
     onModelUnboundListener_epoxyGeneratedModel = null;
+    onModelVisibilityStateChangedListener_epoxyGeneratedModel = null;
+    onModelVisibilityChangedListener_epoxyGeneratedModel = null;
     super.valueInt = 0;
     super.valueInteger = null;
     super.valueShort = (short) 0;
@@ -491,58 +549,64 @@ public class DataBindingModelWithAllFieldTypesNoValidation_ extends DataBindingM
       return false;
     }
     DataBindingModelWithAllFieldTypesNoValidation_ that = (DataBindingModelWithAllFieldTypesNoValidation_) o;
-    if ((onModelBoundListener_epoxyGeneratedModel == null) != (that.onModelBoundListener_epoxyGeneratedModel == null)) {
+    if (((onModelBoundListener_epoxyGeneratedModel == null) != (that.onModelBoundListener_epoxyGeneratedModel == null))) {
       return false;
     }
-    if ((onModelUnboundListener_epoxyGeneratedModel == null) != (that.onModelUnboundListener_epoxyGeneratedModel == null)) {
+    if (((onModelUnboundListener_epoxyGeneratedModel == null) != (that.onModelUnboundListener_epoxyGeneratedModel == null))) {
       return false;
     }
-    if (valueInt != that.valueInt) {
+    if (((onModelVisibilityStateChangedListener_epoxyGeneratedModel == null) != (that.onModelVisibilityStateChangedListener_epoxyGeneratedModel == null))) {
       return false;
     }
-    if (valueInteger != null ? !valueInteger.equals(that.valueInteger) : that.valueInteger != null) {
+    if (((onModelVisibilityChangedListener_epoxyGeneratedModel == null) != (that.onModelVisibilityChangedListener_epoxyGeneratedModel == null))) {
       return false;
     }
-    if (valueShort != that.valueShort) {
+    if ((valueInt != that.valueInt)) {
       return false;
     }
-    if (valueShortWrapper != null ? !valueShortWrapper.equals(that.valueShortWrapper) : that.valueShortWrapper != null) {
+    if ((valueInteger != null ? !valueInteger.equals(that.valueInteger) : that.valueInteger != null)) {
       return false;
     }
-    if (valueChar != that.valueChar) {
+    if ((valueShort != that.valueShort)) {
       return false;
     }
-    if (valueCharacter != null ? !valueCharacter.equals(that.valueCharacter) : that.valueCharacter != null) {
+    if ((valueShortWrapper != null ? !valueShortWrapper.equals(that.valueShortWrapper) : that.valueShortWrapper != null)) {
       return false;
     }
-    if (valuebByte != that.valuebByte) {
+    if ((valueChar != that.valueChar)) {
       return false;
     }
-    if (valueByteWrapper != null ? !valueByteWrapper.equals(that.valueByteWrapper) : that.valueByteWrapper != null) {
+    if ((valueCharacter != null ? !valueCharacter.equals(that.valueCharacter) : that.valueCharacter != null)) {
       return false;
     }
-    if (valueLong != that.valueLong) {
+    if ((valuebByte != that.valuebByte)) {
       return false;
     }
-    if (valueLongWrapper != null ? !valueLongWrapper.equals(that.valueLongWrapper) : that.valueLongWrapper != null) {
+    if ((valueByteWrapper != null ? !valueByteWrapper.equals(that.valueByteWrapper) : that.valueByteWrapper != null)) {
       return false;
     }
-    if (Double.compare(that.valueDouble, valueDouble) != 0) {
+    if ((valueLong != that.valueLong)) {
       return false;
     }
-    if (valueDoubleWrapper != null ? !valueDoubleWrapper.equals(that.valueDoubleWrapper) : that.valueDoubleWrapper != null) {
+    if ((valueLongWrapper != null ? !valueLongWrapper.equals(that.valueLongWrapper) : that.valueLongWrapper != null)) {
       return false;
     }
-    if (Float.compare(that.valueFloat, valueFloat) != 0) {
+    if ((Double.compare(that.valueDouble, valueDouble) != 0)) {
       return false;
     }
-    if (valueFloatWrapper != null ? !valueFloatWrapper.equals(that.valueFloatWrapper) : that.valueFloatWrapper != null) {
+    if ((valueDoubleWrapper != null ? !valueDoubleWrapper.equals(that.valueDoubleWrapper) : that.valueDoubleWrapper != null)) {
       return false;
     }
-    if (valueBoolean != that.valueBoolean) {
+    if ((Float.compare(that.valueFloat, valueFloat) != 0)) {
       return false;
     }
-    if (valueBooleanWrapper != null ? !valueBooleanWrapper.equals(that.valueBooleanWrapper) : that.valueBooleanWrapper != null) {
+    if ((valueFloatWrapper != null ? !valueFloatWrapper.equals(that.valueFloatWrapper) : that.valueFloatWrapper != null)) {
+      return false;
+    }
+    if ((valueBoolean != that.valueBoolean)) {
+      return false;
+    }
+    if ((valueBooleanWrapper != null ? !valueBooleanWrapper.equals(that.valueBooleanWrapper) : that.valueBooleanWrapper != null)) {
       return false;
     }
     if (!Arrays.equals(valueIntArray, that.valueIntArray)) {
@@ -551,13 +615,13 @@ public class DataBindingModelWithAllFieldTypesNoValidation_ extends DataBindingM
     if (!Arrays.equals(valueObjectArray, that.valueObjectArray)) {
       return false;
     }
-    if (valueString != null ? !valueString.equals(that.valueString) : that.valueString != null) {
+    if ((valueString != null ? !valueString.equals(that.valueString) : that.valueString != null)) {
       return false;
     }
-    if (valueObject != null ? !valueObject.equals(that.valueObject) : that.valueObject != null) {
+    if ((valueObject != null ? !valueObject.equals(that.valueObject) : that.valueObject != null)) {
       return false;
     }
-    if (valueList != null ? !valueList.equals(that.valueList) : that.valueList != null) {
+    if ((valueList != null ? !valueList.equals(that.valueList) : that.valueList != null)) {
       return false;
     }
     return true;
@@ -568,6 +632,8 @@ public class DataBindingModelWithAllFieldTypesNoValidation_ extends DataBindingM
     int result = super.hashCode();
     result = 31 * result + (onModelBoundListener_epoxyGeneratedModel != null ? 1 : 0);
     result = 31 * result + (onModelUnboundListener_epoxyGeneratedModel != null ? 1 : 0);
+    result = 31 * result + (onModelVisibilityStateChangedListener_epoxyGeneratedModel != null ? 1 : 0);
+    result = 31 * result + (onModelVisibilityChangedListener_epoxyGeneratedModel != null ? 1 : 0);
     long temp;
     result = 31 * result + valueInt;
     result = 31 * result + (valueInteger != null ? valueInteger.hashCode() : 0);

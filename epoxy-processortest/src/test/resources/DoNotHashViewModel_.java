@@ -1,8 +1,9 @@
 package com.airbnb.epoxy;
 
-import android.support.annotation.LayoutRes;
-import android.support.annotation.Nullable;
 import android.view.View;
+import androidx.annotation.LayoutRes;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import java.lang.CharSequence;
 import java.lang.IllegalArgumentException;
 import java.lang.IllegalStateException;
@@ -14,23 +15,30 @@ import java.util.BitSet;
 
 /**
  * Generated file. Do not modify! */
-public class DoNotHashViewModel_ extends EpoxyModel<DoNotHashView> implements GeneratedModel<DoNotHashView> {
+public class DoNotHashViewModel_ extends EpoxyModel<DoNotHashView> implements GeneratedModel<DoNotHashView>, DoNotHashViewModelBuilder {
   private final BitSet assignedAttributes_epoxyGeneratedModel = new BitSet(3);
 
   private OnModelBoundListener<DoNotHashViewModel_, DoNotHashView> onModelBoundListener_epoxyGeneratedModel;
 
   private OnModelUnboundListener<DoNotHashViewModel_, DoNotHashView> onModelUnboundListener_epoxyGeneratedModel;
 
+  private OnModelVisibilityStateChangedListener<DoNotHashViewModel_, DoNotHashView> onModelVisibilityStateChangedListener_epoxyGeneratedModel;
+
+  private OnModelVisibilityChangedListener<DoNotHashViewModel_, DoNotHashView> onModelVisibilityChangedListener_epoxyGeneratedModel;
+
   /**
    * Bitset index: 0 */
+  @NonNull
   private CharSequence title_CharSequence;
 
   /**
    * Bitset index: 1 */
+  @NonNull
   private View.OnClickListener clickListener_OnClickListener;
 
   /**
    * Bitset index: 2 */
+  @NonNull
   private CharSequence normalProp_CharSequence;
 
   @Override
@@ -50,11 +58,8 @@ public class DoNotHashViewModel_ extends EpoxyModel<DoNotHashView> implements Ge
 
   @Override
   public void handlePreBind(final EpoxyViewHolder holder, final DoNotHashView object,
-      int position) {
+      final int position) {
     validateStateHasNotChangedSinceAdded("The model was changed between being added to the controller and being bound.", position);
-    if (clickListener_OnClickListener instanceof WrappedEpoxyModelClickListener) {
-      ((com.airbnb.epoxy.WrappedEpoxyModelClickListener) clickListener_OnClickListener).bind(holder, object);
-    }
   }
 
   @Override
@@ -74,15 +79,15 @@ public class DoNotHashViewModel_ extends EpoxyModel<DoNotHashView> implements Ge
     DoNotHashViewModel_ that = (DoNotHashViewModel_) previousModel;
     super.bind(object);
 
-    if ((clickListener_OnClickListener == null) != (that.clickListener_OnClickListener == null)) {
+    if (((clickListener_OnClickListener == null) != (that.clickListener_OnClickListener == null))) {
       object.setClickListener(clickListener_OnClickListener);
     }
 
-    if ((title_CharSequence == null) != (that.title_CharSequence == null)) {
+    if (((title_CharSequence == null) != (that.title_CharSequence == null))) {
       object.setTitle(title_CharSequence);
     }
 
-    if (normalProp_CharSequence != null ? !normalProp_CharSequence.equals(that.normalProp_CharSequence) : that.normalProp_CharSequence != null) {
+    if ((normalProp_CharSequence != null ? !normalProp_CharSequence.equals(that.normalProp_CharSequence) : that.normalProp_CharSequence != null)) {
       object.normalProp(normalProp_CharSequence);
     }
   }
@@ -102,7 +107,8 @@ public class DoNotHashViewModel_ extends EpoxyModel<DoNotHashView> implements Ge
    * com.airbnb.epoxy.EpoxyAttribute.Option#DoNotHash} rules.
    * <p>
    * You may clear the listener by setting a null value, or by calling {@link #reset()} */
-  public DoNotHashViewModel_ onBind(OnModelBoundListener<DoNotHashViewModel_, DoNotHashView> listener) {
+  public DoNotHashViewModel_ onBind(
+      OnModelBoundListener<DoNotHashViewModel_, DoNotHashView> listener) {
     onMutation();
     this.onModelBoundListener_epoxyGeneratedModel = listener;
     return this;
@@ -123,9 +129,55 @@ public class DoNotHashViewModel_ extends EpoxyModel<DoNotHashView> implements Ge
    * com.airbnb.epoxy.EpoxyAttribute.Option#DoNotHash} rules.
    * <p>
    * You may clear the listener by setting a null value, or by calling {@link #reset()} */
-  public DoNotHashViewModel_ onUnbind(OnModelUnboundListener<DoNotHashViewModel_, DoNotHashView> listener) {
+  public DoNotHashViewModel_ onUnbind(
+      OnModelUnboundListener<DoNotHashViewModel_, DoNotHashView> listener) {
     onMutation();
     this.onModelUnboundListener_epoxyGeneratedModel = listener;
+    return this;
+  }
+
+  @Override
+  public void onVisibilityStateChanged(int visibilityState, final DoNotHashView object) {
+    if (onModelVisibilityStateChangedListener_epoxyGeneratedModel != null) {
+      onModelVisibilityStateChangedListener_epoxyGeneratedModel.onVisibilityStateChanged(this, object, visibilityState);
+    }
+    super.onVisibilityStateChanged(visibilityState, object);
+  }
+
+  /**
+   * Register a listener that will be called when this model visibility state has changed.
+   * <p>
+   * The listener will contribute to this model's hashCode state per the {@link
+   * com.airbnb.epoxy.EpoxyAttribute.Option#DoNotHash} rules.
+   * <p>
+   * You may clear the listener by setting a null value, or by calling {@link #reset()} */
+  public DoNotHashViewModel_ onVisibilityStateChanged(
+      OnModelVisibilityStateChangedListener<DoNotHashViewModel_, DoNotHashView> listener) {
+    onMutation();
+    this.onModelVisibilityStateChangedListener_epoxyGeneratedModel = listener;
+    return this;
+  }
+
+  @Override
+  public void onVisibilityChanged(float percentVisibleHeight, float percentVisibleWidth,
+      int visibleHeight, int visibleWidth, final DoNotHashView object) {
+    if (onModelVisibilityChangedListener_epoxyGeneratedModel != null) {
+      onModelVisibilityChangedListener_epoxyGeneratedModel.onVisibilityChanged(this, object, percentVisibleHeight, percentVisibleWidth, visibleHeight, visibleWidth);
+    }
+    super.onVisibilityChanged(percentVisibleHeight, percentVisibleWidth, visibleHeight, visibleWidth, object);
+  }
+
+  /**
+   * Register a listener that will be called when this model visibility has changed.
+   * <p>
+   * The listener will contribute to this model's hashCode state per the {@link
+   * com.airbnb.epoxy.EpoxyAttribute.Option#DoNotHash} rules.
+   * <p>
+   * You may clear the listener by setting a null value, or by calling {@link #reset()} */
+  public DoNotHashViewModel_ onVisibilityChanged(
+      OnModelVisibilityChangedListener<DoNotHashViewModel_, DoNotHashView> listener) {
+    onMutation();
+    this.onModelVisibilityChangedListener_epoxyGeneratedModel = listener;
     return this;
   }
 
@@ -134,7 +186,7 @@ public class DoNotHashViewModel_ extends EpoxyModel<DoNotHashView> implements Ge
    *
    * @see DoNotHashView#setTitle(CharSequence)
    */
-  public DoNotHashViewModel_ title(CharSequence title) {
+  public DoNotHashViewModel_ title(@NonNull CharSequence title) {
     if (title == null) {
       throw new IllegalArgumentException("title cannot be null");
     }
@@ -144,20 +196,22 @@ public class DoNotHashViewModel_ extends EpoxyModel<DoNotHashView> implements Ge
     return this;
   }
 
+  @NonNull
   public CharSequence title() {
     return title_CharSequence;
   }
 
   /**
    * Set a click listener that will provide the parent view, model, and adapter position of the clicked view. This will clear the normal View.OnClickListener if one has been set */
-  public DoNotHashViewModel_ clickListener_OnClickListener(final OnModelClickListener<DoNotHashViewModel_, DoNotHashView> clickListener_OnClickListener) {
+  public DoNotHashViewModel_ clickListener(
+      @NonNull final OnModelClickListener<DoNotHashViewModel_, DoNotHashView> clickListener) {
     assignedAttributes_epoxyGeneratedModel.set(1);
     onMutation();
-    if (clickListener_OnClickListener == null) {
+    if (clickListener == null) {
       this.clickListener_OnClickListener = null;
     }
     else {
-      this.clickListener_OnClickListener = new WrappedEpoxyModelClickListener(this, clickListener_OnClickListener);
+      this.clickListener_OnClickListener = new WrappedEpoxyModelClickListener(clickListener);
     }
     return this;
   }
@@ -167,7 +221,7 @@ public class DoNotHashViewModel_ extends EpoxyModel<DoNotHashView> implements Ge
    *
    * @see DoNotHashView#setClickListener(View.OnClickListener)
    */
-  public DoNotHashViewModel_ clickListener(View.OnClickListener clickListener) {
+  public DoNotHashViewModel_ clickListener(@NonNull View.OnClickListener clickListener) {
     if (clickListener == null) {
       throw new IllegalArgumentException("clickListener cannot be null");
     }
@@ -177,6 +231,7 @@ public class DoNotHashViewModel_ extends EpoxyModel<DoNotHashView> implements Ge
     return this;
   }
 
+  @NonNull
   public View.OnClickListener clickListener() {
     return clickListener_OnClickListener;
   }
@@ -186,7 +241,7 @@ public class DoNotHashViewModel_ extends EpoxyModel<DoNotHashView> implements Ge
    *
    * @see DoNotHashView#normalProp(CharSequence)
    */
-  public DoNotHashViewModel_ normalProp(CharSequence normalProp) {
+  public DoNotHashViewModel_ normalProp(@NonNull CharSequence normalProp) {
     if (normalProp == null) {
       throw new IllegalArgumentException("normalProp cannot be null");
     }
@@ -196,6 +251,7 @@ public class DoNotHashViewModel_ extends EpoxyModel<DoNotHashView> implements Ge
     return this;
   }
 
+  @NonNull
   public CharSequence normalProp() {
     return normalProp_CharSequence;
   }
@@ -207,8 +263,8 @@ public class DoNotHashViewModel_ extends EpoxyModel<DoNotHashView> implements Ge
   }
 
   @Override
-  public DoNotHashViewModel_ id(Number... ids) {
-    super.id(ids);
+  public DoNotHashViewModel_ id(@Nullable Number... arg0) {
+    super.id(arg0);
     return this;
   }
 
@@ -219,20 +275,20 @@ public class DoNotHashViewModel_ extends EpoxyModel<DoNotHashView> implements Ge
   }
 
   @Override
-  public DoNotHashViewModel_ id(CharSequence key) {
-    super.id(key);
+  public DoNotHashViewModel_ id(@Nullable CharSequence arg0) {
+    super.id(arg0);
     return this;
   }
 
   @Override
-  public DoNotHashViewModel_ id(CharSequence key, CharSequence... otherKeys) {
-    super.id(key, otherKeys);
+  public DoNotHashViewModel_ id(@Nullable CharSequence arg0, @Nullable CharSequence... arg1) {
+    super.id(arg0, arg1);
     return this;
   }
 
   @Override
-  public DoNotHashViewModel_ id(CharSequence key, long id) {
-    super.id(key, id);
+  public DoNotHashViewModel_ id(@Nullable CharSequence arg0, long arg1) {
+    super.id(arg0, arg1);
     return this;
   }
 
@@ -276,6 +332,8 @@ public class DoNotHashViewModel_ extends EpoxyModel<DoNotHashView> implements Ge
   public DoNotHashViewModel_ reset() {
     onModelBoundListener_epoxyGeneratedModel = null;
     onModelUnboundListener_epoxyGeneratedModel = null;
+    onModelVisibilityStateChangedListener_epoxyGeneratedModel = null;
+    onModelVisibilityChangedListener_epoxyGeneratedModel = null;
     assignedAttributes_epoxyGeneratedModel.clear();
     this.title_CharSequence = null;
     this.clickListener_OnClickListener = null;
@@ -296,19 +354,25 @@ public class DoNotHashViewModel_ extends EpoxyModel<DoNotHashView> implements Ge
       return false;
     }
     DoNotHashViewModel_ that = (DoNotHashViewModel_) o;
-    if ((onModelBoundListener_epoxyGeneratedModel == null) != (that.onModelBoundListener_epoxyGeneratedModel == null)) {
+    if (((onModelBoundListener_epoxyGeneratedModel == null) != (that.onModelBoundListener_epoxyGeneratedModel == null))) {
       return false;
     }
-    if ((onModelUnboundListener_epoxyGeneratedModel == null) != (that.onModelUnboundListener_epoxyGeneratedModel == null)) {
+    if (((onModelUnboundListener_epoxyGeneratedModel == null) != (that.onModelUnboundListener_epoxyGeneratedModel == null))) {
       return false;
     }
-    if ((title_CharSequence == null) != (that.title_CharSequence == null)) {
+    if (((onModelVisibilityStateChangedListener_epoxyGeneratedModel == null) != (that.onModelVisibilityStateChangedListener_epoxyGeneratedModel == null))) {
       return false;
     }
-    if ((clickListener_OnClickListener == null) != (that.clickListener_OnClickListener == null)) {
+    if (((onModelVisibilityChangedListener_epoxyGeneratedModel == null) != (that.onModelVisibilityChangedListener_epoxyGeneratedModel == null))) {
       return false;
     }
-    if (normalProp_CharSequence != null ? !normalProp_CharSequence.equals(that.normalProp_CharSequence) : that.normalProp_CharSequence != null) {
+    if (((title_CharSequence == null) != (that.title_CharSequence == null))) {
+      return false;
+    }
+    if (((clickListener_OnClickListener == null) != (that.clickListener_OnClickListener == null))) {
+      return false;
+    }
+    if ((normalProp_CharSequence != null ? !normalProp_CharSequence.equals(that.normalProp_CharSequence) : that.normalProp_CharSequence != null)) {
       return false;
     }
     return true;
@@ -319,6 +383,8 @@ public class DoNotHashViewModel_ extends EpoxyModel<DoNotHashView> implements Ge
     int result = super.hashCode();
     result = 31 * result + (onModelBoundListener_epoxyGeneratedModel != null ? 1 : 0);
     result = 31 * result + (onModelUnboundListener_epoxyGeneratedModel != null ? 1 : 0);
+    result = 31 * result + (onModelVisibilityStateChangedListener_epoxyGeneratedModel != null ? 1 : 0);
+    result = 31 * result + (onModelVisibilityChangedListener_epoxyGeneratedModel != null ? 1 : 0);
     result = 31 * result + (title_CharSequence != null ? 1 : 0);
     result = 31 * result + (clickListener_OnClickListener != null ? 1 : 0);
     result = 31 * result + (normalProp_CharSequence != null ? normalProp_CharSequence.hashCode() : 0);

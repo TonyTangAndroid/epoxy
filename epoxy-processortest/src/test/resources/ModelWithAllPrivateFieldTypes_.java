@@ -1,7 +1,7 @@
 package com.airbnb.epoxy;
 
-import android.support.annotation.LayoutRes;
-import android.support.annotation.Nullable;
+import androidx.annotation.LayoutRes;
+import androidx.annotation.Nullable;
 import java.lang.Boolean;
 import java.lang.Byte;
 import java.lang.CharSequence;
@@ -20,10 +20,14 @@ import java.util.List;
 
 /**
  * Generated file. Do not modify! */
-public class ModelWithAllPrivateFieldTypes_ extends ModelWithAllPrivateFieldTypes implements GeneratedModel<Object> {
+public class ModelWithAllPrivateFieldTypes_ extends ModelWithAllPrivateFieldTypes implements GeneratedModel<Object>, ModelWithAllPrivateFieldTypesBuilder {
   private OnModelBoundListener<ModelWithAllPrivateFieldTypes_, Object> onModelBoundListener_epoxyGeneratedModel;
 
   private OnModelUnboundListener<ModelWithAllPrivateFieldTypes_, Object> onModelUnboundListener_epoxyGeneratedModel;
+
+  private OnModelVisibilityStateChangedListener<ModelWithAllPrivateFieldTypes_, Object> onModelVisibilityStateChangedListener_epoxyGeneratedModel;
+
+  private OnModelVisibilityChangedListener<ModelWithAllPrivateFieldTypes_, Object> onModelVisibilityChangedListener_epoxyGeneratedModel;
 
   public ModelWithAllPrivateFieldTypes_() {
     super();
@@ -36,7 +40,7 @@ public class ModelWithAllPrivateFieldTypes_ extends ModelWithAllPrivateFieldType
   }
 
   @Override
-  public void handlePreBind(final EpoxyViewHolder holder, final Object object, int position) {
+  public void handlePreBind(final EpoxyViewHolder holder, final Object object, final int position) {
     validateStateHasNotChangedSinceAdded("The model was changed between being added to the controller and being bound.", position);
   }
 
@@ -55,7 +59,8 @@ public class ModelWithAllPrivateFieldTypes_ extends ModelWithAllPrivateFieldType
    * com.airbnb.epoxy.EpoxyAttribute.Option#DoNotHash} rules.
    * <p>
    * You may clear the listener by setting a null value, or by calling {@link #reset()} */
-  public ModelWithAllPrivateFieldTypes_ onBind(OnModelBoundListener<ModelWithAllPrivateFieldTypes_, Object> listener) {
+  public ModelWithAllPrivateFieldTypes_ onBind(
+      OnModelBoundListener<ModelWithAllPrivateFieldTypes_, Object> listener) {
     onMutation();
     this.onModelBoundListener_epoxyGeneratedModel = listener;
     return this;
@@ -76,9 +81,55 @@ public class ModelWithAllPrivateFieldTypes_ extends ModelWithAllPrivateFieldType
    * com.airbnb.epoxy.EpoxyAttribute.Option#DoNotHash} rules.
    * <p>
    * You may clear the listener by setting a null value, or by calling {@link #reset()} */
-  public ModelWithAllPrivateFieldTypes_ onUnbind(OnModelUnboundListener<ModelWithAllPrivateFieldTypes_, Object> listener) {
+  public ModelWithAllPrivateFieldTypes_ onUnbind(
+      OnModelUnboundListener<ModelWithAllPrivateFieldTypes_, Object> listener) {
     onMutation();
     this.onModelUnboundListener_epoxyGeneratedModel = listener;
+    return this;
+  }
+
+  @Override
+  public void onVisibilityStateChanged(int visibilityState, final Object object) {
+    if (onModelVisibilityStateChangedListener_epoxyGeneratedModel != null) {
+      onModelVisibilityStateChangedListener_epoxyGeneratedModel.onVisibilityStateChanged(this, object, visibilityState);
+    }
+    super.onVisibilityStateChanged(visibilityState, object);
+  }
+
+  /**
+   * Register a listener that will be called when this model visibility state has changed.
+   * <p>
+   * The listener will contribute to this model's hashCode state per the {@link
+   * com.airbnb.epoxy.EpoxyAttribute.Option#DoNotHash} rules.
+   * <p>
+   * You may clear the listener by setting a null value, or by calling {@link #reset()} */
+  public ModelWithAllPrivateFieldTypes_ onVisibilityStateChanged(
+      OnModelVisibilityStateChangedListener<ModelWithAllPrivateFieldTypes_, Object> listener) {
+    onMutation();
+    this.onModelVisibilityStateChangedListener_epoxyGeneratedModel = listener;
+    return this;
+  }
+
+  @Override
+  public void onVisibilityChanged(float percentVisibleHeight, float percentVisibleWidth,
+      int visibleHeight, int visibleWidth, final Object object) {
+    if (onModelVisibilityChangedListener_epoxyGeneratedModel != null) {
+      onModelVisibilityChangedListener_epoxyGeneratedModel.onVisibilityChanged(this, object, percentVisibleHeight, percentVisibleWidth, visibleHeight, visibleWidth);
+    }
+    super.onVisibilityChanged(percentVisibleHeight, percentVisibleWidth, visibleHeight, visibleWidth, object);
+  }
+
+  /**
+   * Register a listener that will be called when this model visibility has changed.
+   * <p>
+   * The listener will contribute to this model's hashCode state per the {@link
+   * com.airbnb.epoxy.EpoxyAttribute.Option#DoNotHash} rules.
+   * <p>
+   * You may clear the listener by setting a null value, or by calling {@link #reset()} */
+  public ModelWithAllPrivateFieldTypes_ onVisibilityChanged(
+      OnModelVisibilityChangedListener<ModelWithAllPrivateFieldTypes_, Object> listener) {
+    onMutation();
+    this.onModelVisibilityChangedListener_epoxyGeneratedModel = listener;
     return this;
   }
 
@@ -305,8 +356,8 @@ public class ModelWithAllPrivateFieldTypes_ extends ModelWithAllPrivateFieldType
   }
 
   @Override
-  public ModelWithAllPrivateFieldTypes_ id(Number... ids) {
-    super.id(ids);
+  public ModelWithAllPrivateFieldTypes_ id(@Nullable Number... arg0) {
+    super.id(arg0);
     return this;
   }
 
@@ -317,20 +368,21 @@ public class ModelWithAllPrivateFieldTypes_ extends ModelWithAllPrivateFieldType
   }
 
   @Override
-  public ModelWithAllPrivateFieldTypes_ id(CharSequence key) {
-    super.id(key);
+  public ModelWithAllPrivateFieldTypes_ id(@Nullable CharSequence arg0) {
+    super.id(arg0);
     return this;
   }
 
   @Override
-  public ModelWithAllPrivateFieldTypes_ id(CharSequence key, CharSequence... otherKeys) {
-    super.id(key, otherKeys);
+  public ModelWithAllPrivateFieldTypes_ id(@Nullable CharSequence arg0,
+      @Nullable CharSequence... arg1) {
+    super.id(arg0, arg1);
     return this;
   }
 
   @Override
-  public ModelWithAllPrivateFieldTypes_ id(CharSequence key, long id) {
-    super.id(key, id);
+  public ModelWithAllPrivateFieldTypes_ id(@Nullable CharSequence arg0, long arg1) {
+    super.id(arg0, arg1);
     return this;
   }
 
@@ -341,7 +393,8 @@ public class ModelWithAllPrivateFieldTypes_ extends ModelWithAllPrivateFieldType
   }
 
   @Override
-  public ModelWithAllPrivateFieldTypes_ spanSizeOverride(@Nullable EpoxyModel.SpanSizeOverrideCallback arg0) {
+  public ModelWithAllPrivateFieldTypes_ spanSizeOverride(
+      @Nullable EpoxyModel.SpanSizeOverrideCallback arg0) {
     super.spanSizeOverride(arg0);
     return this;
   }
@@ -368,6 +421,8 @@ public class ModelWithAllPrivateFieldTypes_ extends ModelWithAllPrivateFieldType
   public ModelWithAllPrivateFieldTypes_ reset() {
     onModelBoundListener_epoxyGeneratedModel = null;
     onModelUnboundListener_epoxyGeneratedModel = null;
+    onModelVisibilityStateChangedListener_epoxyGeneratedModel = null;
+    onModelVisibilityChangedListener_epoxyGeneratedModel = null;
     super.setValueInt(0);
     super.setValueInteger(null);
     super.setValueShort((short) 0);
@@ -405,58 +460,64 @@ public class ModelWithAllPrivateFieldTypes_ extends ModelWithAllPrivateFieldType
       return false;
     }
     ModelWithAllPrivateFieldTypes_ that = (ModelWithAllPrivateFieldTypes_) o;
-    if ((onModelBoundListener_epoxyGeneratedModel == null) != (that.onModelBoundListener_epoxyGeneratedModel == null)) {
+    if (((onModelBoundListener_epoxyGeneratedModel == null) != (that.onModelBoundListener_epoxyGeneratedModel == null))) {
       return false;
     }
-    if ((onModelUnboundListener_epoxyGeneratedModel == null) != (that.onModelUnboundListener_epoxyGeneratedModel == null)) {
+    if (((onModelUnboundListener_epoxyGeneratedModel == null) != (that.onModelUnboundListener_epoxyGeneratedModel == null))) {
       return false;
     }
-    if (getValueInt() != that.getValueInt()) {
+    if (((onModelVisibilityStateChangedListener_epoxyGeneratedModel == null) != (that.onModelVisibilityStateChangedListener_epoxyGeneratedModel == null))) {
       return false;
     }
-    if (getValueInteger() != null ? !getValueInteger().equals(that.getValueInteger()) : that.getValueInteger() != null) {
+    if (((onModelVisibilityChangedListener_epoxyGeneratedModel == null) != (that.onModelVisibilityChangedListener_epoxyGeneratedModel == null))) {
       return false;
     }
-    if (getValueShort() != that.getValueShort()) {
+    if ((getValueInt() != that.getValueInt())) {
       return false;
     }
-    if (getValueShortWrapper() != null ? !getValueShortWrapper().equals(that.getValueShortWrapper()) : that.getValueShortWrapper() != null) {
+    if ((getValueInteger() != null ? !getValueInteger().equals(that.getValueInteger()) : that.getValueInteger() != null)) {
       return false;
     }
-    if (getValueChar() != that.getValueChar()) {
+    if ((getValueShort() != that.getValueShort())) {
       return false;
     }
-    if (getValueCharacter() != null ? !getValueCharacter().equals(that.getValueCharacter()) : that.getValueCharacter() != null) {
+    if ((getValueShortWrapper() != null ? !getValueShortWrapper().equals(that.getValueShortWrapper()) : that.getValueShortWrapper() != null)) {
       return false;
     }
-    if (getValuebByte() != that.getValuebByte()) {
+    if ((getValueChar() != that.getValueChar())) {
       return false;
     }
-    if (getValueByteWrapper() != null ? !getValueByteWrapper().equals(that.getValueByteWrapper()) : that.getValueByteWrapper() != null) {
+    if ((getValueCharacter() != null ? !getValueCharacter().equals(that.getValueCharacter()) : that.getValueCharacter() != null)) {
       return false;
     }
-    if (getValueLong() != that.getValueLong()) {
+    if ((getValuebByte() != that.getValuebByte())) {
       return false;
     }
-    if (getValueLongWrapper() != null ? !getValueLongWrapper().equals(that.getValueLongWrapper()) : that.getValueLongWrapper() != null) {
+    if ((getValueByteWrapper() != null ? !getValueByteWrapper().equals(that.getValueByteWrapper()) : that.getValueByteWrapper() != null)) {
       return false;
     }
-    if (Double.compare(that.getValueDouble(), getValueDouble()) != 0) {
+    if ((getValueLong() != that.getValueLong())) {
       return false;
     }
-    if (getValueDoubleWrapper() != null ? !getValueDoubleWrapper().equals(that.getValueDoubleWrapper()) : that.getValueDoubleWrapper() != null) {
+    if ((getValueLongWrapper() != null ? !getValueLongWrapper().equals(that.getValueLongWrapper()) : that.getValueLongWrapper() != null)) {
       return false;
     }
-    if (Float.compare(that.getValueFloat(), getValueFloat()) != 0) {
+    if ((Double.compare(that.getValueDouble(), getValueDouble()) != 0)) {
       return false;
     }
-    if (getValueFloatWrapper() != null ? !getValueFloatWrapper().equals(that.getValueFloatWrapper()) : that.getValueFloatWrapper() != null) {
+    if ((getValueDoubleWrapper() != null ? !getValueDoubleWrapper().equals(that.getValueDoubleWrapper()) : that.getValueDoubleWrapper() != null)) {
       return false;
     }
-    if (isValueBoolean() != that.isValueBoolean()) {
+    if ((Float.compare(that.getValueFloat(), getValueFloat()) != 0)) {
       return false;
     }
-    if (getValueBooleanWrapper() != null ? !getValueBooleanWrapper().equals(that.getValueBooleanWrapper()) : that.getValueBooleanWrapper() != null) {
+    if ((getValueFloatWrapper() != null ? !getValueFloatWrapper().equals(that.getValueFloatWrapper()) : that.getValueFloatWrapper() != null)) {
+      return false;
+    }
+    if ((isValueBoolean() != that.isValueBoolean())) {
+      return false;
+    }
+    if ((getValueBooleanWrapper() != null ? !getValueBooleanWrapper().equals(that.getValueBooleanWrapper()) : that.getValueBooleanWrapper() != null)) {
       return false;
     }
     if (!Arrays.equals(getValueIntArray(), that.getValueIntArray())) {
@@ -465,13 +526,13 @@ public class ModelWithAllPrivateFieldTypes_ extends ModelWithAllPrivateFieldType
     if (!Arrays.equals(getValueObjectArray(), that.getValueObjectArray())) {
       return false;
     }
-    if (getValueString() != null ? !getValueString().equals(that.getValueString()) : that.getValueString() != null) {
+    if ((getValueString() != null ? !getValueString().equals(that.getValueString()) : that.getValueString() != null)) {
       return false;
     }
-    if (getValueObject() != null ? !getValueObject().equals(that.getValueObject()) : that.getValueObject() != null) {
+    if ((getValueObject() != null ? !getValueObject().equals(that.getValueObject()) : that.getValueObject() != null)) {
       return false;
     }
-    if (getValueList() != null ? !getValueList().equals(that.getValueList()) : that.getValueList() != null) {
+    if ((getValueList() != null ? !getValueList().equals(that.getValueList()) : that.getValueList() != null)) {
       return false;
     }
     return true;
@@ -482,6 +543,8 @@ public class ModelWithAllPrivateFieldTypes_ extends ModelWithAllPrivateFieldType
     int result = super.hashCode();
     result = 31 * result + (onModelBoundListener_epoxyGeneratedModel != null ? 1 : 0);
     result = 31 * result + (onModelUnboundListener_epoxyGeneratedModel != null ? 1 : 0);
+    result = 31 * result + (onModelVisibilityStateChangedListener_epoxyGeneratedModel != null ? 1 : 0);
+    result = 31 * result + (onModelVisibilityChangedListener_epoxyGeneratedModel != null ? 1 : 0);
     long temp;
     result = 31 * result + getValueInt();
     result = 31 * result + (getValueInteger() != null ? getValueInteger().hashCode() : 0);

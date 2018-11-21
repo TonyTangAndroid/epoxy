@@ -1,7 +1,7 @@
 package com.airbnb.epoxy;
 
-import android.support.annotation.LayoutRes;
-import android.support.annotation.Nullable;
+import androidx.annotation.LayoutRes;
+import androidx.annotation.Nullable;
 import com.airbnb.epoxy.othermodule.R;
 import java.lang.CharSequence;
 import java.lang.Number;
@@ -11,10 +11,14 @@ import java.lang.String;
 
 /**
  * Generated file. Do not modify! */
-public class ModelForTestingDuplicateRValues_ extends ModelForTestingDuplicateRValues implements GeneratedModel<Object> {
+public class ModelForTestingDuplicateRValues_ extends ModelForTestingDuplicateRValues implements GeneratedModel<Object>, ModelForTestingDuplicateRValuesBuilder {
   private OnModelBoundListener<ModelForTestingDuplicateRValues_, Object> onModelBoundListener_epoxyGeneratedModel;
 
   private OnModelUnboundListener<ModelForTestingDuplicateRValues_, Object> onModelUnboundListener_epoxyGeneratedModel;
+
+  private OnModelVisibilityStateChangedListener<ModelForTestingDuplicateRValues_, Object> onModelVisibilityStateChangedListener_epoxyGeneratedModel;
+
+  private OnModelVisibilityChangedListener<ModelForTestingDuplicateRValues_, Object> onModelVisibilityChangedListener_epoxyGeneratedModel;
 
   public ModelForTestingDuplicateRValues_() {
     super();
@@ -27,7 +31,7 @@ public class ModelForTestingDuplicateRValues_ extends ModelForTestingDuplicateRV
   }
 
   @Override
-  public void handlePreBind(final EpoxyViewHolder holder, final Object object, int position) {
+  public void handlePreBind(final EpoxyViewHolder holder, final Object object, final int position) {
     validateStateHasNotChangedSinceAdded("The model was changed between being added to the controller and being bound.", position);
   }
 
@@ -46,7 +50,8 @@ public class ModelForTestingDuplicateRValues_ extends ModelForTestingDuplicateRV
    * com.airbnb.epoxy.EpoxyAttribute.Option#DoNotHash} rules.
    * <p>
    * You may clear the listener by setting a null value, or by calling {@link #reset()} */
-  public ModelForTestingDuplicateRValues_ onBind(OnModelBoundListener<ModelForTestingDuplicateRValues_, Object> listener) {
+  public ModelForTestingDuplicateRValues_ onBind(
+      OnModelBoundListener<ModelForTestingDuplicateRValues_, Object> listener) {
     onMutation();
     this.onModelBoundListener_epoxyGeneratedModel = listener;
     return this;
@@ -67,9 +72,55 @@ public class ModelForTestingDuplicateRValues_ extends ModelForTestingDuplicateRV
    * com.airbnb.epoxy.EpoxyAttribute.Option#DoNotHash} rules.
    * <p>
    * You may clear the listener by setting a null value, or by calling {@link #reset()} */
-  public ModelForTestingDuplicateRValues_ onUnbind(OnModelUnboundListener<ModelForTestingDuplicateRValues_, Object> listener) {
+  public ModelForTestingDuplicateRValues_ onUnbind(
+      OnModelUnboundListener<ModelForTestingDuplicateRValues_, Object> listener) {
     onMutation();
     this.onModelUnboundListener_epoxyGeneratedModel = listener;
+    return this;
+  }
+
+  @Override
+  public void onVisibilityStateChanged(int visibilityState, final Object object) {
+    if (onModelVisibilityStateChangedListener_epoxyGeneratedModel != null) {
+      onModelVisibilityStateChangedListener_epoxyGeneratedModel.onVisibilityStateChanged(this, object, visibilityState);
+    }
+    super.onVisibilityStateChanged(visibilityState, object);
+  }
+
+  /**
+   * Register a listener that will be called when this model visibility state has changed.
+   * <p>
+   * The listener will contribute to this model's hashCode state per the {@link
+   * com.airbnb.epoxy.EpoxyAttribute.Option#DoNotHash} rules.
+   * <p>
+   * You may clear the listener by setting a null value, or by calling {@link #reset()} */
+  public ModelForTestingDuplicateRValues_ onVisibilityStateChanged(
+      OnModelVisibilityStateChangedListener<ModelForTestingDuplicateRValues_, Object> listener) {
+    onMutation();
+    this.onModelVisibilityStateChangedListener_epoxyGeneratedModel = listener;
+    return this;
+  }
+
+  @Override
+  public void onVisibilityChanged(float percentVisibleHeight, float percentVisibleWidth,
+      int visibleHeight, int visibleWidth, final Object object) {
+    if (onModelVisibilityChangedListener_epoxyGeneratedModel != null) {
+      onModelVisibilityChangedListener_epoxyGeneratedModel.onVisibilityChanged(this, object, percentVisibleHeight, percentVisibleWidth, visibleHeight, visibleWidth);
+    }
+    super.onVisibilityChanged(percentVisibleHeight, percentVisibleWidth, visibleHeight, visibleWidth, object);
+  }
+
+  /**
+   * Register a listener that will be called when this model visibility has changed.
+   * <p>
+   * The listener will contribute to this model's hashCode state per the {@link
+   * com.airbnb.epoxy.EpoxyAttribute.Option#DoNotHash} rules.
+   * <p>
+   * You may clear the listener by setting a null value, or by calling {@link #reset()} */
+  public ModelForTestingDuplicateRValues_ onVisibilityChanged(
+      OnModelVisibilityChangedListener<ModelForTestingDuplicateRValues_, Object> listener) {
+    onMutation();
+    this.onModelVisibilityChangedListener_epoxyGeneratedModel = listener;
     return this;
   }
 
@@ -90,8 +141,8 @@ public class ModelForTestingDuplicateRValues_ extends ModelForTestingDuplicateRV
   }
 
   @Override
-  public ModelForTestingDuplicateRValues_ id(Number... ids) {
-    super.id(ids);
+  public ModelForTestingDuplicateRValues_ id(@Nullable Number... arg0) {
+    super.id(arg0);
     return this;
   }
 
@@ -102,20 +153,21 @@ public class ModelForTestingDuplicateRValues_ extends ModelForTestingDuplicateRV
   }
 
   @Override
-  public ModelForTestingDuplicateRValues_ id(CharSequence key) {
-    super.id(key);
+  public ModelForTestingDuplicateRValues_ id(@Nullable CharSequence arg0) {
+    super.id(arg0);
     return this;
   }
 
   @Override
-  public ModelForTestingDuplicateRValues_ id(CharSequence key, CharSequence... otherKeys) {
-    super.id(key, otherKeys);
+  public ModelForTestingDuplicateRValues_ id(@Nullable CharSequence arg0,
+      @Nullable CharSequence... arg1) {
+    super.id(arg0, arg1);
     return this;
   }
 
   @Override
-  public ModelForTestingDuplicateRValues_ id(CharSequence key, long id) {
-    super.id(key, id);
+  public ModelForTestingDuplicateRValues_ id(@Nullable CharSequence arg0, long arg1) {
+    super.id(arg0, arg1);
     return this;
   }
 
@@ -126,7 +178,8 @@ public class ModelForTestingDuplicateRValues_ extends ModelForTestingDuplicateRV
   }
 
   @Override
-  public ModelForTestingDuplicateRValues_ spanSizeOverride(@Nullable EpoxyModel.SpanSizeOverrideCallback arg0) {
+  public ModelForTestingDuplicateRValues_ spanSizeOverride(
+      @Nullable EpoxyModel.SpanSizeOverrideCallback arg0) {
     super.spanSizeOverride(arg0);
     return this;
   }
@@ -159,6 +212,8 @@ public class ModelForTestingDuplicateRValues_ extends ModelForTestingDuplicateRV
   public ModelForTestingDuplicateRValues_ reset() {
     onModelBoundListener_epoxyGeneratedModel = null;
     onModelUnboundListener_epoxyGeneratedModel = null;
+    onModelVisibilityStateChangedListener_epoxyGeneratedModel = null;
+    onModelVisibilityChangedListener_epoxyGeneratedModel = null;
     super.value = 0;
     super.reset();
     return this;
@@ -176,13 +231,19 @@ public class ModelForTestingDuplicateRValues_ extends ModelForTestingDuplicateRV
       return false;
     }
     ModelForTestingDuplicateRValues_ that = (ModelForTestingDuplicateRValues_) o;
-    if ((onModelBoundListener_epoxyGeneratedModel == null) != (that.onModelBoundListener_epoxyGeneratedModel == null)) {
+    if (((onModelBoundListener_epoxyGeneratedModel == null) != (that.onModelBoundListener_epoxyGeneratedModel == null))) {
       return false;
     }
-    if ((onModelUnboundListener_epoxyGeneratedModel == null) != (that.onModelUnboundListener_epoxyGeneratedModel == null)) {
+    if (((onModelUnboundListener_epoxyGeneratedModel == null) != (that.onModelUnboundListener_epoxyGeneratedModel == null))) {
       return false;
     }
-    if (value != that.value) {
+    if (((onModelVisibilityStateChangedListener_epoxyGeneratedModel == null) != (that.onModelVisibilityStateChangedListener_epoxyGeneratedModel == null))) {
+      return false;
+    }
+    if (((onModelVisibilityChangedListener_epoxyGeneratedModel == null) != (that.onModelVisibilityChangedListener_epoxyGeneratedModel == null))) {
+      return false;
+    }
+    if ((value != that.value)) {
       return false;
     }
     return true;
@@ -193,6 +254,8 @@ public class ModelForTestingDuplicateRValues_ extends ModelForTestingDuplicateRV
     int result = super.hashCode();
     result = 31 * result + (onModelBoundListener_epoxyGeneratedModel != null ? 1 : 0);
     result = 31 * result + (onModelUnboundListener_epoxyGeneratedModel != null ? 1 : 0);
+    result = 31 * result + (onModelVisibilityStateChangedListener_epoxyGeneratedModel != null ? 1 : 0);
+    result = 31 * result + (onModelVisibilityChangedListener_epoxyGeneratedModel != null ? 1 : 0);
     result = 31 * result + value;
     return result;
   }
