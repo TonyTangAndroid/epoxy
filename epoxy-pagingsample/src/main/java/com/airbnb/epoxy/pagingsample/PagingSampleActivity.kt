@@ -19,6 +19,7 @@ import com.airbnb.epoxy.TextProp
 import com.airbnb.epoxy.paging.PagedListEpoxyController
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.observers.DisposableObserver
 import kotlinx.coroutines.experimental.CommonPool
 import kotlinx.coroutines.experimental.delay
@@ -27,6 +28,7 @@ import org.jetbrains.anko.coroutines.experimental.bg
 import java.util.concurrent.TimeUnit
 
 class PagingSampleActivity : AppCompatActivity() {
+    private val compositeDisposable = CompositeDisposable()
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -50,9 +52,13 @@ class PagingSampleActivity : AppCompatActivity() {
         }
 
         val viewModel = ViewModelProviders.of(this).get(ActivityViewModel::class.java)
-        val subscribe = viewModel.pagedList.subscribeWith(observer)
+        compositeDisposable.add(viewModel.pagedList.subscribeWith(observer))
     }
 
+    public override fun onDestroy() {
+        super.onDestroy()
+        compositeDisposable.dispose()
+    }
 }
 
 class TestController : PagedListEpoxyController<User>(
